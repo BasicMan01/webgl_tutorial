@@ -1,0 +1,5 @@
+html, body { height: 100%; margin: 0; overflow: hidden; padding: 0; width: 100%; }
+			
+.tags { color: white; font-family: 'Courier New'; font-size: 11px; position: absolute; }
+
+#webGLCanvas { height: 100%; }
