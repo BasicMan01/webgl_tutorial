@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<script type="text/javascript" src="../../lib/datgui/dat.gui.min.js"></script>
+		
+		<script type="text/javascript" src="../../lib/threejs_85/three.min.js"></script>
+		<script type="text/javascript" src="../../lib/threejs_85/controls/OrbitControls.js"></script>
+
+		<link rel="stylesheet" type="text/css" href="../../resources/css/global.css">
+	</head>
+
+	<body>
+		<div id="webGLCanvas" oncontextmenu="return false">
+			<div class="tags">
+				<ul>
+					<li>OrbitControls</li>
+					<li>AxisHelper</li>
+					<li>GridHelper</li>
+					<li>OctahedronGeometry</li>
+					<li>WireframeGeometry</li>
+				</ul>
+			</div>
+		</div>
+		
+		<script type="text/javascript">
+			var RDO = window.RDO || {};
+
+			RDO.Tutorial = {
+				'CAMERA_FOV': 70,
+				'CAMERA_NEAR_PLANE': 0.1,
+				'CAMERA_FAR_PLANE': 500
+			};
+			
+			RDO.Tutorial.Properties = {
+				'axisHelperVisible': true,
+				'gridHelperVisible': true,
+				'octahedronRadius': 3,
+				'octahedronDetail': 0,
+				'octahedronMaterialColor': '#156289',
+				'octahedronWireframeColor': '#FFFFFF',
+				'octahedronPositionX': 0,
+				'octahedronPositionY': 0,
+				'octahedronPositionZ': 0,
+				'octahedronRotationX': 0,
+				'octahedronRotationY': 0,
+				'octahedronRotationZ': 0,
+				'octahedronScaleX': 1,
+				'octahedronScaleY': 1,
+				'octahedronScaleZ': 1,
+				'octahedronWireframe': false
+			};
+			
+			RDO.Tutorial.Main = function(canvas)
+			{
+				var camera;
+				var controls;
+				var gui = new dat.GUI({ width: 400 });
+				var renderer;
+				var scene;
+				
+				var axisHelper;
+				var gridHelper;
+				
+				var octahedron;
+				
+				function constructor()
+				{
+					scene = new THREE.Scene();
+
+					camera = new THREE.PerspectiveCamera(RDO.Tutorial.CAMERA_FOV, getCameraAspect(), RDO.Tutorial.CAMERA_NEAR_PLANE, RDO.Tutorial.CAMERA_FAR_PLANE);
+					camera.position.set(0, 10, 20);
+					
+					renderer = new THREE.WebGLRenderer({antialias: true});
+					renderer.setClearColor(0x000000, 1);
+					renderer.setPixelRatio(window.devicePixelRatio);
+					renderer.setSize(getGameAreaWidth(), getGameAreaHeight());
+					
+					controls = new THREE.OrbitControls(camera, renderer.domElement);
+					
+					// add renderer to the DOM-Tree
+					canvas.appendChild(renderer.domElement);
+					
+					createGui();
+					createGeometry();
+		
+					render();
+					
+					window.addEventListener('resize', onResizeHandler, false);
+				}
+				
+				function createGeometry()
+				{
+					axisHelper = new THREE.AxisHelper(25);
+					scene.add(axisHelper);
+					
+					gridHelper = new THREE.GridHelper(50, 50);
+					scene.add(gridHelper);
+
+					octahedron = new THREE.Object3D();
+					scene.add(octahedron);
+					
+					octahedron.add(new THREE.Mesh(
+						new THREE.Geometry(),
+						new THREE.MeshBasicMaterial( { color: RDO.Tutorial.Properties.octahedronMaterialColor } )
+					));
+					
+					octahedron.add(new THREE.LineSegments(
+						new THREE.Geometry(),
+						new THREE.LineBasicMaterial( { color: RDO.Tutorial.Properties.octahedronWireframeColor } )
+					));
+					
+					createOctahedronGeometry();
+				}
+				
+				function createOctahedronGeometry()
+				{
+					var geometry = new THREE.OctahedronGeometry(
+						RDO.Tutorial.Properties.octahedronRadius,
+						RDO.Tutorial.Properties.octahedronDetail
+					);
+					
+					octahedron.children[0].geometry.dispose();
+					octahedron.children[0].geometry = geometry;
+					
+					octahedron.children[1].geometry.dispose();
+					octahedron.children[1].geometry = new THREE.WireframeGeometry(geometry);
+				}
+				
+				function createGui()
+				{
+					gui.add(RDO.Tutorial.Properties, 'axisHelperVisible').onChange(function(value) {
+						axisHelper.visible = value;
+					});
+					gui.add(RDO.Tutorial.Properties, 'gridHelperVisible').onChange(function(value) {
+						gridHelper.visible = value;
+					});
+					
+					var folderGeometry = gui.addFolder('Octahedron Geometry');
+					folderGeometry.add(RDO.Tutorial.Properties, 'octahedronWireframe').onChange(function(value) {
+						octahedron.children[0].visible = !value;
+						/*
+							octahedron.children[0].material.wireframe = value;
+							octahedron.children[1].visible = !value;
+						*/
+					});
+					folderGeometry.add(RDO.Tutorial.Properties, 'octahedronRadius', 1, 10).step(1).onChange(function(value) {
+						createOctahedronGeometry();
+					});
+					folderGeometry.add(RDO.Tutorial.Properties, 'octahedronDetail', 0, 5).step(1).onChange(function(value) {
+						createOctahedronGeometry();
+					});
+
+
+					var folderMaterial = gui.addFolder('Octahedron Material');
+					folderMaterial.addColor(RDO.Tutorial.Properties, 'octahedronMaterialColor').onChange(function(value) {
+						octahedron.children[0].material.color.setHex(cssColorToHex(value));
+					});
+					folderMaterial.addColor(RDO.Tutorial.Properties, 'octahedronWireframeColor').onChange(function(value) {
+						octahedron.children[1].material.color.setHex(cssColorToHex(value));
+					});
+				
+					var folderTransformation = gui.addFolder('Octahedron Transformation');
+					folderTransformation.add(RDO.Tutorial.Properties, 'octahedronPositionX', -10, 10).step(0.1).onChange(function(value) {
+						octahedron.position.x = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'octahedronPositionY', -10, 10).step(0.1).onChange(function(value) {
+						octahedron.position.y = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'octahedronPositionZ', -10, 10).step(0.1).onChange(function(value) {
+						octahedron.position.z = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'octahedronRotationX', 0, 2*Math.PI).step(0.01).onChange(function(value) {
+						octahedron.rotation.x = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'octahedronRotationY', 0, 2*Math.PI).step(0.01).onChange(function(value) {
+						octahedron.rotation.y = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'octahedronRotationZ', 0, 2*Math.PI).step(0.01).onChange(function(value) {
+						octahedron.rotation.z = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'octahedronScaleX', 0.1, 10).step(0.1).onChange(function(value) {
+						octahedron.scale.x = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'octahedronScaleY', 0.1, 10).step(0.1).onChange(function(value) {
+						octahedron.scale.y = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'octahedronScaleZ', 0.1, 10).step(0.1).onChange(function(value) {
+						octahedron.scale.z = value;
+					});
+				}
+				
+				function render()
+				{
+					requestAnimationFrame(render);
+					
+					renderer.render(scene, camera);
+				}
+				
+				function onResizeHandler(event)
+				{
+					camera.aspect = getCameraAspect();
+					camera.updateProjectionMatrix();
+
+					renderer.setSize(getGameAreaWidth(), getGameAreaHeight());
+				}
+
+				function getGameAreaHeight() { return canvas.offsetHeight; }
+				function getGameAreaWidth() { return canvas.offsetWidth; }
+				
+				function getCameraAspect() { return getGameAreaWidth() / getGameAreaHeight(); }
+				
+				function cssColorToHex(cssColor) { return cssColor.replace('#', '0x'); }
+				
+				constructor();
+			};
+			
+			document.addEventListener('DOMContentLoaded', function()
+			{
+				var tutorial = new RDO.Tutorial.Main(document.getElementById('webGLCanvas'));
+			});
+		</script>
+	</body>
+</html>
