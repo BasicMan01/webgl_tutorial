@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<script type="text/javascript" src="../../lib/datgui/dat.gui.min.js"></script>
+		
+		<script type="text/javascript" src="../../lib/threejs_85/three.min.js"></script>
+		<script type="text/javascript" src="../../lib/threejs_85/controls/OrbitControls.js"></script>
+
+		<link rel="stylesheet" type="text/css" href="../../resources/css/global.css">
+	</head>
+
+	<body>
+		<div id="webGLCanvas" oncontextmenu="return false">
+			<div class="tags">
+				<ul>
+					<li>OrbitControls</li>
+					<li>AxisHelper</li>
+					<li>GridHelper</li>
+					<li>CubicBezierCurve3</li>
+				</ul>
+			</div>
+		</div>
+		
+		<script type="text/javascript">
+			var RDO = window.RDO || {};
+
+			RDO.Tutorial = {
+				'CAMERA_FOV': 70,
+				'CAMERA_NEAR_PLANE': 0.1,
+				'CAMERA_FAR_PLANE': 500
+			};
+			
+			RDO.Tutorial.Properties = {
+				'axisHelperVisible': true,
+				'gridHelperVisible': true,
+				'cubicBezier3v1X': 0,
+				'cubicBezier3v1Y': 0,
+				'cubicBezier3v1Z': 0,
+				'cubicBezier3v2X': 3,
+				'cubicBezier3v2Y': 3,
+				'cubicBezier3v2Z': 3,
+				'cubicBezier3v3X': 6,
+				'cubicBezier3v3Y': 3,
+				'cubicBezier3v3Z': 6,
+				'cubicBezier3v4X': 9,
+				'cubicBezier3v4Y': 0,
+				'cubicBezier3v4Z': 9,
+				'cubicBezier3Points': 3,
+				'cubicBezier3Color': '#FFFFFF',
+				'cubicBezier3PositionX': 0,
+				'cubicBezier3PositionY': 0,
+				'cubicBezier3PositionZ': 0,
+				'cubicBezier3RotationX': 0,
+				'cubicBezier3RotationY': 0,
+				'cubicBezier3RotationZ': 0,
+				'cubicBezier3ScaleX': 1,
+				'cubicBezier3ScaleY': 1,
+				'cubicBezier3ScaleZ': 1
+			};
+			
+			RDO.Tutorial.Main = function(canvas)
+			{
+				var camera;
+				var controls;
+				var gui = new dat.GUI({ width: 400 });
+				var renderer;
+				var scene;
+				
+				var axisHelper;
+				var gridHelper;
+				
+				var cubicBezier3;
+				
+				function constructor()
+				{
+					scene = new THREE.Scene();
+
+					camera = new THREE.PerspectiveCamera(RDO.Tutorial.CAMERA_FOV, getCameraAspect(), RDO.Tutorial.CAMERA_NEAR_PLANE, RDO.Tutorial.CAMERA_FAR_PLANE);
+					camera.position.set(0, 10, 20);
+					
+					renderer = new THREE.WebGLRenderer({antialias: true});
+					renderer.setClearColor(0x000000, 1);
+					renderer.setPixelRatio(window.devicePixelRatio);
+					renderer.setSize(getGameAreaWidth(), getGameAreaHeight());
+					
+					controls = new THREE.OrbitControls(camera, renderer.domElement);
+					
+					// add renderer to the DOM-Tree
+					canvas.appendChild(renderer.domElement);
+					
+					createGui();
+					createGeometry();
+		
+					render();
+					
+					window.addEventListener('resize', onResizeHandler, false);
+				}
+				
+				function createGeometry()
+				{
+					axisHelper = new THREE.AxisHelper(25);
+					scene.add(axisHelper);
+					
+					gridHelper = new THREE.GridHelper(50, 50);
+					scene.add(gridHelper);
+
+					cubicBezier3 = new THREE.Line(
+						new THREE.Geometry(),
+						new THREE.LineBasicMaterial( { color: RDO.Tutorial.Properties.cubicBezier3Color } )
+					);
+					scene.add(cubicBezier3);
+										
+					createCubicBezierCurve3();
+				}
+				
+				function createCubicBezierCurve3()
+				{
+					var curve = new THREE.CubicBezierCurve3(
+						new THREE.Vector3(RDO.Tutorial.Properties.cubicBezier3v1X, RDO.Tutorial.Properties.cubicBezier3v1Y, RDO.Tutorial.Properties.cubicBezier3v1Z),
+						new THREE.Vector3(RDO.Tutorial.Properties.cubicBezier3v2X, RDO.Tutorial.Properties.cubicBezier3v2Y, RDO.Tutorial.Properties.cubicBezier3v2Z),
+						new THREE.Vector3(RDO.Tutorial.Properties.cubicBezier3v3X, RDO.Tutorial.Properties.cubicBezier3v3Y, RDO.Tutorial.Properties.cubicBezier3v3Z),
+						new THREE.Vector3(RDO.Tutorial.Properties.cubicBezier3v4X, RDO.Tutorial.Properties.cubicBezier3v4Y, RDO.Tutorial.Properties.cubicBezier3v4Z)
+					);
+
+					cubicBezier3.geometry.dispose();
+					cubicBezier3.geometry = new THREE.Geometry();
+					cubicBezier3.geometry.vertices = curve.getPoints(RDO.Tutorial.Properties.cubicBezier3Points);
+				}
+				
+				function createGui()
+				{
+					gui.add(RDO.Tutorial.Properties, 'axisHelperVisible').onChange(function(value) {
+						axisHelper.visible = value;
+					});
+					gui.add(RDO.Tutorial.Properties, 'gridHelperVisible').onChange(function(value) {
+						gridHelper.visible = value;
+					});
+					
+					var folderGeometry = gui.addFolder('Cubic Bezier Curve');
+					folderGeometry.add(RDO.Tutorial.Properties, 'cubicBezier3v1X', -10, 10).step(0.1).onChange(function(value) {
+						createCubicBezierCurve3();
+					});
+					folderGeometry.add(RDO.Tutorial.Properties, 'cubicBezier3v1Y', -10, 10).step(0.1).onChange(function(value) {
+						createCubicBezierCurve3();
+					});
+					folderGeometry.add(RDO.Tutorial.Properties, 'cubicBezier3v1Z', -10, 10).step(0.1).onChange(function(value) {
+						createCubicBezierCurve3();
+					});
+					folderGeometry.add(RDO.Tutorial.Properties, 'cubicBezier3v2X', -10, 10).step(0.1).onChange(function(value) {
+						createCubicBezierCurve3();
+					});
+					folderGeometry.add(RDO.Tutorial.Properties, 'cubicBezier3v2Y', -10, 10).step(0.1).onChange(function(value) {
+						createCubicBezierCurve3();
+					});
+					folderGeometry.add(RDO.Tutorial.Properties, 'cubicBezier3v2Z', -10, 10).step(0.1).onChange(function(value) {
+						createCubicBezierCurve3();
+					});
+					folderGeometry.add(RDO.Tutorial.Properties, 'cubicBezier3v3X', -10, 10).step(0.1).onChange(function(value) {
+						createCubicBezierCurve3();
+					});
+					folderGeometry.add(RDO.Tutorial.Properties, 'cubicBezier3v3Y', -10, 10).step(0.1).onChange(function(value) {
+						createCubicBezierCurve3();
+					});
+					folderGeometry.add(RDO.Tutorial.Properties, 'cubicBezier3v3Z', -10, 10).step(0.1).onChange(function(value) {
+						createCubicBezierCurve3();
+					});
+					folderGeometry.add(RDO.Tutorial.Properties, 'cubicBezier3v4X', -10, 10).step(0.1).onChange(function(value) {
+						createCubicBezierCurve3();
+					});
+					folderGeometry.add(RDO.Tutorial.Properties, 'cubicBezier3v4Y', -10, 10).step(0.1).onChange(function(value) {
+						createCubicBezierCurve3();
+					});
+					folderGeometry.add(RDO.Tutorial.Properties, 'cubicBezier3v4Z', -10, 10).step(0.1).onChange(function(value) {
+						createCubicBezierCurve3();
+					});
+					folderGeometry.add(RDO.Tutorial.Properties, 'cubicBezier3Points', 3, 50).step(1).onChange(function(value) {
+						createCubicBezierCurve3();
+					});
+
+					var folderMaterial = gui.addFolder('Cubic Bezier Material');
+					folderMaterial.addColor(RDO.Tutorial.Properties, 'cubicBezier3Color').onChange(function(value) {
+						cubicBezier3.material.color.setHex(cssColorToHex(value));
+					});
+				
+					var folderTransformation = gui.addFolder('Cubic Bezier Transformation');
+					folderTransformation.add(RDO.Tutorial.Properties, 'cubicBezier3PositionX', -10, 10).step(0.1).onChange(function(value) {
+						cubicBezier3.position.x = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'cubicBezier3PositionY', -10, 10).step(0.1).onChange(function(value) {
+						cubicBezier3.position.y = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'cubicBezier3PositionZ', -10, 10).step(0.1).onChange(function(value) {
+						cubicBezier3.position.z = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'cubicBezier3RotationX', 0, 2*Math.PI).step(0.01).onChange(function(value) {
+						cubicBezier3.rotation.x = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'cubicBezier3RotationY', 0, 2*Math.PI).step(0.01).onChange(function(value) {
+						cubicBezier3.rotation.y = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'cubicBezier3RotationZ', 0, 2*Math.PI).step(0.01).onChange(function(value) {
+						cubicBezier3.rotation.z = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'cubicBezier3ScaleX', 0.1, 10).step(0.1).onChange(function(value) {
+						cubicBezier3.scale.x = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'cubicBezier3ScaleY', 0.1, 10).step(0.1).onChange(function(value) {
+						cubicBezier3.scale.y = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'cubicBezier3ScaleZ', 0.1, 10).step(0.1).onChange(function(value) {
+						cubicBezier3.scale.z = value;
+					});
+				}
+				
+				function render()
+				{
+					requestAnimationFrame(render);
+					
+					renderer.render(scene, camera);
+				}
+				
+				function onResizeHandler(event)
+				{
+					camera.aspect = getCameraAspect();
+					camera.updateProjectionMatrix();
+
+					renderer.setSize(getGameAreaWidth(), getGameAreaHeight());
+				}
+
+				function getGameAreaHeight() { return canvas.offsetHeight; }
+				function getGameAreaWidth() { return canvas.offsetWidth; }
+				
+				function getCameraAspect() { return getGameAreaWidth() / getGameAreaHeight(); }
+				
+				function cssColorToHex(cssColor) { return cssColor.replace('#', '0x'); }
+				
+				constructor();
+			};
+			
+			document.addEventListener('DOMContentLoaded', function()
+			{
+				var tutorial = new RDO.Tutorial.Main(document.getElementById('webGLCanvas'));
+			});
+		</script>
+	</body>
+</html>
