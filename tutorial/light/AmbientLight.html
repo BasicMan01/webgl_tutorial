@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<script type="text/javascript" src="../../lib/datgui/dat.gui.min.js"></script>
+		
+		<script type="text/javascript" src="../../lib/threejs_85/three.min.js"></script>
+		<script type="text/javascript" src="../../lib/threejs_85/controls/OrbitControls.js"></script>
+
+		<link rel="stylesheet" type="text/css" href="../../resources/css/global.css">
+	</head>
+
+	<body>
+		<div id="webGLCanvas" oncontextmenu="return false">
+			<div class="tags">
+				<ul>
+					<li>OrbitControls</li>
+					<li>BoxGeometry</li>
+					<li>PlaneGeometry</li>
+					<li>AmbientLight</li>
+					<li>MeshPhongMaterial</li>
+				</ul>
+			</div>
+		</div>
+		
+		<script type="text/javascript">
+			var RDO = window.RDO || {};
+
+			RDO.Tutorial = {
+				'CAMERA_FOV': 70,
+				'CAMERA_NEAR_PLANE': 0.1,
+				'CAMERA_FAR_PLANE': 500
+			};
+
+			RDO.Tutorial.Properties = {
+				'ambientColor': '#DDEEFF',
+				'ambientIntensity': 0.2,
+				'cubeMaterialColor': '#FFFFFF',
+				'cubePositionX': 0,
+				'cubePositionY': 0,
+				'cubePositionZ': 0,
+				'cubeRotationX': 0,
+				'cubeRotationY': 0,
+				'cubeRotationZ': 0,
+				'cubeScaleX': 1,
+				'cubeScaleY': 1,
+				'cubeScaleZ': 1
+			};
+			
+			RDO.Tutorial.Main = function(canvas)
+			{
+				var camera;
+				var controls;
+				var gui = new dat.GUI({ width: 400 });
+				var renderer;
+				var scene;
+				
+				var ambientLight;
+				
+				var cube;
+				var plane;
+				
+				function constructor()
+				{
+					scene = new THREE.Scene();
+
+					camera = new THREE.PerspectiveCamera(RDO.Tutorial.CAMERA_FOV, getCameraAspect(), RDO.Tutorial.CAMERA_NEAR_PLANE, RDO.Tutorial.CAMERA_FAR_PLANE);
+					camera.position.set(0, 10, 20);
+					
+					renderer = new THREE.WebGLRenderer({antialias: true});
+					renderer.setClearColor(0x000000, 1);
+					renderer.setPixelRatio(window.devicePixelRatio);
+					renderer.setSize(getGameAreaWidth(), getGameAreaHeight());
+					
+					controls = new THREE.OrbitControls(camera, renderer.domElement);
+					
+					// add renderer to the DOM-Tree
+					canvas.appendChild(renderer.domElement);
+					
+					createGui();
+					createGeometry();
+					createLights();
+		
+					render();
+					
+					window.addEventListener('resize', onResizeHandler, false);
+				}
+				
+				function createGeometry()
+				{
+					plane = new THREE.Mesh(
+						new THREE.PlaneGeometry(50, 50, 50, 50),
+						new THREE.MeshPhongMaterial( { color: 0xAAAAAA, side: THREE.DoubleSide } )
+					);
+					plane.rotation.x = Math.PI / 2;
+					scene.add(plane);
+					
+					cube = new THREE.Mesh(
+						new THREE.BoxGeometry(1, 1, 1, 1, 1, 1),
+						new THREE.MeshPhongMaterial( { color: RDO.Tutorial.Properties.cubeMaterialColor } )
+					);
+					scene.add(cube);
+				}
+				
+				function createGui()
+				{
+					var folderProperties = gui.addFolder('Ambient Properties');
+					folderProperties.addColor(RDO.Tutorial.Properties, 'ambientColor').onChange(function(value) {
+						ambientLight.color.setHex(cssColorToHex(value));
+					});
+					folderProperties.add(RDO.Tutorial.Properties, 'ambientIntensity', 0, 1).step(0.01).onChange(function(value) {
+						ambientLight.intensity = value;
+					});
+					
+					var folderMaterial = gui.addFolder('Cube Material');
+					folderMaterial.addColor(RDO.Tutorial.Properties, 'cubeMaterialColor').onChange(function(value) {
+						cube.material.color.setHex(cssColorToHex(value));
+					});
+					
+					var folderTransformation = gui.addFolder('Cube Transformation');
+					folderTransformation.add(RDO.Tutorial.Properties, 'cubePositionX', -10, 10).step(0.1).onChange(function(value) {
+						cube.position.x = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'cubePositionY', -10, 10).step(0.1).onChange(function(value) {
+						cube.position.y = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'cubePositionZ', -10, 10).step(0.1).onChange(function(value) {
+						cube.position.z = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'cubeRotationX', 0, 2*Math.PI).step(0.01).onChange(function(value) {
+						cube.rotation.x = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'cubeRotationY', 0, 2*Math.PI).step(0.01).onChange(function(value) {
+						cube.rotation.y = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'cubeRotationZ', 0, 2*Math.PI).step(0.01).onChange(function(value) {
+						cube.rotation.z = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'cubeScaleX', 0.1, 10).step(0.1).onChange(function(value) {
+						cube.scale.x = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'cubeScaleY', 0.1, 10).step(0.1).onChange(function(value) {
+						cube.scale.y = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'cubeScaleZ', 0.1, 10).step(0.1).onChange(function(value) {
+						cube.scale.z = value;
+					});
+				}
+				
+				function createLights()
+				{
+					ambientLight = new THREE.AmbientLight(
+						RDO.Tutorial.Properties.ambientColor,
+						RDO.Tutorial.Properties.ambientIntensity
+					);
+					scene.add(ambientLight);
+				}
+				
+				function render()
+				{
+					requestAnimationFrame(render);
+					
+					renderer.render(scene, camera);
+				}
+				
+				function onResizeHandler(event)
+				{
+					camera.aspect = getCameraAspect();
+					camera.updateProjectionMatrix();
+
+					renderer.setSize(getGameAreaWidth(), getGameAreaHeight());
+				}
+
+				function getGameAreaHeight() { return canvas.offsetHeight; }
+				function getGameAreaWidth() { return canvas.offsetWidth; }
+				
+				function getCameraAspect() { return getGameAreaWidth() / getGameAreaHeight(); }
+				
+				function cssColorToHex(cssColor) { return cssColor.replace('#', '0x'); }
+				
+				constructor();
+			};
+			
+			document.addEventListener('DOMContentLoaded', function()
+			{
+				var tutorial = new RDO.Tutorial.Main(document.getElementById('webGLCanvas'));
+			});
+		</script>
+	</body>
+</html>
