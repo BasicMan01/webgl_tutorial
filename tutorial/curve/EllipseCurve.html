@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<script type="text/javascript" src="../../lib/datgui/dat.gui.min.js"></script>
+		
+		<script type="text/javascript" src="../../lib/threejs_85/three.min.js"></script>
+		<script type="text/javascript" src="../../lib/threejs_85/controls/OrbitControls.js"></script>
+
+		<link rel="stylesheet" type="text/css" href="../../resources/css/global.css">
+	</head>
+
+	<body>
+		<div id="webGLCanvas" oncontextmenu="return false">
+			<div class="tags">
+				<ul>
+					<li>OrbitControls</li>
+					<li>AxisHelper</li>
+					<li>GridHelper</li>
+					<li>EllipseCurve</li>
+				</ul>
+			</div>
+		</div>
+		
+		<script type="text/javascript">
+			var RDO = window.RDO || {};
+
+			RDO.Tutorial = {
+				'CAMERA_FOV': 70,
+				'CAMERA_NEAR_PLANE': 0.1,
+				'CAMERA_FAR_PLANE': 500
+			};
+			
+			RDO.Tutorial.Properties = {
+				'axisHelperVisible': true,
+				'gridHelperVisible': true,
+				'ellipseCurveCenterX': 0,
+				'ellipseCurveCenterY': 0,
+				'ellipseCurveRadiusX': 5,
+				'ellipseCurveRadiusY': 5,
+				'ellipseCurveStartAngle': 0,
+				'ellipseCurveEndAngle': 2 * Math.PI,
+				'ellipseCurveClockwise': false,
+				'ellipseCurveRotation': 0,
+				'ellipseCurvePoints': 25,
+				'ellipseCurveColor': '#FFFFFF',
+				'ellipseCurvePositionX': 0,
+				'ellipseCurvePositionY': 0,
+				'ellipseCurvePositionZ': 0,
+				'ellipseCurveRotationX': 0,
+				'ellipseCurveRotationY': 0,
+				'ellipseCurveRotationZ': 0,
+				'ellipseCurveScaleX': 1,
+				'ellipseCurveScaleY': 1
+			};
+			
+			RDO.Tutorial.Main = function(canvas)
+			{
+				var camera;
+				var controls;
+				var gui = new dat.GUI({ width: 400 });
+				var renderer;
+				var scene;
+				
+				var axisHelper;
+				var gridHelper;
+				
+				var ellipseCurve;
+				
+				function constructor()
+				{
+					scene = new THREE.Scene();
+
+					camera = new THREE.PerspectiveCamera(RDO.Tutorial.CAMERA_FOV, getCameraAspect(), RDO.Tutorial.CAMERA_NEAR_PLANE, RDO.Tutorial.CAMERA_FAR_PLANE);
+					camera.position.set(0, 10, 20);
+					
+					renderer = new THREE.WebGLRenderer({antialias: true});
+					renderer.setClearColor(0x000000, 1);
+					renderer.setPixelRatio(window.devicePixelRatio);
+					renderer.setSize(getGameAreaWidth(), getGameAreaHeight());
+					
+					controls = new THREE.OrbitControls(camera, renderer.domElement);
+					
+					// add renderer to the DOM-Tree
+					canvas.appendChild(renderer.domElement);
+					
+					createGui();
+					createGeometry();
+		
+					render();
+					
+					window.addEventListener('resize', onResizeHandler, false);
+				}
+				
+				function createGeometry()
+				{
+					axisHelper = new THREE.AxisHelper(25);
+					scene.add(axisHelper);
+					
+					gridHelper = new THREE.GridHelper(50, 50);
+					scene.add(gridHelper);
+
+					ellipseCurve = new THREE.Line(
+						new THREE.Geometry(),
+						new THREE.LineBasicMaterial( { color: RDO.Tutorial.Properties.ellipseCurveColor } )
+					);
+					scene.add(ellipseCurve);
+										
+					createEllipseCurve();
+				}
+				
+				function createEllipseCurve()
+				{
+					var curve = new THREE.EllipseCurve(
+						RDO.Tutorial.Properties.ellipseCurveCenterX,
+						RDO.Tutorial.Properties.ellipseCurveCenterY,
+						RDO.Tutorial.Properties.ellipseCurveRadiusX,
+						RDO.Tutorial.Properties.ellipseCurveRadiusY,
+						RDO.Tutorial.Properties.ellipseCurveStartAngle,
+						RDO.Tutorial.Properties.ellipseCurveEndAngle,
+						RDO.Tutorial.Properties.ellipseCurveClockwise,
+						RDO.Tutorial.Properties.ellipseCurveRotation
+					);
+					
+					var path = new THREE.Path(curve.getPoints(RDO.Tutorial.Properties.ellipseCurvePoints));
+
+					ellipseCurve.geometry.dispose();
+					ellipseCurve.geometry = path.createPointsGeometry(RDO.Tutorial.Properties.ellipseCurvePoints);
+				}
+
+				function createGui()
+				{
+					gui.add(RDO.Tutorial.Properties, 'axisHelperVisible').onChange(function(value) {
+						axisHelper.visible = value;
+					});
+					gui.add(RDO.Tutorial.Properties, 'gridHelperVisible').onChange(function(value) {
+						gridHelper.visible = value;
+					});
+
+					var folderGeometry = gui.addFolder('Ellipse Curve');
+					folderGeometry.add(RDO.Tutorial.Properties, 'ellipseCurveCenterX', -10, 10).step(0.1).onChange(function(value) {
+						createEllipseCurve();
+					});
+					folderGeometry.add(RDO.Tutorial.Properties, 'ellipseCurveCenterY', -10, 10).step(0.1).onChange(function(value) {
+						createEllipseCurve();
+					});
+					folderGeometry.add(RDO.Tutorial.Properties, 'ellipseCurveRadiusX', 0.1, 10).step(0.1).onChange(function(value) {
+						createEllipseCurve();
+					});
+					folderGeometry.add(RDO.Tutorial.Properties, 'ellipseCurveRadiusY', 0.1, 10).step(0.1).onChange(function(value) {
+						createEllipseCurve();
+					});
+					folderGeometry.add(RDO.Tutorial.Properties, 'ellipseCurveStartAngle', 0, 2*Math.PI).step(0.01).onChange(function(value) {
+						createEllipseCurve();
+					});
+					folderGeometry.add(RDO.Tutorial.Properties, 'ellipseCurveEndAngle', 0, 2*Math.PI).step(0.01).onChange(function(value) {
+						createEllipseCurve();
+					});
+					folderGeometry.add(RDO.Tutorial.Properties, 'ellipseCurveClockwise').onChange(function(value) {
+						createEllipseCurve();
+					});
+					folderGeometry.add(RDO.Tutorial.Properties, 'ellipseCurveRotation', 0, 2*Math.PI).step(0.01).onChange(function(value) {
+						createEllipseCurve();
+					});
+					folderGeometry.add(RDO.Tutorial.Properties, 'ellipseCurvePoints', 3, 50).step(1).onChange(function(value) {
+						createEllipseCurve();
+					});
+
+					var folderMaterial = gui.addFolder('Ellipse Curve Material');
+					folderMaterial.addColor(RDO.Tutorial.Properties, 'ellipseCurveColor').onChange(function(value) {
+						ellipseCurve.material.color.setHex(cssColorToHex(value));
+					});
+				
+					var folderTransformation = gui.addFolder('Ellipse Curve Transformation');
+					folderTransformation.add(RDO.Tutorial.Properties, 'ellipseCurvePositionX', -10, 10).step(0.1).onChange(function(value) {
+						ellipseCurve.position.x = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'ellipseCurvePositionY', -10, 10).step(0.1).onChange(function(value) {
+						ellipseCurve.position.y = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'ellipseCurvePositionZ', -10, 10).step(0.1).onChange(function(value) {
+						ellipseCurve.position.z = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'ellipseCurveRotationX', 0, 2*Math.PI).step(0.01).onChange(function(value) {
+						ellipseCurve.rotation.x = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'ellipseCurveRotationY', 0, 2*Math.PI).step(0.01).onChange(function(value) {
+						ellipseCurve.rotation.y = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'ellipseCurveRotationZ', 0, 2*Math.PI).step(0.01).onChange(function(value) {
+						ellipseCurve.rotation.z = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'ellipseCurveScaleX', 0.1, 10).step(0.1).onChange(function(value) {
+						ellipseCurve.scale.x = value;
+					});
+					folderTransformation.add(RDO.Tutorial.Properties, 'ellipseCurveScaleY', 0.1, 10).step(0.1).onChange(function(value) {
+						ellipseCurve.scale.y = value;
+					});
+				}
+				
+				function render()
+				{
+					requestAnimationFrame(render);
+					
+					renderer.render(scene, camera);
+				}
+				
+				function onResizeHandler(event)
+				{
+					camera.aspect = getCameraAspect();
+					camera.updateProjectionMatrix();
+
+					renderer.setSize(getGameAreaWidth(), getGameAreaHeight());
+				}
+
+				function getGameAreaHeight() { return canvas.offsetHeight; }
+				function getGameAreaWidth() { return canvas.offsetWidth; }
+				
+				function getCameraAspect() { return getGameAreaWidth() / getGameAreaHeight(); }
+				
+				function cssColorToHex(cssColor) { return cssColor.replace('#', '0x'); }
+				
+				constructor();
+			};
+			
+			document.addEventListener('DOMContentLoaded', function()
+			{
+				var tutorial = new RDO.Tutorial.Main(document.getElementById('webGLCanvas'));
+			});
+		</script>
+	</body>
+</html>
