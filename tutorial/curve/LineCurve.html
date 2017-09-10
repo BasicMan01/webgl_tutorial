@@ -113,9 +113,10 @@
 						new THREE.Vector3(RDO.Tutorial.Properties.linev2X, RDO.Tutorial.Properties.linev2Y)
 					);
 
+					var path = new THREE.Path(curve.getPoints(1));
+					
 					line.geometry.dispose();
-					line.geometry = new THREE.Geometry();
-					line.geometry.vertices = curve.getPoints(RDO.Tutorial.Properties.linePoints);
+					line.geometry = path.createPointsGeometry(1);
 				}
 				
 				function createGui()

@@ -21,6 +21,10 @@
 					<li>GridHelper</li>
 					<li>EllipseCurve</li>
 				</ul>
+				
+				<ul>
+					<li><a href="http://walter.bislins.ch/blog/index.asp?page=Schnittpunkte+zweier+Kreise+berechnen+%28JavaScript%29" target="_blank">Reference</a></li>
+				</ul>
 			</div>
 			
 			<div id="output" class="output"></div>
@@ -53,7 +57,7 @@
 				
 				this.toString = function()
 				{
-					return 'x: ' + this.x + ', y: ' + this.y + ', z: ' + this.z;
+					return 'x: ' + self.x + ', y: ' + self.y + ', z: ' + self.z;
 				};
 			};
 
@@ -188,7 +192,7 @@
 
 					
 					resetOutput();
-					addOutput('<b>Circle 1</b>');
+					addOutput('<b>Circle 1 - Circle 2</b>');
 
 					intersectionPoints[0] = calculateCircleIntersection(
 						new RDO.Vector3(RDO.Tutorial.Properties.circle1CenterX, RDO.Tutorial.Properties.circle1CenterY, 0),
@@ -199,7 +203,7 @@
 					);
 					
 					addOutput('<hr>');
-					addOutput('<b>Circle 2</b>');
+					addOutput('<b>Circle 2 - Circle 3</b>');
 					
 					intersectionPoints[1] = calculateCircleIntersection(
 						new RDO.Vector3(RDO.Tutorial.Properties.circle2CenterX, RDO.Tutorial.Properties.circle2CenterY, 0),
@@ -210,7 +214,7 @@
 					);
 					
 					addOutput('<hr>');
-					addOutput('<b>Circle 3</b>');
+					addOutput('<b>Circle 3 - Circle 1</b>');
 					
 					intersectionPoints[2] = calculateCircleIntersection(
 						new RDO.Vector3(RDO.Tutorial.Properties.circle3CenterX, RDO.Tutorial.Properties.circle3CenterY, 0),

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<script type="text/javascript" src="../../../lib/datgui/dat.gui.min.js"></script>
+		
+		<script type="text/javascript" src="../../../lib/threejs_85/three.min.js"></script>
+		<script type="text/javascript" src="../../../lib/threejs_85/controls/OrbitControls.js"></script>
+
+		<link rel="stylesheet" type="text/css" href="../../../resources/css/global.css">
+	</head>
+
+	<body>
+		<div id="webGLCanvas" oncontextmenu="return false">
+			<div class="tags">
+				<ul>
+					<li>OrbitControls</li>
+					<li>AxisHelper</li>
+					<li>GridHelper</li>
+					<li>LineCurve</li>
+				</ul>
+				
+				<ul>
+					<li><a href="http://walter.bislins.ch/blog/index.asp?page=Schnittpunkt+zweier+Geraden+berechnen+%28JavaScript%29" target="_blank">Reference</a></li>
+				</ul>
+			</div>
+			
+			<div id="output" class="output"></div>
+		</div>
+		
+		<script type="text/javascript">
+			var RDO = window.RDO || {};
+			
+			RDO.Vector3 = function(x, y, z)
+			{
+				var self = this;
+				
+				if(x === undefined) x = 0;
+				if(y === undefined) y = 0;
+				if(z === undefined) z = 0;
+
+				this.x = x;
+				this.y = y;
+				this.z = z;
+				
+				this.add = function(vector)
+				{
+					return new RDO.Vector3(self.x + vector.x, self.y + vector.y, self.z + vector.z);
+				};
+				
+				this.length = function()
+				{
+					return Math.sqrt(Math.pow(self.x, 2) + Math.pow(self.y, 2) + Math.pow(self.z, 2));
+				};
+				
+				this.normalize = function()
+				{
+					var l = self.length();
+					
+					return new RDO.Vector3(self.x / l, self.y / l, self.z / l);
+				};
+				
+				this.sub = function(vector)
+				{
+					return new RDO.Vector3(self.x - vector.x, self.y - vector.y, self.z - vector.z);
+				};
+				
+				this.toString = function()
+				{
+					return 'x: ' + self.x + ', y: ' + self.y + ', z: ' + self.z;
+				};
+			};
+
+			RDO.Tutorial = {
+				'CAMERA_FOV': 70,
+				'CAMERA_NEAR_PLANE': 0.1,
+				'CAMERA_FAR_PLANE': 500
+			};
+			
+			RDO.Tutorial.Properties = {
+				'axisHelperVisible': true,
+				'gridHelperVisible': false,
+				'line1v1X': 0.5,
+				'line1v1Y': 2,
+				'line1v2X': 10,
+				'line1v2Y': 5,
+				'line1Color': '#FFFFFF',
+				'line2v1X': 3,
+				'line2v1Y': 6,
+				'line2v2X': 10,
+				'line2v2Y': 4,
+				'line2Color': '#FFFFFF'
+			};
+			
+			RDO.Tutorial.Main = function(canvas)
+			{
+				var camera;
+				var controls;
+				var gui = new dat.GUI({ width: 400 });
+				var renderer;
+				var scene;
+				
+				var axisHelper;
+				var gridHelper;
+				
+				var line1;
+				var line2;
+				var rLine;
+				var rtLine;
+				var sLine;
+				var stLine;
+				var qLine;
+				
+				function constructor()
+				{
+					scene = new THREE.Scene();
+
+					camera = new THREE.PerspectiveCamera(RDO.Tutorial.CAMERA_FOV, getCameraAspect(), RDO.Tutorial.CAMERA_NEAR_PLANE, RDO.Tutorial.CAMERA_FAR_PLANE);
+					camera.position.set(0, 0, 20);
+					
+					renderer = new THREE.WebGLRenderer({antialias: true});
+					renderer.setClearColor(0x000000, 1);
+					renderer.setPixelRatio(window.devicePixelRatio);
+					renderer.setSize(getGameAreaWidth(), getGameAreaHeight());
+					
+					controls = new THREE.OrbitControls(camera, renderer.domElement);
+					
+					// add renderer to the DOM-Tree
+					canvas.appendChild(renderer.domElement);
+					
+					createGui();
+					createObject();
+		
+					render();
+					
+					window.addEventListener('resize', onResizeHandler, false);
+				}
+				
+				function createObject()
+				{
+					axisHelper = new THREE.AxisHelper(25);
+					scene.add(axisHelper);
+					
+					gridHelper = new THREE.GridHelper(50, 50);
+					gridHelper.visible = RDO.Tutorial.Properties.gridHelperVisible;
+					scene.add(gridHelper);
+
+					line1 = new THREE.Line(
+						new THREE.Geometry(),
+						new THREE.LineBasicMaterial( { color: RDO.Tutorial.Properties.line1Color } )
+					);
+					scene.add(line1);
+					
+					line2 = new THREE.Line(
+						new THREE.Geometry(),
+						new THREE.LineBasicMaterial( { color: RDO.Tutorial.Properties.line2Color } )
+					);
+					scene.add(line2);
+				
+					qLine = new THREE.Line(
+						new THREE.Geometry(),
+						new THREE.LineBasicMaterial( { color: 0xFFFF00 } )
+					);
+					scene.add(qLine);
+					
+					rLine = new THREE.Line(
+						new THREE.Geometry(),
+						new THREE.LineBasicMaterial( { color: 0xFF0000 } )
+					);
+					scene.add(rLine);
+					
+					rtLine = new THREE.Line(
+						new THREE.Geometry(),
+						new THREE.LineBasicMaterial( { color: 0xFF0000 } )
+					);
+					scene.add(rtLine);
+					
+					sLine = new THREE.Line(
+						new THREE.Geometry(),
+						new THREE.LineBasicMaterial( { color: 0xFF0000 } )
+					);
+					scene.add(sLine);
+					
+					stLine = new THREE.Line(
+						new THREE.Geometry(),
+						new THREE.LineBasicMaterial( { color: 0xFF0000 } )
+					);
+					scene.add(stLine);
+									
+					createGeometry();
+				}
+				
+				function createGeometry()
+				{
+					var curve1 = new THREE.LineCurve(
+						new THREE.Vector3(RDO.Tutorial.Properties.line1v1X, RDO.Tutorial.Properties.line1v1Y),
+						new THREE.Vector3(RDO.Tutorial.Properties.line1v2X, RDO.Tutorial.Properties.line1v2Y)
+					);
+
+					var path1 = new THREE.Path(curve1.getPoints(1));
+					
+					line1.geometry.dispose();
+					line1.geometry = path1.createPointsGeometry(1);
+					
+					
+					var curve2 = new THREE.LineCurve(
+						new THREE.Vector3(RDO.Tutorial.Properties.line2v1X, RDO.Tutorial.Properties.line2v1Y),
+						new THREE.Vector3(RDO.Tutorial.Properties.line2v2X, RDO.Tutorial.Properties.line2v2Y)
+					);
+
+					var path2 = new THREE.Path(curve2.getPoints(1));
+					
+					line2.geometry.dispose();
+					line2.geometry = path2.createPointsGeometry(1);
+					
+					
+					resetOutput();
+					addOutput('<b>Line 1 - Line 2</b>');
+					
+					var intersectionPoints = calculateLineIntersection(
+						new RDO.Vector3(RDO.Tutorial.Properties.line1v1X, RDO.Tutorial.Properties.line1v1Y, 0),
+						new RDO.Vector3(RDO.Tutorial.Properties.line1v2X, RDO.Tutorial.Properties.line1v2Y, 0),
+						new RDO.Vector3(RDO.Tutorial.Properties.line2v1X, RDO.Tutorial.Properties.line2v1Y, 0),
+						new RDO.Vector3(RDO.Tutorial.Properties.line2v2X, RDO.Tutorial.Properties.line2v2Y, 0)
+					);
+					addOutput('<hr>');
+				}
+				
+				function createGui()
+				{
+					gui.add(RDO.Tutorial.Properties, 'axisHelperVisible').onChange(function(value) {
+						axisHelper.visible = value;
+					});
+					gui.add(RDO.Tutorial.Properties, 'gridHelperVisible').onChange(function(value) {
+						gridHelper.visible = value;
+					});
+					
+					var folderLine1 = gui.addFolder('Line 1');
+					folderLine1.add(RDO.Tutorial.Properties, 'line1v1X', -10, 10).step(0.1).onChange(function(value) {
+						createGeometry();
+					});
+					folderLine1.add(RDO.Tutorial.Properties, 'line1v1Y', -10, 10).step(0.1).onChange(function(value) {
+						createGeometry();
+					});
+					folderLine1.add(RDO.Tutorial.Properties, 'line1v2X', -10, 10).step(0.1).onChange(function(value) {
+						createGeometry();
+					});
+					folderLine1.add(RDO.Tutorial.Properties, 'line1v2Y', -10, 10).step(0.1).onChange(function(value) {
+						createGeometry();
+					});
+					folderLine1.addColor(RDO.Tutorial.Properties, 'line1Color').onChange(function(value) {
+						line1.material.color.setHex(cssColorToHex(value));
+					});
+					
+					var folderLine2 = gui.addFolder('Line 2');
+					folderLine2.add(RDO.Tutorial.Properties, 'line2v1X', -10, 10).step(0.1).onChange(function(value) {
+						createGeometry();
+					});
+					folderLine2.add(RDO.Tutorial.Properties, 'line2v1Y', -10, 10).step(0.1).onChange(function(value) {
+						createGeometry();
+					});
+					folderLine2.add(RDO.Tutorial.Properties, 'line2v2X', -10, 10).step(0.1).onChange(function(value) {
+						createGeometry();
+					});
+					folderLine2.add(RDO.Tutorial.Properties, 'line2v2Y', -10, 10).step(0.1).onChange(function(value) {
+						createGeometry();
+					});
+					folderLine2.addColor(RDO.Tutorial.Properties, 'line2Color').onChange(function(value) {
+						line2.material.color.setHex(cssColorToHex(value));
+					});
+				}
+				
+				function render()
+				{
+					requestAnimationFrame(render);
+					
+					renderer.render(scene, camera);
+				}
+				
+				function onResizeHandler(event)
+				{
+					camera.aspect = getCameraAspect();
+					camera.updateProjectionMatrix();
+
+					renderer.setSize(getGameAreaWidth(), getGameAreaHeight());
+				}
+
+				function getGameAreaHeight() { return canvas.offsetHeight; }
+				function getGameAreaWidth() { return canvas.offsetWidth; }
+				
+				function getCameraAspect() { return getGameAreaWidth() / getGameAreaHeight(); }
+				
+				function cssColorToHex(cssColor) { return cssColor.replace('#', '0x'); }
+				
+				function addOutput(htmlLine)
+				{
+					var output = document.getElementById('output');
+					
+					output.innerHTML += '<div>' + htmlLine + '</div>';
+				}
+				
+				function resetOutput()
+				{
+					document.getElementById('output').innerHTML = '';
+				}
+				
+				function roundDecimal(value, decimalPlace)
+				{
+					var factor = Math.pow(10, decimalPlace);
+					
+					return Math.round(value * factor) / factor;
+				}
+				
+				function calculateLineIntersection(line1p1, line1p2, line2p1, line2p2)
+				{
+					var pq = line2p1.sub(line1p1);
+				
+					addOutput('P   : ' + line1p1.toString());
+					addOutput('Q   : ' + line2p1.toString());
+					addOutput('PQ  : ' + pq.toString());
+					
+					var r = line1p2.sub(line1p1).normalize();
+					var s = line2p2.sub(line2p1).normalize();
+					
+					addOutput('r   : ' + r.toString());
+					addOutput('s   : ' + s.toString());
+					
+					var rx = r.x;
+					var ry = r.y;
+					var rxt = -ry;
+					var ryt = rx;
+
+					
+					var curve1 = new THREE.LineCurve(
+						new THREE.Vector3(line1p1.x, line1p1.y),
+						new THREE.Vector3(line1p1.x + rx, line1p1.y + ry)
+					);
+					rLine.geometry.dispose();
+					rLine.geometry = new THREE.Path(curve1.getPoints(1)).createPointsGeometry(1);
+					
+					var curve2 = new THREE.LineCurve(
+						new THREE.Vector3(line1p1.x, line1p1.y),
+						new THREE.Vector3(line1p1.x + rxt, line1p1.y + ryt)
+					);
+					rtLine.geometry.dispose();
+					rtLine.geometry = new THREE.Path(curve2.getPoints(1)).createPointsGeometry(1);
+					
+					addOutput('rx  : ' + rx);
+					addOutput('ry  : ' + ry);
+					addOutput('rxt : ' + rxt);
+					addOutput('ryt : ' + ryt);
+
+					
+					var qx = pq.x * rx + pq.y * ry;
+					var qy = pq.x * rxt + pq.y * ryt;
+					
+					qLine.geometry.dispose();
+					qLine.geometry = new THREE.Geometry();
+					qLine.geometry.vertices.push(new THREE.Vector3(line1p1.x, line1p1.y, 0));
+					qLine.geometry.vertices.push(new THREE.Vector3(line1p1.x + qx * rx, line1p1.y + qx * ry, 0));
+					qLine.geometry.vertices.push(new THREE.Vector3(line1p1.x + qx * rx + qy * rxt, line1p1.y + qx * ry + qy * ryt, 0));
+					qLine.geometry.vertices.push(new THREE.Vector3(line1p1.x + qy * rxt, line1p1.y + qy * ryt, 0));
+					qLine.geometry.vertices.push(new THREE.Vector3(line1p1.x, line1p1.y, 0));
+					
+					addOutput('qx  : ' + qx);
+					addOutput('qy  : ' + qy);
+
+					
+					var sx = s.x * rx + s.y * ry;
+					var sy = s.x * rxt + s.y * ryt;
+					var sxt = -sy;
+					var syt = sx;
+					
+					var curve3 = new THREE.LineCurve(
+						new THREE.Vector3(line2p1.x, line2p1.y),
+						new THREE.Vector3(line2p1.x + sx, line2p1.y + sy)
+					);
+					sLine.geometry.dispose();
+					sLine.geometry = new THREE.Path(curve3.getPoints(1)).createPointsGeometry(1);
+					
+					var curve4 = new THREE.LineCurve(
+						new THREE.Vector3(line2p1.x, line2p1.y),
+						new THREE.Vector3(line2p1.x + sxt, line2p1.y + syt)
+					);
+					stLine.geometry.dispose();
+					stLine.geometry = new THREE.Path(curve4.getPoints(1)).createPointsGeometry(1);
+					
+					addOutput('sx  : ' + sx);
+					addOutput('sy  : ' + sy);
+					
+					if(sy == 0)
+					{
+						return [];
+					}
+						
+					var a = qx - qy * sx / sy;
+					
+					addOutput('a   : ' + a);
+					
+					var resultX = roundDecimal(line1p1.x + a * rx, 2);
+					var resultY = roundDecimal(line1p1.y + a * ry, 2);
+
+					addOutput('resultX: ' + resultX);
+					addOutput('resultY: ' + resultY);
+
+					return [resultX, resultY];
+				}
+				
+				constructor();
+			};
+			
+			document.addEventListener('DOMContentLoaded', function()
+			{
+				var tutorial = new RDO.Tutorial.Main(document.getElementById('webGLCanvas'));
+			});
+		</script>
+	</body>
+</html>

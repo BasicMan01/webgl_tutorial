@@ -3,5 +3,6 @@ body { font-family: Arial; font-size: 13px; line-height:1.5; }
 
 .output { color: white; font-family: 'Courier New'; font-size: 11px; left: 25px; position: absolute; top: 200px; }			
 .tags { color: white; font-family: 'Courier New'; font-size: 11px; position: absolute; }
+.tags a { color: #AAAAFF; }
 
 #webGLCanvas { height: 100%; }
