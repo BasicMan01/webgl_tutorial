@@ -66,6 +66,7 @@
 				'planeMaterialFontOpacity': 1,
 				'planeMaterialFontSize': 11,
 				'planeMaterialFontFamily': 'Courier New',
+				'planeMaterialTextValue': 'Firstname: Max\\nSurname  : Mustermann',
 				'planePositionX': 0,
 				'planePositionY': 0,
 				'planePositionZ': 0,
@@ -171,9 +172,12 @@
 					var topPosition = 0;
 					var lineHeight = RDO.Tutorial.Properties.planeMaterialFontSize + 5;
 
-					context.fillText('Firstname: Max', 10, topPosition += lineHeight);
-					context.fillText('Surname  : Mustermann', 10, topPosition += lineHeight);
-					
+					var textCollection = RDO.Tutorial.Properties.planeMaterialTextValue.split('\\n');
+
+					for(var i = 0; i < textCollection.length; ++i)
+					{
+						context.fillText(textCollection[i], 10, topPosition += lineHeight);
+					}
 					
 					var texture = new THREE.Texture(canvas);
 					
@@ -225,6 +229,9 @@
 						createMaterial();
 					});
 					folderMaterial.add(RDO.Tutorial.Properties, 'planeMaterialFontFamily', Object.keys(RDO.Tutorial.Fonts)).onChange(function() {
+						createMaterial();
+					});
+					folderMaterial.add(RDO.Tutorial.Properties, 'planeMaterialTextValue').onChange(function(value) {
 						createMaterial();
 					});
 
