@@ -20,9 +20,12 @@
 					<li>AxisHelper</li>
 					<li>GridHelper</li>
 					<li>PlaneGeometry</li>
-					<li>VideoTexture</li>
+					<li>WebCamTexture</li>
 				</ul>
 			</div>
+			
+			<div id="message" class="message"></div>
+			<div id="output" class="output"></div>
 		</div>
 		
 		<video id="video" autoplay style="display: none;">
@@ -51,13 +54,10 @@
 				'planeRotationZ': 0,
 				'planeScaleX': 1,
 				'planeScaleY': 1,
-				'videoPlay': function() { document.getElementById('video').play(); },
-				'videoPause': function() { document.getElementById('video').pause(); },
-				'videoRewind': function() { document.getElementById('video').currentTime = 0; },
-				'videoStop': function() {
-					document.getElementById('video').pause();
-					document.getElementById('video').currentTime = 0;
-				}
+				'webCamAudio': false,
+				'webCamVideo': true,
+				'webCamVideoPlay': function() { document.getElementById('video').play(); },
+				'webCamVideoPause': function() { document.getElementById('video').pause(); }
 			};
 			
 			RDO.Tutorial.Main = function(canvas)
@@ -185,15 +185,39 @@
 					});
 					
 					var folderVideo = gui.addFolder('Video Properties');
-					folderVideo.add(RDO.Tutorial.Properties, 'videoPlay');
-					folderVideo.add(RDO.Tutorial.Properties, 'videoPause');
-					folderVideo.add(RDO.Tutorial.Properties, 'videoRewind');
-					folderVideo.add(RDO.Tutorial.Properties, 'videoStop');
+					folderVideo.add(RDO.Tutorial.Properties, 'webCamAudio').onChange(function(value) {
+						initVideo();
+					});
+					folderVideo.add(RDO.Tutorial.Properties, 'webCamVideo').onChange(function(value) {
+						initVideo();
+					});
+					folderVideo.add(RDO.Tutorial.Properties, 'webCamVideoPlay');
+					folderVideo.add(RDO.Tutorial.Properties, 'webCamVideoPause');
 				}
-
+				
 				function initVideo()
 				{
-					video.src = '../../resources/video/video_1.mp4';
+					if(!(RDO.Tutorial.Properties.webCamAudio || RDO.Tutorial.Properties.webCamVideo)) {
+						document.getElementById('message').innerHTML = 'At least one of audio and video must be activated';
+						
+						return;
+					}
+					else
+					{
+						document.getElementById('message').innerHTML = '';
+					}
+					
+					navigator.getUserMedia({
+							audio: RDO.Tutorial.Properties.webCamAudio,
+							video: RDO.Tutorial.Properties.webCamVideo
+						},
+						function(stream) {
+							video.src = window.URL.createObjectURL(stream);
+						},
+						function(error) {
+							console.log(error);
+						}
+					);
 				}
 				
 				function render()

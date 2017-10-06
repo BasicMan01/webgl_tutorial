@@ -1,7 +1,8 @@
 html, body { height: 100%; margin: 0; overflow: hidden; padding: 0; width: 100%; }
-body { font-family: Arial; font-size: 13px; line-height:1.5; }
+body { font-family: Arial; font-size: 13px; line-height: 1.5; }
 
-.output { color: white; font-family: 'Courier New'; font-size: 11px; left: 25px; position: absolute; top: 200px; }			
+.message { color: red; font-family: 'Courier New'; font-size: 11px; font-weight: bold; left: 300px; margin: 11px; position: absolute; }
+.output { color: white; font-family: 'Courier New'; font-size: 11px; left: 25px; position: absolute; top: 200px; }
 .tags { color: white; font-family: 'Courier New'; font-size: 11px; position: absolute; }
 .tags a { color: #AAAAFF; }
 
