@@ -105,7 +105,7 @@
 
 		this.plane = new THREE.Mesh(
 			new THREE.Geometry(),
-			new THREE.SpriteMaterial()
+			new THREE.MeshBasicMaterial()
 		);
 		this.scene.add(this.plane);
 
@@ -126,6 +126,13 @@
 	};
 
 	Main.prototype.createMaterial = function()
+	{
+		var texture = this.createTexture();
+
+		this.plane.material = new THREE.MeshBasicMaterial( { map: texture, side: THREE.DoubleSide, transparent: true } );
+	};
+
+	Main.prototype.createTexture = function()
 	{
 		var canvas = document.createElement('canvas');
 
@@ -162,7 +169,7 @@
 
 		texture.needsUpdate = true;
 
-		this.plane.material = new THREE.MeshBasicMaterial( { map: texture, side: THREE.DoubleSide, transparent: true } );
+		return texture;
 	};
 
 	Main.prototype.createGui = function() {
