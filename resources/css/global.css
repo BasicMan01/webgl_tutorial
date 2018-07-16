@@ -7,6 +7,19 @@ body.webgl { overflow: hidden; }
 #webGlCanvas .tags { color: white; position: absolute; top: 25px; }
 #webGlCanvas .tags a { color: #AAAAFF; }
 
+#webGlCanvas .button-container { position: absolute; text-align: center; top: 25px; width: 100%; }
+#webGlCanvas .button-container .button-list .button {
+	border: 2px solid white;
+	border-radius: 30px;
+	color: white;
+	display: inline-block;
+	height: 35px;
+	margin: 5px;
+	padding: 10px;
+	text-align: center;
+	width: 35px;
+}
+
 #webGlCanvas .output { color: white; display: none; left: 25px; position: absolute; top: 200px; }
 
 @media (min-width: 768px) {

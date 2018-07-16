@@ -4,11 +4,21 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 
+		<link rel="stylesheet" type="text/css" href="../../../lib/fontawesome/css/all.css">
 		<link rel="stylesheet" type="text/css" href="../../../resources/css/global.css">
 	</head>
 
 	<body class="webgl">
 		<div id="webGlCanvas" oncontextmenu="return false">
+			<div class="button-container">
+				<div class="button-list">
+					<div class="button" id="btnRewind"><i class="fa fa-backward fa-3x"></i></div>
+					<div class="button" id="btnPlay"><i class="fa fa-play fa-3x"></i></div>
+					<div class="button" id="btnPause"><i class="fa fa-pause fa-3x"></i></div>
+					<div class="button" id="btnStop"><i class="fa fa-stop fa-3x"></i></div>
+				</div>
+			</div>
+
 			<div id="tags" class="tags">
 				<ul>
 					<li>OrbitControls</li>
@@ -21,7 +31,7 @@
 
 			<div id="output" class="output"></div>
 		</div>
-		
+
 		<video id="video" autoplay style="display: none;">
 		</video>
 

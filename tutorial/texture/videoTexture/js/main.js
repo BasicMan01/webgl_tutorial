@@ -22,14 +22,7 @@
 		'planeRotationY': 0,
 		'planeRotationZ': 0,
 		'planeScaleX': 1,
-		'planeScaleY': 1,
-		'videoPlay': function() { document.getElementById('video').play(); },
-		'videoPause': function() { document.getElementById('video').pause(); },
-		'videoRewind': function() { document.getElementById('video').currentTime = 0; },
-		'videoStop': function() {
-			document.getElementById('video').pause();
-			document.getElementById('video').currentTime = 0;
-		}
+		'planeScaleY': 1
 	};
 
 
@@ -161,12 +154,6 @@
 		folderTransformation.add(properties, 'planeScaleY', 0.1, 10).step(0.1).onChange(function(value) {
 			self.plane.scale.y = value;
 		});
-
-		var folderVideo = this.gui.addFolder('Video Properties');
-		folderVideo.add(properties, 'videoPlay');
-		folderVideo.add(properties, 'videoPause');
-		folderVideo.add(properties, 'videoRewind');
-		folderVideo.add(properties, 'videoStop');
 	};
 
 	Main.prototype.initVideo = function() {
@@ -214,6 +201,23 @@
 
 	var main = new Main(document.getElementById('webGlCanvas'));
 	document.addEventListener('DOMContentLoaded', function() {
+		document.getElementById('btnRewind').addEventListener('click', function() {
+			document.getElementById('video').currentTime = 0;
+		});
+
+		document.getElementById('btnPlay').addEventListener('click', function() {
+			document.getElementById('video').play();
+		});
+
+		document.getElementById('btnPause').addEventListener('click', function() {
+			document.getElementById('video').pause();
+		});
+
+		document.getElementById('btnStop').addEventListener('click', function() {
+			document.getElementById('video').pause();
+			document.getElementById('video').currentTime = 0;
+		});
+
 		main.init();
 	});
 }(window));
