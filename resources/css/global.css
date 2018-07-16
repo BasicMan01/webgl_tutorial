@@ -12,6 +12,7 @@ body.webgl { overflow: hidden; }
 	border: 2px solid white;
 	border-radius: 30px;
 	color: white;
+	cursor: pointer;
 	display: inline-block;
 	height: 35px;
 	margin: 5px;
