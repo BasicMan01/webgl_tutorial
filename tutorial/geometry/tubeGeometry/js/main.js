@@ -17,6 +17,15 @@
 		'tubeRadialSegments': 10,
 		'tubeMaterialColor': '#156289',
 		'tubeWireframeColor': '#FFFFFF',
+		'tubePositionX': 0,
+		'tubePositionY': 0,
+		'tubePositionZ': 0,
+		'tubeRotationX': 0,
+		'tubeRotationY': 0,
+		'tubeRotationZ': 0,
+		'tubeScaleX': 1,
+		'tubeScaleY': 1,
+		'tubeScaleZ': 1,
 		'tubeWireframe': false
 	};
 
@@ -178,6 +187,35 @@
 		});
 		folderMaterial.addColor(properties, 'tubeWireframeColor').onChange(function(value) {
 			self.tube.children[1].material.color.setHex(rdo.helper.cssColorToHex(value));
+		});
+
+		var folderTransformation = this.gui.addFolder('Tube Transformation');
+		folderTransformation.add(properties, 'tubePositionX', -10, 10).step(0.1).onChange(function(value) {
+			self.tube.position.x = value;
+		});
+		folderTransformation.add(properties, 'tubePositionY', -10, 10).step(0.1).onChange(function(value) {
+			self.tube.position.y = value;
+		});
+		folderTransformation.add(properties, 'tubePositionZ', -10, 10).step(0.1).onChange(function(value) {
+			self.tube.position.z = value;
+		});
+		folderTransformation.add(properties, 'tubeRotationX', 0, 2*Math.PI).step(0.01).onChange(function(value) {
+			self.tube.rotation.x = value;
+		});
+		folderTransformation.add(properties, 'tubeRotationY', 0, 2*Math.PI).step(0.01).onChange(function(value) {
+			self.tube.rotation.y = value;
+		});
+		folderTransformation.add(properties, 'tubeRotationZ', 0, 2*Math.PI).step(0.01).onChange(function(value) {
+			self.tube.rotation.z = value;
+		});
+		folderTransformation.add(properties, 'tubeScaleX', 0.1, 10).step(0.1).onChange(function(value) {
+			self.tube.scale.x = value;
+		});
+		folderTransformation.add(properties, 'tubeScaleY', 0.1, 10).step(0.1).onChange(function(value) {
+			self.tube.scale.y = value;
+		});
+		folderTransformation.add(properties, 'tubeScaleZ', 0.1, 10).step(0.1).onChange(function(value) {
+			self.tube.scale.z = value;
 		});
 	};
 
