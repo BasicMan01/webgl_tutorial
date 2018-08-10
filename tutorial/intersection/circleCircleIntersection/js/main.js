@@ -10,7 +10,7 @@
 	};
 
 	var properties = {
-		'axisHelperVisible': true,
+		'axesHelperVisible': true,
 		'gridHelperVisible': false,
 		'circle1CenterX': 4.5,
 		'circle1CenterY': 6,
@@ -39,7 +39,7 @@
 		this.renderer = null;
 		this.scene = null;
 
-		this.axisHelper = null;
+		this.axesHelper = null;
 		this.gridHelper = null;
 
 		this.circle1 = null;
@@ -77,8 +77,8 @@
 	};
 
 	Main.prototype.createObject = function() {
-		this.axisHelper = new THREE.AxisHelper(25);
-		this.scene.add(this.axisHelper);
+		this.axesHelper = new THREE.AxesHelper(25);
+		this.scene.add(this.axesHelper);
 
 		this.gridHelper = new THREE.GridHelper(50, 50);
 		this.gridHelper.visible = properties.gridHelperVisible;
@@ -198,17 +198,15 @@
 			0
 		);
 
-		var path = new THREE.Path(curve.getPoints(properties.circlePoints));
-
 		obj.geometry.dispose();
-		obj.geometry = path.createPointsGeometry(properties.circlePoints);
+		obj.geometry = new THREE.Geometry().setFromPoints(curve.getPoints(properties.circlePoints));
 	};
 
 	Main.prototype.createGui = function() {
 		var self = this;
 
-		this.gui.add(properties, 'axisHelperVisible').onChange(function(value) {
-			self.axisHelper.visible = value;
+		this.gui.add(properties, 'axesHelperVisible').onChange(function(value) {
+			self.axesHelper.visible = value;
 		});
 		this.gui.add(properties, 'gridHelperVisible').onChange(function(value) {
 			self.gridHelper.visible = value;

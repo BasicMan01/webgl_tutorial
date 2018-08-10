@@ -10,7 +10,7 @@
 	};
 
 	var properties = {
-		'axisHelperVisible': true,
+		'axesHelperVisible': true,
 		'gridHelperVisible': false,
 		'line1v1X': 0.5,
 		'line1v1Y': 2,
@@ -35,7 +35,7 @@
 		this.renderer = null;
 		this.scene = null;
 
-		this.axisHelper = null;
+		this.axesHelper = null;
 		this.gridHelper = null;
 
 		this.line1 = null;
@@ -75,8 +75,8 @@
 	};
 
 	Main.prototype.createObject = function() {
-		this.axisHelper = new THREE.AxisHelper(25);
-		this.scene.add(this.axisHelper);
+		this.axesHelper = new THREE.AxesHelper(25);
+		this.scene.add(this.axesHelper);
 
 		this.gridHelper = new THREE.GridHelper(50, 50);
 		this.gridHelper.visible = properties.gridHelperVisible;
@@ -133,10 +133,8 @@
 			new THREE.Vector3(properties.line1v2X, properties.line1v2Y)
 		);
 
-		var path1 = new THREE.Path(curve1.getPoints(1));
-
 		this.line1.geometry.dispose();
-		this.line1.geometry = path1.createPointsGeometry(1);
+		this.line1.geometry = new THREE.Geometry().setFromPoints(curve1.getPoints(1));
 
 
 		var curve2 = new THREE.LineCurve(
@@ -144,10 +142,8 @@
 			new THREE.Vector3(properties.line2v2X, properties.line2v2Y)
 		);
 
-		var path2 = new THREE.Path(curve2.getPoints(1));
-
 		this.line2.geometry.dispose();
-		this.line2.geometry = path2.createPointsGeometry(1);
+		this.line2.geometry = new THREE.Geometry().setFromPoints(curve2.getPoints(1));
 
 
 		rdo.helper.resetOutput();
@@ -165,8 +161,8 @@
 	Main.prototype.createGui = function() {
 		var self = this;
 
-		this.gui.add(properties, 'axisHelperVisible').onChange(function(value) {
-			self.axisHelper.visible = value;
+		this.gui.add(properties, 'axesHelperVisible').onChange(function(value) {
+			self.axesHelper.visible = value;
 		});
 		this.gui.add(properties, 'gridHelperVisible').onChange(function(value) {
 			self.gridHelper.visible = value;
@@ -250,14 +246,14 @@
 			new THREE.Vector3(line1p1.x + rx, line1p1.y + ry)
 		);
 		this.rLine.geometry.dispose();
-		this.rLine.geometry = new THREE.Path(curve1.getPoints(1)).createPointsGeometry(1);
+		this.rLine.geometry = new THREE.Geometry().setFromPoints(curve1.getPoints(1));
 
 		var curve2 = new THREE.LineCurve(
 			new THREE.Vector3(line1p1.x, line1p1.y),
 			new THREE.Vector3(line1p1.x + rxt, line1p1.y + ryt)
 		);
 		this.rtLine.geometry.dispose();
-		this.rtLine.geometry = new THREE.Path(curve2.getPoints(1)).createPointsGeometry(1);
+		this.rtLine.geometry = new THREE.Geometry().setFromPoints(curve2.getPoints(1));
 
 		rdo.helper.addOutput('rx  : ' + rx);
 		rdo.helper.addOutput('ry  : ' + ry);
@@ -290,14 +286,14 @@
 			new THREE.Vector3(line2p1.x + sx, line2p1.y + sy)
 		);
 		this.sLine.geometry.dispose();
-		this.sLine.geometry = new THREE.Path(curve3.getPoints(1)).createPointsGeometry(1);
+		this.sLine.geometry = new THREE.Geometry().setFromPoints(curve3.getPoints(1));
 
 		var curve4 = new THREE.LineCurve(
 			new THREE.Vector3(line2p1.x, line2p1.y),
 			new THREE.Vector3(line2p1.x + sxt, line2p1.y + syt)
 		);
 		this.stLine.geometry.dispose();
-		this.stLine.geometry = new THREE.Path(curve4.getPoints(1)).createPointsGeometry(1);
+		this.stLine.geometry = new THREE.Geometry().setFromPoints(curve4.getPoints(1));
 
 		rdo.helper.addOutput('sx  : ' + sx);
 		rdo.helper.addOutput('sy  : ' + sy);

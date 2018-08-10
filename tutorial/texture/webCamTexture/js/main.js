@@ -10,7 +10,7 @@
 	};
 
 	var properties = {
-		'axisHelperVisible': true,
+		'axesHelperVisible': true,
 		'gridHelperVisible': true,
 		'planeWidth': 8,
 		'planeHeight': 4,
@@ -40,7 +40,7 @@
 		this.renderer = null;
 		this.scene = null;
 
-		this.axisHelper = null;
+		this.axesHelper = null;
 		this.gridHelper = null;
 
 		this.plane = null;
@@ -79,8 +79,8 @@
 	};
 
 	Main.prototype.createObject = function() {
-		this.axisHelper = new THREE.AxisHelper(25);
-		this.scene.add(this.axisHelper);
+		this.axesHelper = new THREE.AxesHelper(25);
+		this.scene.add(this.axesHelper);
 
 		this.gridHelper = new THREE.GridHelper(50, 50);
 		this.scene.add(this.gridHelper);
@@ -113,8 +113,8 @@
 	Main.prototype.createGui = function() {
 		var self = this;
 
-		this.gui.add(properties, 'axisHelperVisible').onChange(function(value) {
-			self.axisHelper.visible = value;
+		this.gui.add(properties, 'axesHelperVisible').onChange(function(value) {
+			self.axesHelper.visible = value;
 		});
 		this.gui.add(properties, 'gridHelperVisible').onChange(function(value) {
 			self.gridHelper.visible = value;
@@ -172,7 +172,7 @@
 
 	Main.prototype.initVideo = function() {
 		var self = this;
-		
+
 		if(properties.webCamAudio === false && properties.webCamVideo === false) {
 			alert('At least one of audio and video must be activated');
 		}
@@ -184,7 +184,7 @@
 					video: properties.webCamVideo
 				},
 				function(stream) {
-					self.video.src = window.URL.createObjectURL(stream);
+					self.video.srcObject = stream;
 				},
 				function(error) {
 					console.error(error);

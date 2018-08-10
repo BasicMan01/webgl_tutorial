@@ -10,7 +10,7 @@
 	};
 
 	var properties = {
-		'axisHelperVisible': true,
+		'axesHelperVisible': true,
 		'gridHelperVisible': true,
 		'ringInnerRadius': 3,
 		'ringOuterRadius': 5,
@@ -42,7 +42,7 @@
 		this.renderer = null;
 		this.scene = null;
 
-		this.axisHelper = null;
+		this.axesHelper = null;
 		this.gridHelper = null;
 
 		this.ring = null;
@@ -76,8 +76,8 @@
 	};
 
 	Main.prototype.createObject = function() {
-		this.axisHelper = new THREE.AxisHelper(25);
-		this.scene.add(this.axisHelper);
+		this.axesHelper = new THREE.AxesHelper(25);
+		this.scene.add(this.axesHelper);
 
 		this.gridHelper = new THREE.GridHelper(50, 50);
 		this.scene.add(this.gridHelper);
@@ -118,8 +118,8 @@
 	Main.prototype.createGui = function() {
 		var self = this;
 
-		this.gui.add(properties, 'axisHelperVisible').onChange(function(value) {
-			self.axisHelper.visible = value;
+		this.gui.add(properties, 'axesHelperVisible').onChange(function(value) {
+			self.axesHelper.visible = value;
 		});
 		this.gui.add(properties, 'gridHelperVisible').onChange(function(value) {
 			self.gridHelper.visible = value;
@@ -148,7 +148,7 @@
 		folderGeometry.add(properties, 'ringThetaStart', 0, 2*Math.PI).step(0.1).onChange(function(value) {
 			self.createGeometry();
 		});
-		folderGeometry.add(properties, 'ringThetaLength', 0, 2*Math.PI).step(0.1).onChange(function(value) {
+		folderGeometry.add(properties, 'ringThetaLength', 0.1, 2*Math.PI).step(0.1).onChange(function(value) {
 			self.createGeometry();
 		});
 
