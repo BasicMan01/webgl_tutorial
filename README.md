@@ -1,4 +1,4 @@
-# webgl_tutorial with three.js
+# webgl_tutorial with three.js / babylon.js
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 

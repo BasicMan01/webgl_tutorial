@@ -3,9 +3,7 @@ body { font-family: Arial; font-size: 13px; line-height: 1.5; }
 
 body.webgl { overflow: hidden; }
 
-#webGlCanvas  { font-family: 'Courier New'; font-size: 11px; height: 100%; }
-#webGlCanvas .tags { color: white; position: absolute; top: 25px; }
-#webGlCanvas .tags a { color: #AAAAFF; }
+#webGlCanvas  { font-family: 'Courier New'; font-size: 11px; height: 100%; width: 100%; }
 
 #webGlCanvas .button-container { position: absolute; text-align: center; top: 25px; width: 100%; }
 #webGlCanvas .button-container .button-list .button {
@@ -22,6 +20,16 @@ body.webgl { overflow: hidden; }
 }
 
 #webGlCanvas .output { color: white; display: none; left: 25px; position: absolute; top: 200px; }
+
+.language-tag { color: #FFFFFF; cursor: pointer;  display: inline-block; font-size: 11px; padding: 0 2px; }
+.language-tag a { color: inherit; text-decoration: none; }
+.language-tag-orange { background-color: #FFAAAA; }
+.language-tag-blue { background-color: #AAAAFF; }
+
+.tags { color: white; font-family: 'Courier New'; font-size: 11px; position: absolute; top: 25px; }
+.tags a { color: #AAAAFF; }
+
+
 
 @media (min-width: 768px) {
 	#webGlCanvas .output { display: block; }
