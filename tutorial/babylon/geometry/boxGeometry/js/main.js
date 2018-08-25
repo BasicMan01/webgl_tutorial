@@ -12,7 +12,9 @@
 	var properties = {
 		'axesHelperVisible': true,
 		'gridHelperVisible': true,
-		'cubeSize': 5,
+		'cubeWidth': 5,
+		'cubeHeight': 5,
+		'cubeDepth': 5,
 		'cubeMaterialColor': '#156289',
 		'cubeWireframeColor': '#FFFFFF',
 		'cubePositionX': 0,
@@ -67,13 +69,13 @@
 	};
 
 	Main.prototype.createObject = function() {
-		this.axesHelper = this.createAxesHelper(25, this.scene);
-		this.gridHelper = this.createGridHelper(50, this.scene);
+		this.axesHelper = rdo.babylonHelper.createAxesHelper(25, this.scene);
+		this.gridHelper = rdo.babylonHelper.createGridHelper(50, this.scene);
 
 		this.cube = new BABYLON.Mesh("cube", this.scene);
 
-		var cubeChild1 = new BABYLON.Mesh.CreateBox('cubeChild1', properties.cubeSize, this.scene);
-		var cubeChild2 = new BABYLON.Mesh.CreateBox('cubeChild2', properties.cubeSize, this.scene);
+		var cubeChild1 = new BABYLON.Mesh('cubeChild1', this.scene);
+		var cubeChild2 = new BABYLON.Mesh('cubeChild2', this.scene);
 
 		cubeChild1.material = new BABYLON.StandardMaterial("materialCubeChild1", this.scene);
 		cubeChild1.material.emissiveColor = new BABYLON.Color3.FromHexString(properties.cubeMaterialColor);
@@ -83,63 +85,20 @@
 		cubeChild2.material.emissiveColor = new BABYLON.Color3.FromHexString(properties.cubeWireframeColor);
 		cubeChild2.material.wireframe = true;
 		cubeChild2.parent = this.cube;
+
+		this.createGeometry();
 	};
 
-	Main.prototype.createAxesHelper = function(size, scene) {
-		var axesMesh = new BABYLON.Mesh("axesHelper", scene);
+	Main.prototype.createGeometry = function() {
+		var vertexData = BABYLON.VertexData.CreateBox({
+			'depth': properties.cubeDepth,
+			'height': properties.cubeHeight,
+			'width': properties.cubeWidth,
+			'sideOrientation': BABYLON.Mesh.DOUBLESIDE
+		});
 
-		var axesX = BABYLON.Mesh.CreateLines("axesX", [
-			new BABYLON.Vector3.Zero(),
-			new BABYLON.Vector3(size, 0, 0)
-		], scene);
-
-		var axesY = BABYLON.Mesh.CreateLines("axesY", [
-			new BABYLON.Vector3.Zero(),
-			new BABYLON.Vector3(0, size, 0)
-		], scene);
-
-		var axesZ = BABYLON.Mesh.CreateLines("axesZ", [
-			new BABYLON.Vector3.Zero(),
-			new BABYLON.Vector3(0, 0, size)
-		], scene);
-
-		axesX.color = new BABYLON.Color3(1, 0, 0);
-		axesY.color = new BABYLON.Color3(0, 1, 0);
-		axesZ.color = new BABYLON.Color3(0, 0, 1);
-
-		axesX.parent = axesMesh;
-		axesY.parent = axesMesh;
-		axesZ.parent = axesMesh;
-
-		return axesMesh;
-	};
-
-	Main.prototype.createGridHelper = function(size, scene) {
-		var gridMesh = new BABYLON.Mesh("gridHelper", scene);
-
-		var start =  size / -2;
-		var end = start + size;
-		var color = new BABYLON.Color3.FromInts(112, 112, 112);
-
-		for (var i = start; i <= end; ++i) {
-			var lineX = BABYLON.Mesh.CreateLines('line', [
-				new BABYLON.Vector3(start, 0, i),
-				new BABYLON.Vector3(end, 0, i)
-			], scene);
-
-			var lineZ = BABYLON.Mesh.CreateLines('line', [
-				new BABYLON.Vector3(i, 0, start),
-				new BABYLON.Vector3(i, 0, end)
-			], scene);
-
-			lineX.color = color;
-			lineZ.color = color;
-
-			lineX.parent = gridMesh;
-			lineZ.parent = gridMesh;
-		}
-
-		return gridMesh;
+		vertexData.applyToMesh(this.cube.getChildren()[0], true);
+		vertexData.applyToMesh(this.cube.getChildren()[1], true);
 	};
 
 	Main.prototype.createGui = function() {
@@ -157,6 +116,15 @@
 		var folderGeometry = this.gui.addFolder('Cube Geometry');
 		folderGeometry.add(properties, 'cubeWireframe').onChange(function(value) {
 			self.cube.getChildren()[0].visibility = !value;
+		});
+		folderGeometry.add(properties, 'cubeWidth', 0.1, 10).step(0.1).onChange(function(value) {
+			self.createGeometry();
+		});
+		folderGeometry.add(properties, 'cubeHeight', 0.1, 10).step(0.1).onChange(function(value) {
+			self.createGeometry();
+		});
+		folderGeometry.add(properties, 'cubeDepth', 0.1, 10).step(0.1).onChange(function(value) {
+			self.createGeometry();
 		});
 
 		var folderMaterial = this.gui.addFolder('Cube Material');

@@ -122,14 +122,6 @@
 		folderGeometry.add(properties, 'sphereDiameter', 0.1, 10).step(0.1).onChange(function(value) {
 			self.createGeometry();
 		});
-
-		var folderMaterial = this.gui.addFolder('Sphere Material');
-		folderMaterial.addColor(properties, 'sphereMaterialColor').onChange(function(value) {
-			self.sphere.getChildren()[0].material.emissiveColor = new BABYLON.Color3.FromHexString(value);
-		});
-		folderMaterial.addColor(properties, 'sphereWireframeColor').onChange(function(value) {
-			self.sphere.getChildren()[1].material.emissiveColor = new BABYLON.Color3.FromHexString(value);
-		});
 		folderGeometry.add(properties, 'sphereSegments', 1, 32).step(1).onChange(function(value) {
 			self.createGeometry();
 		});
@@ -138,6 +130,14 @@
 		});
 		folderGeometry.add(properties, 'sphereSlice', 0.01, 1).step(0.01).onChange(function(value) {
 			self.createGeometry();
+		});
+
+		var folderMaterial = this.gui.addFolder('Sphere Material');
+		folderMaterial.addColor(properties, 'sphereMaterialColor').onChange(function(value) {
+			self.sphere.getChildren()[0].material.emissiveColor = new BABYLON.Color3.FromHexString(value);
+		});
+		folderMaterial.addColor(properties, 'sphereWireframeColor').onChange(function(value) {
+			self.sphere.getChildren()[1].material.emissiveColor = new BABYLON.Color3.FromHexString(value);
 		});
 
 		var folderTransformation = this.gui.addFolder('Sphere Transformation');
