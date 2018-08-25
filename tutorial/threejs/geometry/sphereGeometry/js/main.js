@@ -142,7 +142,7 @@
 		folderGeometry.add(properties, 'sphereWidthSegments', 3, 64).step(1).onChange(function(value) {
 			self.createGeometry();
 		});
-		folderGeometry.add(properties, 'sphereHeightSegments', 1, 64).step(1).onChange(function(value) {
+		folderGeometry.add(properties, 'sphereHeightSegments', 2, 64).step(1).onChange(function(value) {
 			self.createGeometry();
 		});
 		folderGeometry.add(properties, 'spherePhiStart', 0, 2*Math.PI).step(0.1).onChange(function(value) {
