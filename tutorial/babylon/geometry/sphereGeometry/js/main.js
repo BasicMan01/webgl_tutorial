@@ -78,11 +78,11 @@
 		var sphereChild1 = new BABYLON.Mesh('sphereChild1', this.scene);
 		var sphereChild2 = new BABYLON.Mesh('sphereChild1', this.scene);
 
-		sphereChild1.material = new BABYLON.StandardMaterial("materialsphereChild1", this.scene);
+		sphereChild1.material = new BABYLON.StandardMaterial("materialSphereChild1", this.scene);
 		sphereChild1.material.emissiveColor = new BABYLON.Color3.FromHexString(properties.sphereMaterialColor);
 		sphereChild1.parent = this.sphere;
 
-		sphereChild2.material = new BABYLON.StandardMaterial("materialsphereChild2", this.scene);
+		sphereChild2.material = new BABYLON.StandardMaterial("materialSphereChild2", this.scene);
 		sphereChild2.material.emissiveColor = new BABYLON.Color3.FromHexString(properties.sphereWireframeColor);
 		sphereChild2.material.wireframe = true;
 		sphereChild2.parent = this.sphere;
