@@ -26,8 +26,9 @@ body.webgl { overflow: hidden; }
 .language-tag-orange { background-color: #FFAAAA; }
 .language-tag-blue { background-color: #AAAAFF; }
 
-.tags { color: white; font-family: 'Courier New'; font-size: 11px; position: absolute; top: 25px; }
+.tags { color: white; font-family: 'Courier New'; font-size: 11px; padding-left: 40px; position: absolute; top: 25px; }
 .tags a { color: #AAAAFF; }
+.tags ul { padding-left: 10px; }
 
 
 
