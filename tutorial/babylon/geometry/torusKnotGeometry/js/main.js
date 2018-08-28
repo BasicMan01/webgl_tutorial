@@ -1,4 +1,4 @@
-/* globals dat,rdo,THREE */
+/* globals dat,rdo,BABYLON */
 
 (function(window) {
 	'use strict';
@@ -38,9 +38,8 @@
 		this.canvas = canvas;
 
 		this.camera = null;
-		this.controls = null;
+		this.engine = null;
 		this.gui = null;
-		this.renderer = null;
 		this.scene = null;
 
 		this.axesHelper = null;
@@ -50,23 +49,19 @@
 	};
 
 	Main.prototype.init = function() {
-		this.scene = new THREE.Scene();
+		this.engine = new BABYLON.Engine(this.canvas, true);
 
-		this.camera = new THREE.PerspectiveCamera(config.CAMERA_FOV, this.getCameraAspect(), config.CAMERA_NEAR_PLANE, config.CAMERA_FAR_PLANE);
-		this.camera.position.set(0, 10, 20);
+		this.scene = new BABYLON.Scene(this.engine);
+		this.scene.clearColor = new BABYLON.Color3(0, 0, 0);
+		this.scene.useRightHandedSystem = true;
 
-		this.renderer = new THREE.WebGLRenderer({antialias: true});
-		this.renderer.setClearColor(0x000000, 1);
-		this.renderer.setPixelRatio(window.devicePixelRatio);
-		this.renderer.setSize(this.getGameAreaWidth(), this.getGameAreaHeight());
-
-		this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+		this.camera = new BABYLON.ArcRotateCamera('arcRotateCamera', 0, 0, 0, BABYLON.Vector3.Zero(), this.scene);
+		this.camera.setPosition(new BABYLON.Vector3(0, 10, 20));
+		this.camera.attachControl(this.canvas, false);
+		this.camera.lowerRadiusLimit = 0.01;
 
 		this.gui = new dat.GUI({ width: 400 });
 		this.gui.close();
-
-		// add renderer to the DOM-Tree
-		this.canvas.appendChild(this.renderer.domElement);
 
 		window.addEventListener('resize', this.onResizeHandler.bind(this), false);
 
@@ -77,43 +72,39 @@
 	};
 
 	Main.prototype.createObject = function() {
-		this.axesHelper = new THREE.AxesHelper(25);
-		this.scene.add(this.axesHelper);
+		this.axesHelper = rdo.babylonHelper.createAxesHelper(25, this.scene);
+		this.gridHelper = rdo.babylonHelper.createGridHelper(50, this.scene);
 
-		this.gridHelper = new THREE.GridHelper(50, 50);
-		this.scene.add(this.gridHelper);
+		this.torusKnot = new BABYLON.Mesh("torusKnot", this.scene);
 
-		this.torusKnot = new THREE.Object3D();
-		this.scene.add(this.torusKnot);
+		var torusKnotChild1 = new BABYLON.Mesh('torusKnotChild1', this.scene);
+		var torusKnotChild2 = new BABYLON.Mesh('torusKnotChild1', this.scene);
 
-		this.torusKnot.add(new THREE.Mesh(
-			new THREE.Geometry(),
-			new THREE.MeshBasicMaterial( { color: properties.torusKnotMaterialColor, side: THREE.DoubleSide } )
-		));
+		torusKnotChild1.material = new BABYLON.StandardMaterial("materialTorusKnotChild1", this.scene);
+		torusKnotChild1.material.emissiveColor = new BABYLON.Color3.FromHexString(properties.torusKnotMaterialColor);
+		torusKnotChild1.parent = this.torusKnot;
 
-		this.torusKnot.add(new THREE.LineSegments(
-			new THREE.Geometry(),
-			new THREE.LineBasicMaterial( { color: properties.torusKnotWireframeColor } )
-		));
+		torusKnotChild2.material = new BABYLON.StandardMaterial("materialTorusKnotChild2", this.scene);
+		torusKnotChild2.material.emissiveColor = new BABYLON.Color3.FromHexString(properties.torusKnotWireframeColor);
+		torusKnotChild2.material.wireframe = true;
+		torusKnotChild2.parent = this.torusKnot;
 
 		this.createGeometry();
 	};
 
 	Main.prototype.createGeometry = function() {
-		var geometry = new THREE.TorusKnotGeometry(
-			properties.torusKnotRadius,
-			properties.torusKnotTube,
-			properties.torusKnotTubularSegments,
-			properties.torusKnotRadialSegments,
-			properties.torusKnotP,
-			properties.torusKnotQ
-		);
+		var vertexData = BABYLON.VertexData.CreateTorusKnot({
+			'radius': properties.torusKnotRadius,
+			'tube': properties.torusKnotTube,
+			'tubularSegments': properties.torusKnotTubularSegments,
+			'radialSegments': properties.torusKnotRadialSegments,
+			'p': properties.torusKnotP,
+			'q': properties.torusKnotQ,
+			'sideOrientation': BABYLON.Mesh.DOUBLESIDE
+		});
 
-		this.torusKnot.children[0].geometry.dispose();
-		this.torusKnot.children[0].geometry = geometry;
-
-		this.torusKnot.children[1].geometry.dispose();
-		this.torusKnot.children[1].geometry = new THREE.WireframeGeometry(geometry);
+		vertexData.applyToMesh(this.torusKnot.getChildren()[0], true);
+		vertexData.applyToMesh(this.torusKnot.getChildren()[1], true);
 	};
 
 	Main.prototype.createGui = function() {
@@ -121,18 +112,16 @@
 
 		this.gui.add(properties, 'axesHelperVisible').onChange(function(value) {
 			self.axesHelper.visible = value;
+			self.axesHelper.setEnabled(value);
 		});
+
 		this.gui.add(properties, 'gridHelperVisible').onChange(function(value) {
-			self.gridHelper.visible = value;
+			self.gridHelper.setEnabled(value);
 		});
 
 		var folderGeometry = this.gui.addFolder('TorusKnot Geometry');
 		folderGeometry.add(properties, 'torusKnotWireframe').onChange(function(value) {
-			self.torusKnot.children[0].visible = !value;
-			/*
-				self.torusKnot.children[0].material.wireframe = value;
-				self.torusKnot.children[1].visible = !value;
-			*/
+			self.torusKnot.getChildren()[0].visibility = !value;
 		});
 		folderGeometry.add(properties, 'torusKnotRadius', 0.1, 10).step(0.1).onChange(function(value) {
 			self.createGeometry();
@@ -155,10 +144,10 @@
 
 		var folderMaterial = this.gui.addFolder('TorusKnot Material');
 		folderMaterial.addColor(properties, 'torusKnotMaterialColor').onChange(function(value) {
-			self.torusKnot.children[0].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.torusKnot.getChildren()[0].material.emissiveColor = new BABYLON.Color3.FromHexString(value);
 		});
 		folderMaterial.addColor(properties, 'torusKnotWireframeColor').onChange(function(value) {
-			self.torusKnot.children[1].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.torusKnot.getChildren()[1].material.emissiveColor = new BABYLON.Color3.FromHexString(value);
 		});
 
 		var folderTransformation = this.gui.addFolder('TorusKnot Transformation');
@@ -181,32 +170,26 @@
 			self.torusKnot.rotation.z = value;
 		});
 		folderTransformation.add(properties, 'torusKnotScaleX', 0.1, 10).step(0.1).onChange(function(value) {
-			self.torusKnot.scale.x = value;
+			self.torusKnot.scaling.x = value;
 		});
 		folderTransformation.add(properties, 'torusKnotScaleY', 0.1, 10).step(0.1).onChange(function(value) {
-			self.torusKnot.scale.y = value;
+			self.torusKnot.scaling.y = value;
 		});
 		folderTransformation.add(properties, 'torusKnotScaleZ', 0.1, 10).step(0.1).onChange(function(value) {
-			self.torusKnot.scale.z = value;
+			self.torusKnot.scaling.z = value;
 		});
 	};
 
 	Main.prototype.render = function() {
-		requestAnimationFrame(this.render.bind(this));
+		var self = this;
 
-		this.renderer.render(this.scene, this.camera);
+		this.engine.runRenderLoop(function() {
+			self.scene.render();
+		});
 	};
 
-	Main.prototype.getGameAreaHeight = function() { return this.canvas.offsetHeight; };
-	Main.prototype.getGameAreaWidth = function() { return this.canvas.offsetWidth; };
-
-	Main.prototype.getCameraAspect = function() { return this.getGameAreaWidth() / this.getGameAreaHeight(); };
-
 	Main.prototype.onResizeHandler = function(event) {
-		this.camera.aspect = this.getCameraAspect();
-		this.camera.updateProjectionMatrix();
-
-		this.renderer.setSize(this.getGameAreaWidth(), this.getGameAreaHeight());
+		this.engine.resize();
 	};
 
 
