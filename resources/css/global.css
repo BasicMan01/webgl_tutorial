@@ -12,12 +12,16 @@ body.webgl { overflow: hidden; }
 	color: white;
 	cursor: pointer;
 	display: inline-block;
-	height: 35px;
 	margin: 5px;
+	min-height: 35px;
+	min-width: 35px;
 	padding: 10px;
 	text-align: center;
-	width: 35px;
 }
+
+#webGlCanvas .button-container .button-list .button .fa { line-height: 1.2; }
+#webGlCanvas .button-container .button-list .button .fa-3x { font-size: 2.5em; }
+#webGlCanvas .button-container .button-list .button .button-text { font-size: 3em; font-weight: 900; line-height: 1; }
 
 #webGlCanvas .output { color: white; display: none; left: 25px; position: absolute; top: 200px; }
 
