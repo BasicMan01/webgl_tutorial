@@ -42,7 +42,7 @@
 		this.renderer = new THREE.WebGLRenderer({antialias: true});
 		this.renderer.setClearColor(0x000000, 1);
 		this.renderer.setPixelRatio(window.devicePixelRatio);
-		this.renderer.setSize(this.getGameAreaWidth(), this.getGameAreaHeight());
+		this.renderer.setSize(this.getCanvasWidth(), this.getCanvasHeight());
 		this.renderer.vr.enabled = true;
 
 		this.controls = new THREE.OrbitControls(this.cameraGroup, this.renderer.domElement);
@@ -133,10 +133,10 @@
 		this.renderer.render(this.scene, this.camera);
 	};
 
-	Main.prototype.getGameAreaHeight = function() { return this.canvas.offsetHeight; };
-	Main.prototype.getGameAreaWidth = function() { return this.canvas.offsetWidth; };
+	Main.prototype.getCanvasHeight = function() { return this.canvas.offsetHeight; };
+	Main.prototype.getCanvasWidth = function() { return this.canvas.offsetWidth; };
 
-	Main.prototype.getCameraAspect = function() { return this.getGameAreaWidth() / this.getGameAreaHeight(); };
+	Main.prototype.getCameraAspect = function() { return this.getCanvasWidth() / this.getCanvasHeight(); };
 
 	Main.prototype.onClickHandler = function(event) {
 		this.video.play();
@@ -161,7 +161,7 @@
 		this.camera.aspect = this.getCameraAspect();
 		this.camera.updateProjectionMatrix();
 
-		this.renderer.setSize(this.getGameAreaWidth(), this.getGameAreaHeight());
+		this.renderer.setSize(this.getCanvasWidth(), this.getCanvasHeight());
 	};
 
 
