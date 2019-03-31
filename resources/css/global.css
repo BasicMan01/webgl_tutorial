@@ -22,6 +22,17 @@ body.webgl { overflow: hidden; }
 #webGlCanvas .button-container .button-list .button .fa { line-height: 1.2; }
 #webGlCanvas .button-container .button-list .button .button-text { font-size: 2.5em; font-weight: 900; line-height: 1; }
 
+#webGlCanvas .infoBox {
+	background-color: black;
+	border: 1px solid white;
+	border-radius: 10px;
+	color: white;
+	display: none;
+	opacity: 0.8;
+	padding: 10px;
+	position: absolute;
+}
+
 #webGlCanvas .output { color: white; display: none; left: 25px; position: absolute; top: 100px; }
 
 #webGlCanvas .tags { color: white; font-family: 'Courier New'; font-size: 11px; padding-left: 40px; position: absolute; top: 25px; }
