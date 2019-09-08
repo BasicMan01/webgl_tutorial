@@ -1,4 +1,0 @@
-COMPONENTS
-
-MATERIALS
-	[X] Water material
