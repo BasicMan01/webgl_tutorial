@@ -93,7 +93,7 @@
 
 		// add renderer to the DOM-Tree
 		this.canvas.appendChild(this.renderer.domElement);
-		this.canvas.appendChild(WEBVR.createButton(this.renderer, {frameOfReferenceType: 'eye-level'}));
+		this.canvas.appendChild(THREE.WEBVR.createButton(this.renderer, { referenceSpaceType: 'local' }));
 
 		window.addEventListener('resize', this.onResizeHandler.bind(this), false);
 
