@@ -1,5 +1,4 @@
 /* globals dat,rdo,THREE */
-
 (function(window) {
 	'use strict';
 
@@ -12,6 +11,8 @@
 	var properties = {
 		'axesHelperVisible': true,
 		'gridHelperVisible': true,
+		'ambientColor': '#FFFFFF',
+		'ambientIntensity': 1,
 		'fbxModelMaterialColor': '#FFFFFF',
 		'fbxModelPositionX': 0,
 		'fbxModelPositionY': 0,
@@ -56,11 +57,13 @@
 
 	Main.prototype.init = function() {
 		this.scene = new THREE.Scene();
+		this.scene.background = new THREE.Color('#000000');
 
 		this.camera = new THREE.PerspectiveCamera(config.CAMERA_FOV, this.getCameraAspect(), config.CAMERA_NEAR_PLANE, config.CAMERA_FAR_PLANE);
 		this.camera.position.set(0, 10, 20);
 
 		this.renderer = new THREE.WebGLRenderer({antialias: true});
+		this.renderer.gammaOutput = true;
 		this.renderer.setClearColor(0x000000, 1);
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize(this.getCanvasWidth(), this.getCanvasHeight());
@@ -77,6 +80,7 @@
 
 		this.createGui();
 		this.createObject();
+		this.createLight();
 
 		this.render();
 	};
@@ -99,23 +103,12 @@
 
 
 		var fbxLoader = new THREE.FBXLoader(loadingManager);
-		var textureLoader = new THREE.TextureLoader(loadingManager);
 
-		fbxLoader.load('../../../../resources/mesh/fbx/fbxCube.fbx', function(object)
-		{
+		fbxLoader.setResourcePath('../../../../resources/texture/');
+		fbxLoader.load('../../../../resources/mesh/fbx/fbxCabinet.fbx', function(object) {
 			self.fbxModel = object;
 
-			textureLoader.load('../../../../resources/texture/stones.jpg', function (texture) {
-				var material = new THREE.MeshBasicMaterial({
-					color: properties.fbxModelMaterialColor,
-					map: texture,
-					side: THREE.DoubleSide
-				});
-
-				self.fbxModel.getObjectByName('Cube').material = material;
-
-				self.scene.add(self.fbxModel);
-			}, onProgress, onError);
+			self.scene.add(self.fbxModel);
 		}, onProgress, onError);
 	};
 
@@ -131,12 +124,12 @@
 
 		var folderGeometry = this.gui.addFolder('FBX Model Geometry');
 		folderGeometry.add(properties, 'fbxModelWireframe').onChange(function(value) {
-			self.fbxModel.getObjectByName('Cube').material.wireframe = value;
+			self.fbxModel.getObjectByName('cabinet').material.wireframe = value;
 		});
 
 		var folderMaterial = this.gui.addFolder('FBX Model Material');
 		folderMaterial.addColor(properties, 'fbxModelMaterialColor').onChange(function(value) {
-			self.fbxModel.getObjectByName('Cube').material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.fbxModel.getObjectByName('cabinet').material.color.setHex(rdo.helper.cssColorToHex(value));
 		});
 
 		var folderTransformation = this.gui.addFolder('FBX Model Transformation');
@@ -167,6 +160,14 @@
 		folderTransformation.add(properties, 'fbxModelScaleZ', 0.1, 10).step(0.1).onChange(function(value) {
 			self.fbxModel.scale.z = value;
 		});
+	};
+
+	Main.prototype.createLight = function() {
+		this.ambientLight = new THREE.AmbientLight(
+			properties.ambientColor,
+			properties.ambientIntensity
+		);
+		this.scene.add(this.ambientLight);
 	};
 
 	Main.prototype.render = function() {
