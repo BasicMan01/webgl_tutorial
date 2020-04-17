@@ -85,7 +85,7 @@
 
 		this.createGui();
 		this.createObject();
-		
+
 		this.render();
 	};
 
@@ -95,37 +95,37 @@
 
 		this.gridHelper = new THREE.GridHelper(50, 50);
 		this.scene.add(this.gridHelper);
-		
+
 
 		this.cone = new THREE.Object3D();
 		this.cone.position.set(properties.conePositionX, properties.conePositionY, properties.conePositionZ);
-		
+
 		this.cone.add(new THREE.Mesh(
 			new THREE.Geometry(),
 			new THREE.MeshBasicMaterial( { color: properties.coneMaterialColor } )
 		));
-		
+
 		this.cone.add(new THREE.LineSegments(
 			new THREE.Geometry(),
 			new THREE.LineBasicMaterial( { color: properties.coneWireframeColor } )
 		));
-		
+
 		this.cube = new THREE.Object3D();
 		this.cube.position.set(properties.cubePositionX, properties.cubePositionY, properties.cubePositionZ);
-		
+
 		this.cube.add(new THREE.Mesh(
 			new THREE.Geometry(),
 			new THREE.MeshBasicMaterial( { color: properties.cubeMaterialColor } )
 		));
-		
+
 		this.cube.add(new THREE.LineSegments(
 			new THREE.Geometry(),
 			new THREE.LineBasicMaterial( { color: properties.cubeWireframeColor } )
 		));
-	
+
 		this.sphere = new THREE.Object3D();
 		this.sphere.position.set(properties.spherePositionX, properties.spherePositionY, properties.spherePositionZ);
-		
+
 		this.sphere.add(new THREE.Mesh(
 			new THREE.Geometry(),
 			new THREE.MeshBasicMaterial( { color: properties.sphereMaterialColor } )
@@ -135,7 +135,7 @@
 			new THREE.Geometry(),
 			new THREE.LineBasicMaterial( { color: properties.sphereWireframeColor } )
 		));
-		
+
 		this.scene.add(this.cone);
 		this.scene.add(this.cube);
 		this.scene.add(this.sphere);
@@ -156,12 +156,12 @@
 		this.cone.children[0].geometry = geometryCone;
 		this.cone.children[1].geometry.dispose();
 		this.cone.children[1].geometry = new THREE.WireframeGeometry(geometryCone);
-		
+
 		this.cube.children[0].geometry.dispose();
 		this.cube.children[0].geometry = geometryCube;
 		this.cube.children[1].geometry.dispose();
 		this.cube.children[1].geometry = new THREE.WireframeGeometry(geometryCube);
-		
+
 		this.sphere.children[0].geometry.dispose();
 		this.sphere.children[0].geometry = geometrySphere;
 		this.sphere.children[1].geometry.dispose();
@@ -179,7 +179,7 @@
 		});
 		this.gui.add(properties, 'infoBoxCenter').onChange(function(value) {
 		});
-		
+
 		var folderGeometry = this.gui.addFolder('Geometry');
 		folderGeometry.add(properties, 'wireframe').onChange(function(value) {
 			self.cone.children[0].visible = !value;
@@ -236,34 +236,36 @@
 			self.sphere.position.z = value;
 		});
 	};
-	
+
 	Main.prototype.render = function() {
 		requestAnimationFrame(this.render.bind(this));
 
 		this.updateInfoBoxPosition();
-		
+
 		this.renderer.render(this.scene, this.camera);
 	};
 
 	Main.prototype.updateInfoBoxPosition = function() {
+		// 3D => 2D
 		if (this.intersectObject !== null) {
-			var boundingBox = new THREE.BoxHelper();
-			var vector = null;
-
-			boundingBox.setFromObject(this.intersectObject);
-			boundingBox.visible = true;
+			var object = this.intersectObject;
+			var vector = new THREE.Vector3();
 
 			if (properties.infoBoxCenter) {
 				// show info box at the center of the mesh
-				vector = boundingBox.geometry.boundingSphere.center.clone();
+
+				// if object.matrixAutoUpdate = false use updateMatrixWorld()
+				// object.updateMatrixWorld();
+
+				vector.setFromMatrixPosition(object.matrixWorld);
 				vector.project(this.camera);
 			} else {
 				// show info box at mouse position
 				vector = this.mouseVector2.clone();
 			}
 
-			vector.x = Math.round((0.5 + vector.x / 2) * (this.getCanvasWidth() / window.devicePixelRatio));
-			vector.y = Math.round((0.5 - vector.y / 2) * (this.getCanvasHeight() / window.devicePixelRatio));
+			vector.x = Math.round((0.5 + vector.x / 2) * this.getCanvasWidth());
+			vector.y = Math.round((0.5 - vector.y / 2) * this.getCanvasHeight());
 
 			var templateCode = this.infoBoxTemplate.innerHTML;
 
@@ -282,6 +284,7 @@
 	Main.prototype.getCameraAspect = function() { return this.getCanvasWidth() / this.getCanvasHeight(); };
 
 	Main.prototype.onMouseMoveHandler = function(event) {
+		// 2D => 3D
 		this.mouseVector2.x = (event.clientX / window.innerWidth) * 2 - 1;
 		this.mouseVector2.y = - (event.clientY / window.innerHeight) * 2 + 1;
 
@@ -306,7 +309,7 @@
 
 
 	var main = new Main(document.getElementById('webGlCanvas'));
-	document.addEventListener('DOMContentLoaded', function() {		 
+	document.addEventListener('DOMContentLoaded', function() {
 		main.init();
 	});
 }(window));
