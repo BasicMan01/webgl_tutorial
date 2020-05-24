@@ -198,9 +198,9 @@
 		rdo.helper.resetOutput();
 
 		this.sphere1.children[0].geometry.computeBoundingSphere();
-		this.sphere2.children[0].geometry.computeBoundingSphere();
-
 		this.boundingSphere1.copy(this.sphere1.children[0].geometry.boundingSphere).applyMatrix4(this.sphere1.matrixWorld);
+
+		this.sphere2.children[0].geometry.computeBoundingSphere();
 		this.boundingSphere2.copy(this.sphere2.children[0].geometry.boundingSphere).applyMatrix4(this.sphere2.matrixWorld);
 
 		if (this.intersectSphere(this.boundingSphere1, this.boundingSphere2)) {

@@ -52,8 +52,6 @@
 
 		this.bbCube1 = new THREE.Box3();
 		this.bbCube2 = new THREE.Box3();
-		this.bbHelperCube1 = null;
-		this.bbHelperCube2 = null;
 		this.cube1 = null;
 		this.cube2 = null;
 	};
@@ -82,7 +80,6 @@
 		this.createGui();
 		this.createObject();
 
-		this.update();
 		this.render();
 	};
 
@@ -122,12 +119,6 @@
 			new THREE.WireframeGeometry(geometry),
 			new THREE.LineBasicMaterial( { color: properties.cube2WireframeColor } )
 		));
-
-		this.bbHelperCube1 = new THREE.BoxHelper(this.cube1, 0xffff00);
-		this.scene.add(this.bbHelperCube1);
-
-		this.bbHelperCube2 = new THREE.BoxHelper(this.cube2, 0xffff00);
-		this.scene.add(this.bbHelperCube2);
 	};
 
 	Main.prototype.createGui = function() {
@@ -232,14 +223,13 @@
 	Main.prototype.render = function() {
 		requestAnimationFrame(this.render.bind(this));
 
+		this.update();
+
 		this.renderer.render(this.scene, this.camera);
 	};
 
 	Main.prototype.update = function() {
 		rdo.helper.resetOutput();
-
-		this.bbHelperCube1.update();
-		this.bbHelperCube2.update();
 
 		this.cube1.children[0].geometry.computeBoundingBox();
 		this.bbCube1.copy(this.cube1.children[0].geometry.boundingBox).applyMatrix4(this.cube1.matrixWorld);
