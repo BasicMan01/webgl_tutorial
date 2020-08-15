@@ -1,15 +1,19 @@
-/* globals dat,rdo,THREE */
+// jshint esversion: 6
+
+import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
+import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+
+import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+
 
 (function(window) {
-	'use strict';
-
-	var config = {
+	let config = {
 		'CAMERA_FOV': 70,
 		'CAMERA_NEAR_PLANE': 0.1,
 		'CAMERA_FAR_PLANE': 500
 	};
 
-	var properties = {
+	let properties = {
 		'axesHelperVisible': true,
 		'gridHelperVisible': true,
 		'tubeRadius': 0.2,
@@ -29,21 +33,21 @@
 		'tubeWireframe': false
 	};
 
-	var onProgress = function(xhr) {
+	let onProgress = function(xhr) {
 		if(xhr.lengthComputable) {
-			var percentComplete = xhr.loaded / xhr.total * 100;
+			let percentComplete = xhr.loaded / xhr.total * 100;
 
 			console.log(Math.round(percentComplete, 2) + '% downloaded');
 		}
 	};
 
-	var onError = function(xhr) {
+	let onError = function(xhr) {
 		console.error(xhr);
 	};
 
 
 
-	var Main = function(canvas)	{
+	let Main = function(canvas)	{
 		this.canvas = canvas;
 
 		this.camera = null;
@@ -71,9 +75,9 @@
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize(this.getCanvasWidth(), this.getCanvasHeight());
 
-		this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-		this.gui = new dat.GUI({ width: 400 });
+		this.gui = new GUI({ width: 400 });
 		this.gui.close();
 
 		// add renderer to the DOM-Tree
@@ -86,7 +90,7 @@
 	};
 
 	Main.prototype.createObject = function() {
-		var self = this;
+		let self = this;
 
 		this.axesHelper = new THREE.AxesHelper(25);
 		this.scene.add(this.axesHelper);
@@ -108,21 +112,21 @@
 		));
 
 
-		var loadingManager = new THREE.LoadingManager();
+		let loadingManager = new THREE.LoadingManager();
 
 		loadingManager.onProgress = function(item, loaded, total) {
 			console.log(item, '(' + loaded + '/' + total + ')');
 		};
 
 
-		var fileLoader = new THREE.FileLoader(loadingManager);
+		let fileLoader = new THREE.FileLoader(loadingManager);
 
 		fileLoader.load('../../../../resources/mesh/catmullRom/catmullRom.json', function(json) {
 			try {
-				var pathPointsCollection = [];
-				var pathPointsJson = JSON.parse(json).data;
+				let pathPointsCollection = [];
+				let pathPointsJson = JSON.parse(json).data;
 
-				for (var i = 0; i < pathPointsJson.length; ++i) {
+				for (let i = 0; i < pathPointsJson.length; ++i) {
 					pathPointsCollection.push(new THREE.Vector3(pathPointsJson[i].x, pathPointsJson[i].y, pathPointsJson[i].z));
 				}
 
@@ -154,7 +158,7 @@
 	};
 
 	Main.prototype.createGui = function() {
-		var self = this;
+		let self = this;
 
 		this.gui.add(properties, 'axesHelperVisible').onChange(function(value) {
 			self.axesHelper.visible = value;
@@ -163,7 +167,7 @@
 			self.gridHelper.visible = value;
 		});
 
-		var folderGeometry = this.gui.addFolder('Tube Geometry');
+		let folderGeometry = this.gui.addFolder('Tube Geometry');
 		folderGeometry.add(properties, 'tubeWireframe').onChange(function(value) {
 			self.tube.children[0].visible = !value;
 			/*
@@ -181,15 +185,15 @@
 			self.createGeometry();
 		});
 
-		var folderMaterial = this.gui.addFolder('Tube Material');
+		let folderMaterial = this.gui.addFolder('Tube Material');
 		folderMaterial.addColor(properties, 'tubeMaterialColor').onChange(function(value) {
-			self.tube.children[0].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.tube.children[0].material.color.set(value);
 		});
 		folderMaterial.addColor(properties, 'tubeWireframeColor').onChange(function(value) {
-			self.tube.children[1].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.tube.children[1].material.color.set(value);
 		});
 
-		var folderTransformation = this.gui.addFolder('Tube Transformation');
+		let folderTransformation = this.gui.addFolder('Tube Transformation');
 		folderTransformation.add(properties, 'tubePositionX', -10, 10).step(0.1).onChange(function(value) {
 			self.tube.position.x = value;
 		});
@@ -239,7 +243,7 @@
 
 
 
-	var main = new Main(document.getElementById('webGlCanvas'));
+	let main = new Main(document.getElementById('webGlCanvas'));
 	document.addEventListener('DOMContentLoaded', function() {
 		main.init();
 	});

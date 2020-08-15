@@ -1,15 +1,19 @@
-/* globals dat,rdo,THREE */
+// jshint esversion: 6
+
+import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
+import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+
+import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+
 
 (function(window) {
-	'use strict';
-
-	var config = {
+	let config = {
 		'CAMERA_FOV': 70,
 		'CAMERA_NEAR_PLANE': 0.1,
 		'CAMERA_FAR_PLANE': 500
 	};
 
-	var properties = {
+	let properties = {
 		'axesHelperVisible': true,
 		'gridHelperVisible': true,
 		'dodecahedronRadius': 3,
@@ -30,7 +34,7 @@
 
 
 
-	var Main = function(canvas)	{
+	let Main = function(canvas)	{
 		this.canvas = canvas;
 
 		this.camera = null;
@@ -56,9 +60,9 @@
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize(this.getCanvasWidth(), this.getCanvasHeight());
 
-		this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-		this.gui = new dat.GUI({ width: 400 });
+		this.gui = new GUI({ width: 400 });
 		this.gui.close();
 
 		// add renderer to the DOM-Tree
@@ -96,7 +100,7 @@
 	};
 
 	Main.prototype.createGeometry = function() {
-		var geometry = new THREE.DodecahedronGeometry(
+		let geometry = new THREE.DodecahedronGeometry(
 			properties.dodecahedronRadius,
 			properties.dodecahedronDetail
 		);
@@ -109,7 +113,7 @@
 	};
 
 	Main.prototype.createGui = function() {
-		var self = this;
+		let self = this;
 
 		this.gui.add(properties, 'axesHelperVisible').onChange(function(value) {
 			self.axesHelper.visible = value;
@@ -118,7 +122,7 @@
 			self.gridHelper.visible = value;
 		});
 
-		var folderGeometry = this.gui.addFolder('Dodecahedron Geometry');
+		let folderGeometry = this.gui.addFolder('Dodecahedron Geometry');
 		folderGeometry.add(properties, 'dodecahedronWireframe').onChange(function(value) {
 			self.dodecahedron.children[0].visible = !value;
 			/*
@@ -133,15 +137,15 @@
 			self.createGeometry();
 		});
 
-		var folderMaterial = this.gui.addFolder('Dodecahedron Material');
+		let folderMaterial = this.gui.addFolder('Dodecahedron Material');
 		folderMaterial.addColor(properties, 'dodecahedronMaterialColor').onChange(function(value) {
-			self.dodecahedron.children[0].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.dodecahedron.children[0].material.color.set(value);
 		});
 		folderMaterial.addColor(properties, 'dodecahedronWireframeColor').onChange(function(value) {
-			self.dodecahedron.children[1].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.dodecahedron.children[1].material.color.set(value);
 		});
 
-		var folderTransformation = this.gui.addFolder('Dodecahedron Transformation');
+		let folderTransformation = this.gui.addFolder('Dodecahedron Transformation');
 		folderTransformation.add(properties, 'dodecahedronPositionX', -10, 10).step(0.1).onChange(function(value) {
 			self.dodecahedron.position.x = value;
 		});
@@ -191,7 +195,7 @@
 
 
 
-	var main = new Main(document.getElementById('webGlCanvas'));
+	let main = new Main(document.getElementById('webGlCanvas'));
 	document.addEventListener('DOMContentLoaded', function() {
 		main.init();
 	});

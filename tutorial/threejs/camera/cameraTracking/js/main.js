@@ -1,15 +1,20 @@
-/* globals dat,rdo,THREE */
+// jshint esversion: 6
+/* globals rdo */
+
+import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
+import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+
+import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+
 
 (function(window) {
-	'use strict';
-
-	var config = {
+	let config = {
 		'CAMERA_FOV': 70,
 		'CAMERA_NEAR_PLANE': 0.1,
 		'CAMERA_FAR_PLANE': 500
 	};
 
-	var properties = {
+	let properties = {
 		'axesHelperVisible': true,
 		'gridHelperVisible': true,
 		'tubeVisible': true,
@@ -35,21 +40,21 @@
 	};
 
 
-	var onProgress = function(xhr) {
+	let onProgress = function(xhr) {
 		if(xhr.lengthComputable) {
-			var percentComplete = xhr.loaded / xhr.total * 100;
+			let percentComplete = xhr.loaded / xhr.total * 100;
 
 			console.log(Math.round(percentComplete, 2) + '% downloaded');
 		}
 	};
 
-	var onError = function(xhr) {
+	let onError = function(xhr) {
 		console.error(xhr);
 	};
 
 
 
-	var Main = function(canvas)	{
+	let Main = function(canvas)	{
 		this.canvas = canvas;
 
 		this.camera = null;
@@ -87,9 +92,9 @@
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize(this.getCanvasWidth(), this.getCanvasHeight());
 
-		this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-		this.gui = new dat.GUI({ width: 400 });
+		this.gui = new GUI({ width: 400 });
 		this.gui.close();
 
 		// add renderer to the DOM-Tree
@@ -102,7 +107,7 @@
 	};
 
 	Main.prototype.createObject = function() {
-		var self = this;
+		let self = this;
 
 		this.axesHelper = new THREE.AxesHelper(25);
 		this.scene.add(this.axesHelper);
@@ -148,21 +153,21 @@
 		this.scene.add(this.tangentLines);
 
 
-		var loadingManager = new THREE.LoadingManager();
+		let loadingManager = new THREE.LoadingManager();
 
 		loadingManager.onProgress = function(item, loaded, total) {
 			console.log(item, '(' + loaded + '/' + total + ')');
 		};
 
 
-		var fileLoader = new THREE.FileLoader(loadingManager);
+		let fileLoader = new THREE.FileLoader(loadingManager);
 
 		fileLoader.load('../../../../resources/mesh/catmullRom/catmullRom.json', function(json) {
 			try {
-				var pathPointsCollection = [];
-				var pathPointsJson = JSON.parse(json).data;
+				let pathPointsCollection = [];
+				let pathPointsJson = JSON.parse(json).data;
 
-				for (var i = 0; i < pathPointsJson.length; ++i) {
+				for (let i = 0; i < pathPointsJson.length; ++i) {
 					pathPointsCollection.push(new THREE.Vector3(pathPointsJson[i].x, pathPointsJson[i].y, pathPointsJson[i].z));
 				}
 
@@ -199,7 +204,7 @@
 	};
 
 	Main.prototype.createGui = function() {
-		var self = this;
+		let self = this;
 
 		this.gui.add(properties, 'axesHelperVisible').onChange(function(value) {
 			self.axesHelper.visible = value;
@@ -208,7 +213,7 @@
 			self.gridHelper.visible = value;
 		});
 
-		var folderCamera = this.gui.addFolder('Camera Properties');
+		let folderCamera = this.gui.addFolder('Camera Properties');
 		folderCamera.add(properties, 'cameraTracking').onChange(function(value) {
 		});
 		folderCamera.add(properties, 'cameraOffset', 0, 2).step(0.01).onChange(function(value) {
@@ -216,7 +221,7 @@
 		folderCamera.add(properties, 'cameraLoopTime', 10, 1000).step(1).onChange(function(value) {
 		});
 
-		var folderTubeGeometry = this.gui.addFolder('Tube Geometry');
+		let folderTubeGeometry = this.gui.addFolder('Tube Geometry');
 		folderTubeGeometry.add(properties, 'tubeVisible').onChange(function(value) {
 			self.tube.visible = value;
 		});
@@ -237,15 +242,15 @@
 			self.createGeometry();
 		});
 
-		var folderTubeMaterial = this.gui.addFolder('Tube Material');
+		let folderTubeMaterial = this.gui.addFolder('Tube Material');
 		folderTubeMaterial.addColor(properties, 'tubeMaterialColor').onChange(function(value) {
-			self.tube.children[0].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.tube.children[0].material.color.set(value);
 		});
 		folderTubeMaterial.addColor(properties, 'tubeWireframeColor').onChange(function(value) {
-			self.tube.children[1].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.tube.children[1].material.color.set(value);
 		});
 
-		var folderCurveGeometry = this.gui.addFolder('Curve Geometry');
+		let folderCurveGeometry = this.gui.addFolder('Curve Geometry');
 		folderCurveGeometry.add(properties, 'curveBinormalsVisible').onChange(function(value) {
 			self.binormalLines.visible = value;
 		});
@@ -262,18 +267,18 @@
 		folderCurveGeometry.add(properties, 'curveTangentsLength', 0.1, 3).step(0.1).onChange(function(value) {
 		});
 
-		var folderCurveMaterial = this.gui.addFolder('Curve Material');
+		let folderCurveMaterial = this.gui.addFolder('Curve Material');
 		folderCurveMaterial.addColor(properties, 'curveMaterialColor').onChange(function(value) {
-			self.curve.material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.curve.material.color.set(value);
 		});
 		folderCurveMaterial.addColor(properties, 'curveBinormalMaterialColor').onChange(function(value) {
-			self.binormalLines.material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.binormalLines.material.color.set(value);
 		});
 		folderCurveMaterial.addColor(properties, 'curveNormalMaterialColor').onChange(function(value) {
-			self.normalLines.material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.normalLines.material.color.set(value);
 		});
 		folderCurveMaterial.addColor(properties, 'curveTangentMaterialColor').onChange(function(value) {
-			self.tangentLines.material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.tangentLines.material.color.set(value);
 		});
 	};
 
@@ -281,8 +286,8 @@
 		requestAnimationFrame(this.render.bind(this));
 
 
-		var time = Date.now();
-		var looptime = properties.cameraLoopTime * 1000;
+		let time = Date.now();
+		let looptime = properties.cameraLoopTime * 1000;
 
 		this.deltaTime = (time % looptime) / looptime;
 
@@ -310,10 +315,10 @@
 	Main.prototype.setCameraPositionByDeltaTime = function(deltaTime) {
 		rdo.helper.resetOutput();
 
-		var segments = this.tubeGeometry.tangents.length;
-		var pickt = deltaTime * segments;
-		var pick = Math.floor( pickt );
-		var pickNext = ( pick + 1 ) % segments;
+		let segments = this.tubeGeometry.tangents.length;
+		let pickt = deltaTime * segments;
+		let pick = Math.floor( pickt );
+		let pickNext = ( pick + 1 ) % segments;
 
 		rdo.helper.addOutput('Segments                : ' + segments);
 		rdo.helper.addOutput('Current segment by time : ' + rdo.helper.roundDecimal(pickt, 6));
@@ -326,9 +331,9 @@
 		this.tangentLines.geometry.dispose();
 		this.tangentLines.geometry = new THREE.Geometry();
 
-		for (var i = 0; i < segments; ++i) {
-			var t = 1 / segments * i;
-			var p = this.tubeGeometry.parameters.path.getPointAt(t);
+		for (let i = 0; i < segments; ++i) {
+			let t = 1 / segments * i;
+			let p = this.tubeGeometry.parameters.path.getPointAt(t);
 
 			this.binormalLines.geometry.vertices.push(p);
 			this.binormalLines.geometry.vertices.push(p.clone().add(this.tubeGeometry.binormals[i].clone().multiplyScalar(properties.curveBinormalsLength)));
@@ -345,8 +350,8 @@
 		this.binormal.add(this.tubeGeometry.binormals[pick]);
 
 
-		var dir = this.tubeGeometry.parameters.path.getTangentAt(deltaTime);
-		var pos = this.tubeGeometry.parameters.path.getPointAt(deltaTime);
+		let dir = this.tubeGeometry.parameters.path.getTangentAt(deltaTime);
+		let pos = this.tubeGeometry.parameters.path.getPointAt(deltaTime);
 
 		// calculate position (includes offset)
 		pos.add(this.binormal.clone().multiplyScalar(properties.cameraOffset));
@@ -354,7 +359,7 @@
 		rdo.helper.addOutput('Camera position         : ' + rdo.helper.vectorToString(pos));
 
 		// camera orientation - up orientation via binormal
-		var lookAt = pos.clone().add(dir);
+		let lookAt = pos.clone().add(dir);
 
 		rdo.helper.addOutput('Camera LookAt           : ' + rdo.helper.vectorToString(lookAt));
 
@@ -365,7 +370,7 @@
 
 
 
-	var main = new Main(document.getElementById('webGlCanvas'));
+	let main = new Main(document.getElementById('webGlCanvas'));
 	document.addEventListener('DOMContentLoaded', function() {
 		main.init();
 	});

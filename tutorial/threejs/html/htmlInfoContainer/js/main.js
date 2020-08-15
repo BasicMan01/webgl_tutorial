@@ -1,15 +1,19 @@
-/* globals dat,rdo,THREE */
+// jshint esversion: 6
+
+import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
+import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+
+import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+
 
 (function(window) {
-	'use strict';
-
-	var config = {
+	let config = {
 		'CAMERA_FOV': 70,
 		'CAMERA_NEAR_PLANE': 0.1,
 		'CAMERA_FAR_PLANE': 500
 	};
 
-	var properties = {
+	let properties = {
 		'axesHelperVisible': true,
 		'gridHelperVisible': true,
 		'infoBoxCenter': true,
@@ -33,7 +37,7 @@
 
 
 
-	var Main = function(canvas)	{
+	let Main = function(canvas)	{
 		this.canvas = canvas;
 
 		this.camera = null;
@@ -69,9 +73,9 @@
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize(this.getCanvasWidth(), this.getCanvasHeight());
 
-		this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-		this.gui = new dat.GUI({ width: 400 });
+		this.gui = new GUI({ width: 400 });
 		this.gui.close();
 
 		// add renderer to the DOM-Tree
@@ -148,9 +152,9 @@
 	};
 
 	Main.prototype.createGeometry = function() {
-		var geometryCone = new THREE.ConeGeometry(2.5, 5, 32);
-		var geometryCube = new THREE.BoxGeometry(5, 5, 5);
-		var geometrySphere = new THREE.SphereGeometry(2.5, 32, 32);
+		let geometryCone = new THREE.ConeGeometry(2.5, 5, 32);
+		let geometryCube = new THREE.BoxGeometry(5, 5, 5);
+		let geometrySphere = new THREE.SphereGeometry(2.5, 32, 32);
 
 		this.cone.children[0].geometry.dispose();
 		this.cone.children[0].geometry = geometryCone;
@@ -169,7 +173,7 @@
 	};
 
 	Main.prototype.createGui = function() {
-		var self = this;
+		let self = this;
 
 		this.gui.add(properties, 'axesHelperVisible').onChange(function(value) {
 			self.axesHelper.visible = value;
@@ -180,34 +184,34 @@
 		this.gui.add(properties, 'infoBoxCenter').onChange(function(value) {
 		});
 
-		var folderGeometry = this.gui.addFolder('Geometry');
+		let folderGeometry = this.gui.addFolder('Geometry');
 		folderGeometry.add(properties, 'wireframe').onChange(function(value) {
 			self.cone.children[0].visible = !value;
 			self.cube.children[0].visible = !value;
 			self.sphere.children[0].visible = !value;
 		});
 
-		var folderMaterial = this.gui.addFolder('Material');
+		let folderMaterial = this.gui.addFolder('Material');
 		folderMaterial.addColor(properties, 'coneMaterialColor').onChange(function(value) {
-			self.cone.children[0].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.cone.children[0].material.color.set(value);
 		});
 		folderMaterial.addColor(properties, 'coneWireframeColor').onChange(function(value) {
-			self.cone.children[1].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.cone.children[1].material.color.set(value);
 		});
 		folderMaterial.addColor(properties, 'cubeMaterialColor').onChange(function(value) {
-			self.cube.children[0].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.cube.children[0].material.color.set(value);
 		});
 		folderMaterial.addColor(properties, 'cubeWireframeColor').onChange(function(value) {
-			self.cube.children[1].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.cube.children[1].material.color.set(value);
 		});
 		folderMaterial.addColor(properties, 'sphereMaterialColor').onChange(function(value) {
-			self.sphere.children[0].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.sphere.children[0].material.color.set(value);
 		});
 		folderMaterial.addColor(properties, 'sphereWireframeColor').onChange(function(value) {
-			self.sphere.children[1].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.sphere.children[1].material.color.set(value);
 		});
 
-		var folderTransformation = this.gui.addFolder('Transformation');
+		let folderTransformation = this.gui.addFolder('Transformation');
 		folderTransformation.add(properties, 'conePositionX', -10, 10).step(0.1).onChange(function(value) {
 			self.cone.position.x = value;
 		});
@@ -248,8 +252,8 @@
 	Main.prototype.updateInfoBoxPosition = function() {
 		// 3D => 2D
 		if (this.intersectObject !== null) {
-			var object = this.intersectObject;
-			var vector = new THREE.Vector3();
+			let object = this.intersectObject;
+			let vector = new THREE.Vector3();
 
 			if (properties.infoBoxCenter) {
 				// show info box at the center of the mesh
@@ -267,7 +271,7 @@
 			vector.x = Math.round((0.5 + vector.x / 2) * this.getCanvasWidth());
 			vector.y = Math.round((0.5 - vector.y / 2) * this.getCanvasHeight());
 
-			var templateCode = this.infoBoxTemplate.innerHTML;
+			let templateCode = this.infoBoxTemplate.innerHTML;
 
 			this.infoBox.innerHTML = templateCode.replace('{geometry}', this.intersectObject.geometry.type);
 			this.infoBox.style.display = 'block';
@@ -290,7 +294,7 @@
 
 		this.raycaster.setFromCamera(this.mouseVector2, this.camera);
 
-		var intersects = this.raycaster.intersectObjects(this.meshs);
+		let intersects = this.raycaster.intersectObjects(this.meshs);
 
 		if(intersects.length > 0) {
 			this.intersectObject = intersects[0].object;
@@ -308,7 +312,7 @@
 
 
 
-	var main = new Main(document.getElementById('webGlCanvas'));
+	let main = new Main(document.getElementById('webGlCanvas'));
 	document.addEventListener('DOMContentLoaded', function() {
 		main.init();
 	});

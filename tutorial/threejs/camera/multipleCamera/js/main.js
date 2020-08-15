@@ -1,15 +1,17 @@
-/* globals dat,rdo,THREE */
+// jshint esversion: 6
+
+import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
+import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+
 
 (function(window) {
-	'use strict';
-
-	var config = {
+	let config = {
 		'CAMERA_FOV': 40,
 		'CAMERA_NEAR_PLANE': 0.1,
 		'CAMERA_FAR_PLANE': 500
 	};
 
-	var properties = {
+	let properties = {
 		'axesHelperVisible': true,
 		'gridHelperVisible': true,
 		'coneMaterialColor': '#156289',
@@ -50,7 +52,7 @@
 
 
 
-	var Main = function(canvas)	{
+	let Main = function(canvas)	{
 		this.canvas = canvas;
 
 		this.cameraFront = null;
@@ -77,11 +79,11 @@
 		this.renderer.setClearColor(0x000000, 1);
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize(this.getCanvasWidth(), this.getCanvasHeight());
-		
+
 		this.cameraFront = new THREE.PerspectiveCamera(config.CAMERA_FOV, 1, config.CAMERA_NEAR_PLANE, config.CAMERA_FAR_PLANE);
 		this.cameraRight = new THREE.PerspectiveCamera(config.CAMERA_FOV, 1, config.CAMERA_NEAR_PLANE, config.CAMERA_FAR_PLANE);
 		this.cameraLeft = new THREE.PerspectiveCamera(config.CAMERA_FOV, 1, config.CAMERA_NEAR_PLANE, config.CAMERA_FAR_PLANE);
-		
+
 		this.cameraLeft.position.set(
 			properties.cameraLeftPositionX,
 			properties.cameraLeftPositionY,
@@ -118,7 +120,7 @@
 			properties.cameraRightRotationZ
 		);
 
-		this.gui = new dat.GUI({ width: 400 });
+		this.gui = new GUI({ width: 400 });
 		this.gui.close();
 
 		// add renderer to the DOM-Tree
@@ -128,7 +130,7 @@
 
 		this.createGui();
 		this.createObject();
-		
+
 		this.render();
 	};
 
@@ -138,37 +140,37 @@
 
 		this.gridHelper = new THREE.GridHelper(50, 50);
 		this.scene.add(this.gridHelper);
-		
+
 
 		this.cone = new THREE.Object3D();
 		this.cone.position.set(properties.conePositionX, properties.conePositionY, properties.conePositionZ);
-		
+
 		this.cone.add(new THREE.Mesh(
 			new THREE.Geometry(),
 			new THREE.MeshBasicMaterial( { color: properties.coneMaterialColor } )
 		));
-		
+
 		this.cone.add(new THREE.LineSegments(
 			new THREE.Geometry(),
 			new THREE.LineBasicMaterial( { color: properties.coneWireframeColor } )
 		));
-		
+
 		this.cube = new THREE.Object3D();
 		this.cube.position.set(properties.cubePositionX, properties.cubePositionY, properties.cubePositionZ);
-		
+
 		this.cube.add(new THREE.Mesh(
 			new THREE.Geometry(),
 			new THREE.MeshBasicMaterial( { color: properties.cubeMaterialColor } )
 		));
-		
+
 		this.cube.add(new THREE.LineSegments(
 			new THREE.Geometry(),
 			new THREE.LineBasicMaterial( { color: properties.cubeWireframeColor } )
 		));
-	
+
 		this.sphere = new THREE.Object3D();
 		this.sphere.position.set(properties.spherePositionX, properties.spherePositionY, properties.spherePositionZ);
-		
+
 		this.sphere.add(new THREE.Mesh(
 			new THREE.Geometry(),
 			new THREE.MeshBasicMaterial( { color: properties.sphereMaterialColor } )
@@ -178,7 +180,7 @@
 			new THREE.Geometry(),
 			new THREE.LineBasicMaterial( { color: properties.sphereWireframeColor } )
 		));
-		
+
 		this.scene.add(this.cone);
 		this.scene.add(this.cube);
 		this.scene.add(this.sphere);
@@ -187,20 +189,20 @@
 	};
 
 	Main.prototype.createGeometry = function() {
-		var geometryCone = new THREE.ConeGeometry(2.5, 5, 32);
-		var geometryCube = new THREE.BoxGeometry(5, 5, 5);
-		var geometrySphere = new THREE.SphereGeometry(2.5, 32, 32);
+		let geometryCone = new THREE.ConeGeometry(2.5, 5, 32);
+		let geometryCube = new THREE.BoxGeometry(5, 5, 5);
+		let geometrySphere = new THREE.SphereGeometry(2.5, 32, 32);
 
 		this.cone.children[0].geometry.dispose();
 		this.cone.children[0].geometry = geometryCone;
 		this.cone.children[1].geometry.dispose();
 		this.cone.children[1].geometry = new THREE.WireframeGeometry(geometryCone);
-		
+
 		this.cube.children[0].geometry.dispose();
 		this.cube.children[0].geometry = geometryCube;
 		this.cube.children[1].geometry.dispose();
 		this.cube.children[1].geometry = new THREE.WireframeGeometry(geometryCube);
-		
+
 		this.sphere.children[0].geometry.dispose();
 		this.sphere.children[0].geometry = geometrySphere;
 		this.sphere.children[1].geometry.dispose();
@@ -208,7 +210,7 @@
 	};
 
 	Main.prototype.createGui = function() {
-		var self = this;
+		let self = this;
 
 		this.gui.add(properties, 'axesHelperVisible').onChange(function(value) {
 			self.axesHelper.visible = value;
@@ -216,35 +218,35 @@
 		this.gui.add(properties, 'gridHelperVisible').onChange(function(value) {
 			self.gridHelper.visible = value;
 		});
-		
-		var folderGeometry = this.gui.addFolder('Geometry');
+
+		let folderGeometry = this.gui.addFolder('Geometry');
 		folderGeometry.add(properties, 'wireframe').onChange(function(value) {
 			self.cone.children[0].visible = !value;
 			self.cube.children[0].visible = !value;
 			self.sphere.children[0].visible = !value;
 		});
 
-		var folderMaterial = this.gui.addFolder('Material');
+		let folderMaterial = this.gui.addFolder('Material');
 		folderMaterial.addColor(properties, 'coneMaterialColor').onChange(function(value) {
-			self.cone.children[0].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.cone.children[0].material.color.set(value);
 		});
 		folderMaterial.addColor(properties, 'coneWireframeColor').onChange(function(value) {
-			self.cone.children[1].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.cone.children[1].material.color.set(value);
 		});
 		folderMaterial.addColor(properties, 'cubeMaterialColor').onChange(function(value) {
-			self.cube.children[0].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.cube.children[0].material.color.set(value);
 		});
 		folderMaterial.addColor(properties, 'cubeWireframeColor').onChange(function(value) {
-			self.cube.children[1].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.cube.children[1].material.color.set(value);
 		});
 		folderMaterial.addColor(properties, 'sphereMaterialColor').onChange(function(value) {
-			self.sphere.children[0].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.sphere.children[0].material.color.set(value);
 		});
 		folderMaterial.addColor(properties, 'sphereWireframeColor').onChange(function(value) {
-			self.sphere.children[1].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.sphere.children[1].material.color.set(value);
 		});
 
-		var folderTransformation = this.gui.addFolder('Transformation');
+		let folderTransformation = this.gui.addFolder('Transformation');
 		folderTransformation.add(properties, 'conePositionX', -10, 10).step(0.1).onChange(function(value) {
 			self.cone.position.x = value;
 		});
@@ -273,7 +275,7 @@
 			self.sphere.position.z = value;
 		});
 
-		var folderCameraLeft = this.gui.addFolder('Transformation Camera Left');
+		let folderCameraLeft = this.gui.addFolder('Transformation Camera Left');
 		folderCameraLeft.add(properties, 'cameraLeftPositionX', -50, 50).step(1).onChange(function(value) {
 			self.cameraLeft.position.x = value;
 		});
@@ -293,7 +295,7 @@
 			self.cameraLeft.rotation.z = value;
 		});
 
-		var folderCameraFront = this.gui.addFolder('Transformation Camera Front');
+		let folderCameraFront = this.gui.addFolder('Transformation Camera Front');
 		folderCameraFront.add(properties, 'cameraFrontPositionX', -50, 50).step(1).onChange(function(value) {
 			self.cameraFront.position.x = value;
 		});
@@ -313,7 +315,7 @@
 			self.cameraFront.rotation.z = value;
 		});
 
-		var folderCameraRight = this.gui.addFolder('Transformation Camera Right');
+		let folderCameraRight = this.gui.addFolder('Transformation Camera Right');
 		folderCameraRight.add(properties, 'cameraRightPositionX', -50, 50).step(1).onChange(function(value) {
 			self.cameraRight.position.x = value;
 		});
@@ -333,12 +335,12 @@
 			self.cameraRight.rotation.z = value;
 		});
 	};
-	
+
 	Main.prototype.render = function() {
 		requestAnimationFrame(this.render.bind(this));
 
-		var size = this.getCanvasHeight() / 2;
-		var border = (this.getCanvasWidth() - 1.5 * this.getCanvasHeight()) / 2;
+		let size = this.getCanvasHeight() / 2;
+		let border = (this.getCanvasWidth() - 1.5 * this.getCanvasHeight()) / 2;
 
 		this.scene.rotation.y = this.sceneRotY;
 		this.sceneRotY += 0.002;
@@ -365,13 +367,13 @@
 
 	Main.prototype.getCameraAspect = function() { return this.getCanvasWidth() / this.getCanvasHeight(); };
 
-	
+
 	Main.prototype.onResizeHandler = function(event) {
 		this.renderer.setSize(this.getCanvasWidth(), this.getCanvasHeight());
 	};
 
 
-	var main = new Main(document.getElementById('webGlCanvas'));
+	let main = new Main(document.getElementById('webGlCanvas'));
 	document.addEventListener('DOMContentLoaded', function() {
 		main.init();
 	});

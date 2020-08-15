@@ -1,15 +1,19 @@
-/* globals dat,rdo,THREE */
+// jshint esversion: 6
+
+import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
+import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+
+import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+
 
 (function(window) {
-	'use strict';
-
-	var config = {
+	let config = {
 		'CAMERA_FOV': 70,
 		'CAMERA_NEAR_PLANE': 0.1,
 		'CAMERA_FAR_PLANE': 500
 	};
 
-	var properties = {
+	let properties = {
 		'axesHelperVisible': true,
 		'gridHelperVisible': true,
 		'cylinderRadiusTop': 3,
@@ -36,7 +40,7 @@
 
 
 
-	var Main = function(canvas)	{
+	let Main = function(canvas)	{
 		this.canvas = canvas;
 
 		this.camera = null;
@@ -62,9 +66,9 @@
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize(this.getCanvasWidth(), this.getCanvasHeight());
 
-		this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-		this.gui = new dat.GUI({ width: 400 });
+		this.gui = new GUI({ width: 400 });
 		this.gui.close();
 
 		// add renderer to the DOM-Tree
@@ -102,7 +106,7 @@
 	};
 
 	Main.prototype.createGeometry = function() {
-		var geometry = new THREE.CylinderGeometry(
+		let geometry = new THREE.CylinderGeometry(
 			properties.cylinderRadiusTop,
 			properties.cylinderRadiusBottom,
 			properties.cylinderHeight,
@@ -121,7 +125,7 @@
 	};
 
 	Main.prototype.createGui = function() {
-		var self = this;
+		let self = this;
 
 		this.gui.add(properties, 'axesHelperVisible').onChange(function(value) {
 			self.axesHelper.visible = value;
@@ -130,7 +134,7 @@
 			self.gridHelper.visible = value;
 		});
 
-		var folderGeometry = this.gui.addFolder('Cylinder Geometry');
+		let folderGeometry = this.gui.addFolder('Cylinder Geometry');
 		folderGeometry.add(properties, 'cylinderWireframe').onChange(function(value) {
 			self.cylinder.children[0].visible = !value;
 			/*
@@ -163,15 +167,15 @@
 			self.createGeometry();
 		});
 
-		var folderMaterial = this.gui.addFolder('Cylinder Material');
+		let folderMaterial = this.gui.addFolder('Cylinder Material');
 		folderMaterial.addColor(properties, 'cylinderMaterialColor').onChange(function(value) {
-			self.cylinder.children[0].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.cylinder.children[0].material.color.set(value);
 		});
 		folderMaterial.addColor(properties, 'cylinderWireframeColor').onChange(function(value) {
-			self.cylinder.children[1].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.cylinder.children[1].material.color.set(value);
 		});
 
-		var folderTransformation = this.gui.addFolder('Cylinder Transformation');
+		let folderTransformation = this.gui.addFolder('Cylinder Transformation');
 		folderTransformation.add(properties, 'cylinderPositionX', -10, 10).step(0.1).onChange(function(value) {
 			self.cylinder.position.x = value;
 		});
@@ -221,7 +225,7 @@
 
 
 
-	var main = new Main(document.getElementById('webGlCanvas'));
+	let main = new Main(document.getElementById('webGlCanvas'));
 	document.addEventListener('DOMContentLoaded', function() {
 		main.init();
 	});
