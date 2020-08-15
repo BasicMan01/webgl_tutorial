@@ -1,14 +1,20 @@
-/* globals dat,rdo,THREE */
-(function(window) {
-	'use strict';
+// jshint esversion: 6
 
-	var config = {
+import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
+import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+
+import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+import { FBXLoader } from '../../../../../lib/threejs_119/examples/jsm/loaders/FBXLoader.js';
+
+
+(function(window) {
+	let config = {
 		'CAMERA_FOV': 70,
 		'CAMERA_NEAR_PLANE': 0.1,
 		'CAMERA_FAR_PLANE': 500
 	};
 
-	var properties = {
+	let properties = {
 		'axesHelperVisible': true,
 		'gridHelperVisible': true,
 		'ambientColor': '#FFFFFF',
@@ -26,21 +32,21 @@
 		'fbxModelWireframe': false
 	};
 
-	var onProgress = function(xhr) {
+	let onProgress = function(xhr) {
 		if(xhr.lengthComputable) {
-			var percentComplete = xhr.loaded / xhr.total * 100;
+			let percentComplete = xhr.loaded / xhr.total * 100;
 
 			console.log(Math.round(percentComplete, 2) + '% downloaded');
 		}
 	};
 
-	var onError = function(xhr) {
+	let onError = function(xhr) {
 		console.error(xhr);
 	};
 
 
 
-	var Main = function(canvas)	{
+	let Main = function(canvas)	{
 		this.canvas = canvas;
 
 		this.camera = null;
@@ -63,14 +69,14 @@
 		this.camera.position.set(0, 10, 20);
 
 		this.renderer = new THREE.WebGLRenderer({antialias: true});
-		this.renderer.gammaOutput = true;
+		this.renderer.outputEncoding = THREE.sRGBEncoding;
 		this.renderer.setClearColor(0x000000, 1);
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize(this.getCanvasWidth(), this.getCanvasHeight());
 
-		this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-		this.gui = new dat.GUI({ width: 400 });
+		this.gui = new GUI({ width: 400 });
 		this.gui.close();
 
 		// add renderer to the DOM-Tree
@@ -86,7 +92,7 @@
 	};
 
 	Main.prototype.createObject = function() {
-		var self = this;
+		let self = this;
 
 		this.axesHelper = new THREE.AxesHelper(25);
 		this.scene.add(this.axesHelper);
@@ -95,14 +101,14 @@
 		this.scene.add(this.gridHelper);
 
 
-		var loadingManager = new THREE.LoadingManager();
+		let loadingManager = new THREE.LoadingManager();
 
 		loadingManager.onProgress = function(item, loaded, total) {
 			console.log(item, '(' + loaded + '/' + total + ')');
 		};
 
 
-		var fbxLoader = new THREE.FBXLoader(loadingManager);
+		let fbxLoader = new FBXLoader(loadingManager);
 
 		fbxLoader.setResourcePath('../../../../resources/texture/');
 		fbxLoader.load('../../../../resources/mesh/fbx/fbxCabinet.fbx', function(object) {
@@ -113,7 +119,7 @@
 	};
 
 	Main.prototype.createGui = function() {
-		var self = this;
+		let self = this;
 
 		this.gui.add(properties, 'axesHelperVisible').onChange(function(value) {
 			self.axesHelper.visible = value;
@@ -122,17 +128,17 @@
 			self.gridHelper.visible = value;
 		});
 
-		var folderGeometry = this.gui.addFolder('FBX Model Geometry');
+		let folderGeometry = this.gui.addFolder('FBX Model Geometry');
 		folderGeometry.add(properties, 'fbxModelWireframe').onChange(function(value) {
 			self.fbxModel.getObjectByName('cabinet').material.wireframe = value;
 		});
 
-		var folderMaterial = this.gui.addFolder('FBX Model Material');
+		let folderMaterial = this.gui.addFolder('FBX Model Material');
 		folderMaterial.addColor(properties, 'fbxModelMaterialColor').onChange(function(value) {
-			self.fbxModel.getObjectByName('cabinet').material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.fbxModel.getObjectByName('cabinet').material.color.set(value);
 		});
 
-		var folderTransformation = this.gui.addFolder('FBX Model Transformation');
+		let folderTransformation = this.gui.addFolder('FBX Model Transformation');
 		folderTransformation.add(properties, 'fbxModelPositionX', -10, 10).step(0.1).onChange(function(value) {
 			self.fbxModel.position.x = value;
 		});
@@ -190,7 +196,7 @@
 
 
 
-	var main = new Main(document.getElementById('webGlCanvas'));
+	let main = new Main(document.getElementById('webGlCanvas'));
 	document.addEventListener('DOMContentLoaded', function() {
 		main.init();
 	});

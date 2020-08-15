@@ -1,15 +1,20 @@
-/* globals dat,rdo,THREE */
+// jshint esversion: 6
+/* globals rdo */
+
+import * as THREE from '../../../../../../lib/threejs_119/build/three.module.js';
+import { GUI } from '../../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+
+import { OrbitControls } from '../../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+
 
 (function(window) {
-	'use strict';
-
-	var config = {
+	let config = {
 		'CAMERA_FOV': 70,
 		'CAMERA_NEAR_PLANE': 0.1,
 		'CAMERA_FAR_PLANE': 500
 	};
 
-	var properties = {
+	let properties = {
 		'axesHelperVisible': true,
 		'gridHelperVisible': true,
 		'sphere1MaterialColor': '#156289',
@@ -28,7 +33,7 @@
 	};
 
 
-	var Main = function(canvas)	{
+	let Main = function(canvas)	{
 		this.canvas = canvas;
 
 		this.camera = null;
@@ -57,9 +62,9 @@
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize(this.getCanvasWidth(), this.getCanvasHeight());
 
-		this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-		this.gui = new dat.GUI({ width: 400 });
+		this.gui = new GUI({ width: 400 });
 		this.gui.close();
 
 		// add renderer to the DOM-Tree
@@ -116,7 +121,7 @@
 	};
 
 	Main.prototype.createSphere1Geometry = function() {
-		var geometry = new THREE.SphereGeometry(properties.sphere1Radius, 16, 12);
+		let geometry = new THREE.SphereGeometry(properties.sphere1Radius, 16, 12);
 
 		this.sphere1.children[0].geometry.dispose();
 		this.sphere1.children[0].geometry = geometry;
@@ -126,7 +131,7 @@
 	};
 
 	Main.prototype.createSphere2Geometry = function() {
-		var geometry = new THREE.SphereGeometry(properties.sphere2Radius, 16, 12);
+		let geometry = new THREE.SphereGeometry(properties.sphere2Radius, 16, 12);
 
 		this.sphere2.children[0].geometry.dispose();
 		this.sphere2.children[0].geometry = geometry;
@@ -136,7 +141,7 @@
 	};
 
 	Main.prototype.createGui = function() {
-		var self = this;
+		let self = this;
 
 		this.gui.add(properties, 'axesHelperVisible').onChange(function(value) {
 			self.axesHelper.visible = value;
@@ -145,12 +150,12 @@
 			self.gridHelper.visible = value;
 		});
 
-		var folderSphere1 = this.gui.addFolder('Sphere 1 Properties');
+		let folderSphere1 = this.gui.addFolder('Sphere 1 Properties');
 		folderSphere1.addColor(properties, 'sphere1MaterialColor').onChange(function(value) {
-			self.sphere1.children[0].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.sphere1.children[0].material.color.set(value);
 		});
 		folderSphere1.addColor(properties, 'sphere1WireframeColor').onChange(function(value) {
-			self.sphere1.children[1].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.sphere1.children[1].material.color.set(value);
 		});
 		folderSphere1.add(properties, 'sphere1Radius', 0.1, 10).step(0.1).onChange(function(value) {
 			self.createSphere1Geometry();
@@ -165,12 +170,12 @@
 			self.sphere1.position.z = value;
 		});
 
-		var folderSphere2 = this.gui.addFolder('Sphere 2 Properties');
+		let folderSphere2 = this.gui.addFolder('Sphere 2 Properties');
 		folderSphere2.addColor(properties, 'sphere2MaterialColor').onChange(function(value) {
-			self.sphere2.children[0].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.sphere2.children[0].material.color.set(value);
 		});
 		folderSphere2.addColor(properties, 'sphere2WireframeColor').onChange(function(value) {
-			self.sphere2.children[1].material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.sphere2.children[1].material.color.set(value);
 		});
 		folderSphere2.add(properties, 'sphere2Radius', 0.1, 10).step(0.1).onChange(function(value) {
 			self.createSphere2Geometry();
@@ -229,7 +234,7 @@
 
 
 
-	var main = new Main(document.getElementById('webGlCanvas'));
+	let main = new Main(document.getElementById('webGlCanvas'));
 	document.addEventListener('DOMContentLoaded', function() {
 		main.init();
 	});
