@@ -1,15 +1,19 @@
-/* globals dat,rdo,THREE */
+// jshint esversion: 6
+
+import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
+import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+
+import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+
 
 (function(window) {
-	'use strict';
-
-	var config = {
+	let config = {
 		'CAMERA_FOV': 70,
 		'CAMERA_NEAR_PLANE': 0.1,
 		'CAMERA_FAR_PLANE': 500
 	};
 
-	var properties = {
+	let properties = {
 		'ambientColor': '#DDEEFF',
 		'ambientIntensity': 0.2,
 		'cubeMaterialColor': '#FFFFFF',
@@ -26,7 +30,7 @@
 
 
 
-	var Main = function(canvas)	{
+	let Main = function(canvas)	{
 		this.canvas = canvas;
 
 		this.camera = null;
@@ -52,9 +56,9 @@
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize(this.getCanvasWidth(), this.getCanvasHeight());
 
-		this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-		this.gui = new dat.GUI({ width: 400 });
+		this.gui = new GUI({ width: 400 });
 		this.gui.close();
 
 		// add renderer to the DOM-Tree
@@ -85,22 +89,22 @@
 	};
 
 	Main.prototype.createGui = function() {
-		var self = this;
+		let self = this;
 
-		var folderProperties = this.gui.addFolder('Ambient Properties');
+		let folderProperties = this.gui.addFolder('Ambient Properties');
 		folderProperties.addColor(properties, 'ambientColor').onChange(function(value) {
-			self.ambientLight.color.setHex(rdo.helper.cssColorToHex(value));
+			self.ambientLight.color.set(value);
 		});
 		folderProperties.add(properties, 'ambientIntensity', 0, 1).step(0.01).onChange(function(value) {
 			self.ambientLight.intensity = value;
 		});
 
-		var folderMaterial = this.gui.addFolder('Cube Material');
+		let folderMaterial = this.gui.addFolder('Cube Material');
 		folderMaterial.addColor(properties, 'cubeMaterialColor').onChange(function(value) {
-			self.cube.material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.cube.material.color.set(value);
 		});
 
-		var folderTransformation = this.gui.addFolder('Cube Transformation');
+		let folderTransformation = this.gui.addFolder('Cube Transformation');
 		folderTransformation.add(properties, 'cubePositionX', -10, 10).step(0.1).onChange(function(value) {
 			self.cube.position.x = value;
 		});
@@ -158,7 +162,7 @@
 
 
 
-	var main = new Main(document.getElementById('webGlCanvas'));
+	let main = new Main(document.getElementById('webGlCanvas'));
 	document.addEventListener('DOMContentLoaded', function() {
 		main.init();
 	});

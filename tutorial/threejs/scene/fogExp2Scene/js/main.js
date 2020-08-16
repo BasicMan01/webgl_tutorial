@@ -1,15 +1,19 @@
-/* globals dat,rdo,THREE */
+// jshint esversion: 6
+
+import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
+import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+
+import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+
 
 (function(window) {
-	'use strict';
-
-	var config = {
+	let config = {
 		'CAMERA_FOV': 70,
 		'CAMERA_NEAR_PLANE': 0.1,
 		'CAMERA_FAR_PLANE': 500
 	};
 
-	var properties = {
+	let properties = {
 		'fogDensity': 0.02,
 		'fogColor': '#FFFFFF',
 		'cubePositionX': 0,
@@ -25,7 +29,7 @@
 
 
 
-	var Main = function(canvas)	{
+	let Main = function(canvas)	{
 		this.canvas = canvas;
 
 		this.camera = null;
@@ -51,9 +55,9 @@
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize(this.getCanvasWidth(), this.getCanvasHeight());
 
-		this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-		this.gui = new dat.GUI({ width: 400 });
+		this.gui = new GUI({ width: 400 });
 		this.gui.close();
 
 		// add renderer to the DOM-Tree
@@ -92,17 +96,17 @@
 	};
 
 	Main.prototype.createGui = function() {
-		var self = this;
+		let self = this;
 
-		var folderProperties = this.gui.addFolder('FogExp2 Properties');
+		let folderProperties = this.gui.addFolder('FogExp2 Properties');
 		folderProperties.addColor(properties, 'fogColor').onChange(function(value) {
-			self.scene.fog.color.setHex(rdo.helper.cssColorToHex(value));
+			self.scene.fog.color.set(value);
 		});
 		folderProperties.add(properties, 'fogDensity', 0.001, 0.10).step(0.001).onChange(function(value) {
 			self.scene.fog.density = value;
 		});
 
-		var folderTransformation = this.gui.addFolder('Cube Transformation');
+		let folderTransformation = this.gui.addFolder('Cube Transformation');
 		folderTransformation.add(properties, 'cubePositionX', -10, 10).step(0.1).onChange(function(value) {
 			self.cube.position.x = value;
 		});
@@ -157,7 +161,7 @@
 
 
 
-	var main = new Main(document.getElementById('webGlCanvas'));
+	let main = new Main(document.getElementById('webGlCanvas'));
 	document.addEventListener('DOMContentLoaded', function() {
 		main.init();
 	});

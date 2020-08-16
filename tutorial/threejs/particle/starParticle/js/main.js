@@ -1,15 +1,19 @@
-/* globals dat,rdo,THREE */
+// jshint esversion: 6
+
+import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
+import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+
+import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+
 
 (function(window) {
-	'use strict';
-
-	var config = {
+	let config = {
 		'CAMERA_FOV': 70,
 		'CAMERA_NEAR_PLANE': 0.1,
 		'CAMERA_FAR_PLANE': 500
 	};
 
-	var properties = {
+	let properties = {
 		'axesHelperVisible': true,
 		'gridHelperVisible': true,
 		'particleCount': 10000,
@@ -30,7 +34,7 @@
 
 
 
-	var Main = function(canvas)	{
+	let Main = function(canvas)	{
 		this.canvas = canvas;
 
 		this.camera = null;
@@ -57,9 +61,9 @@
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize(this.getCanvasWidth(), this.getCanvasHeight());
 
-		this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-		this.gui = new dat.GUI({ width: 400 });
+		this.gui = new GUI({ width: 400 });
 		this.gui.close();
 
 		// add renderer to the DOM-Tree
@@ -93,11 +97,10 @@
 	};
 
 	Main.prototype.createGeometry = function() {
-		var geometry = new THREE.Geometry();
+		let geometry = new THREE.Geometry();
 
-		for(var i = 0; i < properties.particleCount; ++i)
-		{
-			var sprite = new THREE.Vector3();
+		for(let i = 0; i < properties.particleCount; ++i) {
+			let sprite = new THREE.Vector3();
 
 			// Random float from -range/2 to range/2 interval
 			sprite.x = THREE.Math.randFloatSpread(50);
@@ -125,7 +128,7 @@
 	};
 
 	Main.prototype.createGui = function() {
-		var self = this;
+		let self = this;
 
 		this.gui.add(properties, 'axesHelperVisible').onChange(function(value) {
 			self.axesHelper.visible = value;
@@ -134,12 +137,12 @@
 			self.gridHelper.visible = value;
 		});
 
-		var folderGeometry = this.gui.addFolder('Particle Geometry');
+		let folderGeometry = this.gui.addFolder('Particle Geometry');
 		folderGeometry.add(properties, 'particleCount', 100, 100000).step(100).onChange(function(value) {
 			self.createGeometry();
 		});
 
-		var folderMaterial = this.gui.addFolder('Particle Material');
+		let folderMaterial = this.gui.addFolder('Particle Material');
 		folderMaterial.add(properties, 'particleAlphaTest', 0.01, 1).step(0.01).onChange(function(value) {
 			self.createMaterial();
 		});
@@ -150,10 +153,10 @@
 			self.createMaterial();
 		});
 		folderMaterial.addColor(properties, 'particleMaterialColor').onChange(function(value) {
-			self.particles.material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.particles.material.color.set(value);
 		});
 
-		var folderTransformation = this.gui.addFolder('Particle Transformation');
+		let folderTransformation = this.gui.addFolder('Particle Transformation');
 		folderTransformation.add(properties, 'particlePositionX', -10, 10).step(0.1).onChange(function(value) {
 			self.particles.position.x = value;
 		});
@@ -203,7 +206,7 @@
 
 
 
-	var main = new Main(document.getElementById('webGlCanvas'));
+	let main = new Main(document.getElementById('webGlCanvas'));
 	document.addEventListener('DOMContentLoaded', function() {
 		main.init();
 	});

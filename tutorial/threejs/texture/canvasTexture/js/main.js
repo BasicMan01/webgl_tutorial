@@ -1,15 +1,20 @@
-/* globals dat,rdo,THREE */
+// jshint esversion: 6
+/* globals rdo */
+
+import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
+import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+
+import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+
 
 (function(window) {
-	'use strict';
-
-	var config = {
+	let config = {
 		'CAMERA_FOV': 70,
 		'CAMERA_NEAR_PLANE': 0.1,
 		'CAMERA_FAR_PLANE': 500
 	};
 
-	var fonts = {
+	let fonts = {
 		'Arial': 'Arial',
 		'Arial Black': 'Arial Black',
 		'Comic Sans MS': 'Comic Sans MS',
@@ -25,7 +30,7 @@
 		'Verdana': 'Verdana'
 	};
 
-	var properties = {
+	let properties = {
 		'axesHelperVisible': true,
 		'gridHelperVisible': true,
 		'planeWidth': 5,
@@ -54,7 +59,7 @@
 
 
 
-	var Main = function(canvas)	{
+	let Main = function(canvas)	{
 		this.canvas = canvas;
 
 		this.camera = null;
@@ -80,9 +85,9 @@
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize(this.getCanvasWidth(), this.getCanvasHeight());
 
-		this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-		this.gui = new dat.GUI({ width: 400 });
+		this.gui = new GUI({ width: 400 });
 		this.gui.close();
 
 		// add renderer to the DOM-Tree
@@ -114,7 +119,7 @@
 	};
 
 	Main.prototype.createGeometry = function() {
-		var geometry = new THREE.PlaneGeometry(
+		let geometry = new THREE.PlaneGeometry(
 			properties.planeWidth,
 			properties.planeHeight,
 			properties.planeSegmentsX,
@@ -127,23 +132,23 @@
 
 	Main.prototype.createMaterial = function()
 	{
-		var texture = this.createTexture();
+		let texture = this.createTexture();
 
 		this.plane.material = new THREE.MeshBasicMaterial( { map: texture, side: THREE.DoubleSide, transparent: true } );
 	};
 
 	Main.prototype.createTexture = function()
 	{
-		var canvas = document.createElement('canvas');
+		let canvas = document.createElement('canvas');
 
 		canvas.height = 256;
 		canvas.width = 256;
 
-		var context = canvas.getContext('2d');
+		let context = canvas.getContext('2d');
 
-		var backgroundColor = rdo.helper.cssColorToRgb(properties.planeMaterialBackgroundColor);
-		var borderColor = rdo.helper.cssColorToRgb(properties.planeMaterialBorderColor);
-		var fontColor = rdo.helper.cssColorToRgb(properties.planeMaterialFontColor);
+		let backgroundColor = rdo.helper.cssColorToRgb(properties.planeMaterialBackgroundColor);
+		let borderColor = rdo.helper.cssColorToRgb(properties.planeMaterialBorderColor);
+		let fontColor = rdo.helper.cssColorToRgb(properties.planeMaterialFontColor);
 
 		context.fillStyle = 'rgba(' + backgroundColor.r + ', ' + backgroundColor.g + ', ' + backgroundColor.b + ', ' + properties.planeMaterialBackgroundOpacity + ')';
 		context.fillRect(0, 0, 256, 256);
@@ -155,17 +160,17 @@
 		context.font = properties.planeMaterialFontSize + 'px ' + properties.planeMaterialFontFamily;
 		context.fillStyle = 'rgba(' + fontColor.r + ', ' + fontColor.g + ', ' + fontColor.b + ', ' + properties.planeMaterialFontOpacity + ')';
 
-		var topPosition = 0;
-		var lineHeight = properties.planeMaterialFontSize + 5;
+		let topPosition = 0;
+		let lineHeight = properties.planeMaterialFontSize + 5;
 
-		var textCollection = properties.planeMaterialTextValue.split('\\n');
+		let textCollection = properties.planeMaterialTextValue.split('\\n');
 
-		for(var i = 0; i < textCollection.length; ++i)
+		for(let i = 0; i < textCollection.length; ++i)
 		{
 			context.fillText(textCollection[i], 10, topPosition += lineHeight);
 		}
 
-		var texture = new THREE.Texture(canvas);
+		let texture = new THREE.Texture(canvas);
 
 		texture.needsUpdate = true;
 
@@ -173,7 +178,7 @@
 	};
 
 	Main.prototype.createGui = function() {
-		var self = this;
+		let self = this;
 
 		this.gui.add(properties, 'axesHelperVisible').onChange(function(value) {
 			self.axesHelper.visible = value;
@@ -182,7 +187,7 @@
 			self.gridHelper.visible = value;
 		});
 
-		var folderGeometry = this.gui.addFolder('Plane Geometry');
+		let folderGeometry = this.gui.addFolder('Plane Geometry');
 		folderGeometry.add(properties, 'planeWidth', 0.1, 10).step(0.1).onChange(function(value) {
 			self.createGeometry();
 		});
@@ -190,7 +195,7 @@
 			self.createGeometry();
 		});
 
-		var folderMaterial = this.gui.addFolder('Plane Material');
+		let folderMaterial = this.gui.addFolder('Plane Material');
 		folderMaterial.addColor(properties, 'planeMaterialBackgroundColor').onChange(function(value) {
 			self.createMaterial();
 		});
@@ -222,7 +227,7 @@
 			self.createMaterial();
 		});
 
-		var folderTransformation = this.gui.addFolder('Plane Transformation');
+		let folderTransformation = this.gui.addFolder('Plane Transformation');
 		folderTransformation.add(properties, 'planePositionX', -10, 10).step(0.1).onChange(function(value) {
 			self.plane.position.x = value;
 		});
@@ -269,7 +274,7 @@
 
 
 
-	var main = new Main(document.getElementById('webGlCanvas'));
+	let main = new Main(document.getElementById('webGlCanvas'));
 	document.addEventListener('DOMContentLoaded', function() {
 		main.init();
 	});

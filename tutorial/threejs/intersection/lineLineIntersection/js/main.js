@@ -1,15 +1,20 @@
-/* globals dat,rdo,THREE */
+// jshint esversion: 6
+/* globals rdo */
+
+import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
+import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+
+import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+
 
 (function(window) {
-	'use strict';
-
-	var config = {
+	let config = {
 		'CAMERA_FOV': 70,
 		'CAMERA_NEAR_PLANE': 0.1,
 		'CAMERA_FAR_PLANE': 500
 	};
 
-	var properties = {
+	let properties = {
 		'axesHelperVisible': true,
 		'gridHelperVisible': false,
 		'line1v1X': 0.5,
@@ -26,7 +31,7 @@
 
 
 
-	var Main = function(canvas)	{
+	let Main = function(canvas)	{
 		this.canvas = canvas;
 
 		this.camera = null;
@@ -58,9 +63,9 @@
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize(this.getCanvasWidth(), this.getCanvasHeight());
 
-		this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-		this.gui = new dat.GUI({ width: 400 });
+		this.gui = new GUI({ width: 400 });
 		this.gui.close();
 
 		// add renderer to the DOM-Tree
@@ -128,7 +133,7 @@
 	};
 
 	Main.prototype.createGeometry = function() {
-		var curve1 = new THREE.LineCurve(
+		let curve1 = new THREE.LineCurve(
 			new THREE.Vector3(properties.line1v1X, properties.line1v1Y),
 			new THREE.Vector3(properties.line1v2X, properties.line1v2Y)
 		);
@@ -137,7 +142,7 @@
 		this.line1.geometry = new THREE.Geometry().setFromPoints(curve1.getPoints(1));
 
 
-		var curve2 = new THREE.LineCurve(
+		let curve2 = new THREE.LineCurve(
 			new THREE.Vector3(properties.line2v1X, properties.line2v1Y),
 			new THREE.Vector3(properties.line2v2X, properties.line2v2Y)
 		);
@@ -159,7 +164,7 @@
 	};
 
 	Main.prototype.createGui = function() {
-		var self = this;
+		let self = this;
 
 		this.gui.add(properties, 'axesHelperVisible').onChange(function(value) {
 			self.axesHelper.visible = value;
@@ -168,7 +173,7 @@
 			self.gridHelper.visible = value;
 		});
 
-		var folderLine1 = this.gui.addFolder('Line 1');
+		let folderLine1 = this.gui.addFolder('Line 1');
 		folderLine1.add(properties, 'line1v1X', -10, 10).step(0.1).onChange(function(value) {
 			self.createGeometry();
 		});
@@ -182,10 +187,10 @@
 			self.createGeometry();
 		});
 		folderLine1.addColor(properties, 'line1Color').onChange(function(value) {
-			self.line1.material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.line1.material.color.set(value);
 		});
 
-		var folderLine2 = this.gui.addFolder('Line 2');
+		let folderLine2 = this.gui.addFolder('Line 2');
 		folderLine2.add(properties, 'line2v1X', -10, 10).step(0.1).onChange(function(value) {
 			self.createGeometry();
 		});
@@ -199,7 +204,7 @@
 			self.createGeometry();
 		});
 		folderLine2.addColor(properties, 'line2Color').onChange(function(value) {
-			self.line2.material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.line2.material.color.set(value);
 		});
 	};
 
@@ -223,32 +228,32 @@
 
 	Main.prototype.calculateLineIntersection = function(line1p1, line1p2, line2p1, line2p2)
 	{
-		var pq = line2p1.sub(line1p1);
+		let pq = line2p1.sub(line1p1);
 
 		rdo.helper.addOutput('P   : ' + line1p1.toString());
 		rdo.helper.addOutput('Q   : ' + line2p1.toString());
 		rdo.helper.addOutput('PQ  : ' + pq.toString());
 
-		var r = line1p2.sub(line1p1).normalize();
-		var s = line2p2.sub(line2p1).normalize();
+		let r = line1p2.sub(line1p1).normalize();
+		let s = line2p2.sub(line2p1).normalize();
 
 		rdo.helper.addOutput('r   : ' + r.toString());
 		rdo.helper.addOutput('s   : ' + s.toString());
 
-		var rx = r.x;
-		var ry = r.y;
-		var rxt = -ry;
-		var ryt = rx;
+		let rx = r.x;
+		let ry = r.y;
+		let rxt = -ry;
+		let ryt = rx;
 
 
-		var curve1 = new THREE.LineCurve(
+		let curve1 = new THREE.LineCurve(
 			new THREE.Vector3(line1p1.x, line1p1.y),
 			new THREE.Vector3(line1p1.x + rx, line1p1.y + ry)
 		);
 		this.rLine.geometry.dispose();
 		this.rLine.geometry = new THREE.Geometry().setFromPoints(curve1.getPoints(1));
 
-		var curve2 = new THREE.LineCurve(
+		let curve2 = new THREE.LineCurve(
 			new THREE.Vector3(line1p1.x, line1p1.y),
 			new THREE.Vector3(line1p1.x + rxt, line1p1.y + ryt)
 		);
@@ -261,8 +266,8 @@
 		rdo.helper.addOutput('ryt : ' + ryt);
 
 
-		var qx = pq.x * rx + pq.y * ry;
-		var qy = pq.x * rxt + pq.y * ryt;
+		let qx = pq.x * rx + pq.y * ry;
+		let qy = pq.x * rxt + pq.y * ryt;
 
 		this.qLine.geometry.dispose();
 		this.qLine.geometry = new THREE.Geometry();
@@ -276,19 +281,19 @@
 		rdo.helper.addOutput('qy  : ' + qy);
 
 
-		var sx = s.x * rx + s.y * ry;
-		var sy = s.x * rxt + s.y * ryt;
-		var sxt = -sy;
-		var syt = sx;
+		let sx = s.x * rx + s.y * ry;
+		let sy = s.x * rxt + s.y * ryt;
+		let sxt = -sy;
+		let syt = sx;
 
-		var curve3 = new THREE.LineCurve(
+		let curve3 = new THREE.LineCurve(
 			new THREE.Vector3(line2p1.x, line2p1.y),
 			new THREE.Vector3(line2p1.x + sx, line2p1.y + sy)
 		);
 		this.sLine.geometry.dispose();
 		this.sLine.geometry = new THREE.Geometry().setFromPoints(curve3.getPoints(1));
 
-		var curve4 = new THREE.LineCurve(
+		let curve4 = new THREE.LineCurve(
 			new THREE.Vector3(line2p1.x, line2p1.y),
 			new THREE.Vector3(line2p1.x + sxt, line2p1.y + syt)
 		);
@@ -303,12 +308,12 @@
 			return [];
 		}
 
-		var a = qx - qy * sx / sy;
+		let a = qx - qy * sx / sy;
 
 		rdo.helper.addOutput('a   : ' + a);
 
-		var resultX = rdo.helper.roundDecimal(line1p1.x + a * rx, 2);
-		var resultY = rdo.helper.roundDecimal(line1p1.y + a * ry, 2);
+		let resultX = rdo.helper.roundDecimal(line1p1.x + a * rx, 2);
+		let resultY = rdo.helper.roundDecimal(line1p1.y + a * ry, 2);
 
 		rdo.helper.addOutput('resultX: ' + resultX);
 		rdo.helper.addOutput('resultY: ' + resultY);
@@ -318,7 +323,7 @@
 
 
 
-	var main = new Main(document.getElementById('webGlCanvas'));
+	let main = new Main(document.getElementById('webGlCanvas'));
 	document.addEventListener('DOMContentLoaded', function() {
 		main.init();
 	});

@@ -1,15 +1,19 @@
-/* globals dat,rdo,THREE */
+// jshint esversion: 6
+
+import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
+import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+
+import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+
 
 (function(window) {
-	'use strict';
-
-	var config = {
+	let config = {
 		'CAMERA_FOV': 70,
 		'CAMERA_NEAR_PLANE': 0.1,
 		'CAMERA_FAR_PLANE': 500
 	};
 
-	var properties = {
+	let properties = {
 		'axesHelperVisible': true,
 		'gridHelperVisible': true,
 		'ambientColor': '#DDEEFF',
@@ -33,7 +37,7 @@
 
 
 
-	var Main = function(canvas)	{
+	let Main = function(canvas)	{
 		this.canvas = canvas;
 
 		this.camera = null;
@@ -62,9 +66,9 @@
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize(this.getCanvasWidth(), this.getCanvasHeight());
 
-		this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-		this.gui = new dat.GUI({ width: 400 });
+		this.gui = new GUI({ width: 400 });
 		this.gui.close();
 
 		// add renderer to the DOM-Tree
@@ -96,14 +100,14 @@
 	};
 
 	Main.prototype.createGeometry = function() {
-		var geometry = new THREE.BoxGeometry(5, 5, 5, 1, 1, 1);
+		let geometry = new THREE.BoxGeometry(5, 5, 5, 1, 1, 1);
 
 		this.cube.geometry.dispose();
 		this.cube.geometry = geometry;
 	};
 
 	Main.prototype.createGui = function() {
-		var self = this;
+		let self = this;
 
 		this.gui.add(properties, 'axesHelperVisible').onChange(function(value) {
 			self.axesHelper.visible = value;
@@ -112,16 +116,16 @@
 			self.gridHelper.visible = value;
 		});
 
-		var folderLightProperties = this.gui.addFolder('Light Properties');
+		let folderLightProperties = this.gui.addFolder('Light Properties');
 		folderLightProperties.addColor(properties, 'ambientColor').onChange(function(value) {
-			self.ambientLight.color.setHex(rdo.helper.cssColorToHex(value));
+			self.ambientLight.color.set(value);
 		});
 		folderLightProperties.add(properties, 'ambientIntensity', 0, 1).step(0.01).onChange(function(value) {
 			self.ambientLight.intensity = value;
 		});
 
 		folderLightProperties.addColor(properties, 'directionalColor').onChange(function(value) {
-			self.directionalLight.color.setHex(rdo.helper.cssColorToHex(value));
+			self.directionalLight.color.set(value);
 		});
 		folderLightProperties.add(properties, 'directionalIntensity', 0, 1).step(0.01).onChange(function(value) {
 			self.directionalLight.intensity = value;
@@ -136,12 +140,12 @@
 			self.directionalLight.position.z = value;
 		});
 
-		var folderMaterial = this.gui.addFolder('Cube Material');
+		let folderMaterial = this.gui.addFolder('Cube Material');
 		folderMaterial.addColor(properties, 'cubeMaterialColor').onChange(function(value) {
-			self.cube.material.color.setHex(rdo.helper.cssColorToHex(value));
+			self.cube.material.color.set(value);
 		});
 
-		var folderTransformation = this.gui.addFolder('Cube Transformation');
+		let folderTransformation = this.gui.addFolder('Cube Transformation');
 		folderTransformation.add(properties, 'cubePositionX', -10, 10).step(0.1).onChange(function(value) {
 			self.cube.position.x = value;
 		});
@@ -212,12 +216,12 @@
 	};
 
 	Main.prototype.loadObjectFromSessionStorage = function() {
-		var objectLoader = new THREE.ObjectLoader();
-		var sessionStorageValue = sessionStorage.getItem('sceneObject');
+		let objectLoader = new THREE.ObjectLoader();
+		let sessionStorageValue = sessionStorage.getItem('sceneObject');
 
 		if (sessionStorageValue !== null) {
 			try {
-				var jsonCube = JSON.parse(sessionStorageValue);
+				let jsonCube = JSON.parse(sessionStorageValue);
 
 				this.scene.remove(this.cube);
 				this.cube = objectLoader.parse(jsonCube);
@@ -233,7 +237,7 @@
 	};
 
 	Main.prototype.saveObjectToSessionStorage = function() {
-		var jsonCube = this.cube.toJSON();
+		let jsonCube = this.cube.toJSON();
 
 		sessionStorage.setItem('sceneObject', JSON.stringify(jsonCube));
 	};
@@ -252,7 +256,7 @@
 
 
 
-	var main = new Main(document.getElementById('webGlCanvas'));
+	let main = new Main(document.getElementById('webGlCanvas'));
 	document.addEventListener('DOMContentLoaded', function() {
 		document.getElementById('btnLoad').addEventListener('click', function() {
 			main.loadObjectFromSessionStorage();

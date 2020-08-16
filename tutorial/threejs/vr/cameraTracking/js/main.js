@@ -92,7 +92,7 @@ import { VRButton } from '../../../../../lib/threejs_119/examples/jsm/webxr/VRBu
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize(this.getCanvasWidth(), this.getCanvasHeight());
 		this.renderer.xr.enabled = true;
-		this.renderer.xr.setReferenceSpaceType( 'local' );
+		this.renderer.xr.setReferenceSpaceType('local');
 
 		this.gui = new GUI({ width: 400 });
 		this.gui.close();

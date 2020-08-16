@@ -1,22 +1,27 @@
-/* globals dat,THREE */
+// jshint esversion: 6
+
+import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
+import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+
+import { DeviceOrientationControls } from '../../../../../lib/threejs_119/examples/jsm/controls/DeviceOrientationControls.js';
+import { FirstPersonControls } from '../../../../../lib/threejs_119/examples/jsm/controls/FirstPersonControls.js';
+
 
 (function(window) {
-	'use strict';
-
-	var config = {
+	let config = {
 		'CAMERA_FOV': 70,
 		'CAMERA_NEAR_PLANE': 0.1,
 		'CAMERA_FAR_PLANE': 500
 	};
 
-	var properties = {
+	let properties = {
 		'axesHelperVisible': true,
 		'gridHelperVisible': false
 	};
 
 
 
-	var Main = function(canvas)	{
+	let Main = function(canvas)	{
 		this.canvas = canvas;
 
 		this.camera = null;
@@ -51,11 +56,11 @@
 		// add renderer to the DOM-Tree
 		this.canvas.appendChild(this.renderer.domElement);
 
-		this.controls = new THREE.FirstPersonControls(this.camera, this.renderer.domElement);
+		this.controls = new FirstPersonControls(this.camera, this.renderer.domElement);
 		this.controls.lookSpeed = 0.05;
 		this.controls.lookVertical = true;
 
-		this.gui = new dat.GUI({ width: 400 });
+		this.gui = new GUI({ width: 400 });
 		this.gui.close();
 
 		// https://kostasbariotis.com/removeeventlistener-and-this/
@@ -101,7 +106,7 @@
 	};
 
 	Main.prototype.createGui = function() {
-		var self = this;
+		let self = this;
 
 		this.gui.add(properties, 'axesHelperVisible').onChange(function(value) {
 			self.axesHelper.visible = value;
@@ -140,7 +145,7 @@
 		}
 
 		// Create controls for mobile.
-		this.controls = new THREE.DeviceOrientationControls(this.camera, true);
+		this.controls = new DeviceOrientationControls(this.camera, true);
 		this.controls.connect();
 		this.controls.update();
 
@@ -153,10 +158,10 @@
 
 		this.raycaster.setFromCamera(this.mouseVector2, this.camera);
 
-		var intersects = this.raycaster.intersectObject(this.plane);
+		let intersects = this.raycaster.intersectObject(this.plane);
 
 		if(intersects.length > 0) {
-			var circleCenter = new THREE.Vector3();
+			let circleCenter = new THREE.Vector3();
 
 			circleCenter.copy(intersects[0].face.normal);
 			circleCenter.applyMatrix4(new THREE.Matrix4().extractRotation(intersects[0].object.matrixWorld));
@@ -182,7 +187,7 @@
 	};
 
 
-	var main = new Main(document.getElementById('webGlCanvas'));
+	let main = new Main(document.getElementById('webGlCanvas'));
 	document.addEventListener('DOMContentLoaded', function() {
 		main.init();
 	});

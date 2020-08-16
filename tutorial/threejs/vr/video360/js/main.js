@@ -1,9 +1,14 @@
-/* globals dat,rdo,THREE */
+// jshint esversion: 6
+
+import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
+
+import { DeviceOrientationControls } from '../../../../../lib/threejs_119/examples/jsm/controls/DeviceOrientationControls.js';
+import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+import { VRButton } from '../../../../../lib/threejs_119/examples/jsm/webxr/VRButton.js';
+
 
 (function(window) {
-	'use strict';
-
-	var config = {
+	let config = {
 		'CAMERA_FOV': 75,
 		'CAMERA_NEAR_PLANE': 0.1,
 		'CAMERA_FAR_PLANE': 500
@@ -11,7 +16,7 @@
 
 
 
-	var Main = function(canvas)	{
+	let Main = function(canvas)	{
 		this.canvas = canvas;
 
 		this.camera = null;
@@ -43,9 +48,10 @@
 		this.renderer.setClearColor(0x000000, 1);
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize(this.getCanvasWidth(), this.getCanvasHeight());
-		this.renderer.vr.enabled = true;
+		this.renderer.xr.enabled = true;
+		this.renderer.xr.setReferenceSpaceType('local');
 
-		this.controls = new THREE.OrbitControls(this.cameraGroup, this.renderer.domElement);
+		this.controls = new OrbitControls(this.cameraGroup, this.renderer.domElement);
 		this.controls.rotateSpeed = 0.3;
 		this.controls.enableZoom = true;
 		this.controls.enablePan = true;
@@ -63,7 +69,7 @@
 
 		// add renderer to the DOM-Tree
 		this.canvas.appendChild(this.renderer.domElement);
-		this.canvas.appendChild(THREE.WEBVR.createButton(this.renderer, { referenceSpaceType: 'local' }));
+		this.canvas.appendChild(VRButton.createButton(this.renderer));
 
 		this.onDeviceOrientationHandler = this.onDeviceOrientationHandler.bind(this);
 
@@ -115,7 +121,7 @@
 	};
 
 	Main.prototype.getGeometry = function() {
-		var geometry = new THREE.SphereBufferGeometry(500, 60, 40);
+		let geometry = new THREE.SphereBufferGeometry(500, 60, 40);
 
 		// invert the geometry on the x-axis so that all of the faces point inward
 		geometry.scale(-1, 1, 1);
@@ -150,7 +156,7 @@
 		// Create controls for mobile.
 		this.controls.enabled = false;
 
-		this.controls = new THREE.DeviceOrientationControls(this.cameraGroup);
+		this.controls = new DeviceOrientationControls(this.cameraGroup);
 		this.controls.connect();
 		this.controls.update();
 
@@ -166,7 +172,7 @@
 
 
 
-	var main = new Main(document.getElementById('webGlCanvas'));
+	let main = new Main(document.getElementById('webGlCanvas'));
 	document.addEventListener('DOMContentLoaded', function() {
 		main.init();
 	});
