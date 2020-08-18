@@ -14,8 +14,8 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 	};
 
 	let properties = {
-		'axesHelperVisible': true,
-		'gridHelperVisible': true,
+		'axesHelperVisible': false,
+		'gridHelperVisible': false,
 		'cubeWireframeColor': '#FFFFFF',
 		'cubePositionX': 0,
 		'cubePositionY': 0,
@@ -78,18 +78,17 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 	};
 
 	Main.prototype.createObject = function() {
-		let geometry = new THREE.BoxGeometry(5, 5, 5);
+		let geometry = new THREE.CircleGeometry(2.5, 32);
 
 		this.axesHelper = new THREE.AxesHelper(25);
+		this.axesHelper.visible = properties.axesHelperVisible;
 		this.scene.add(this.axesHelper);
 
 		this.gridHelper = new THREE.GridHelper(50, 50);
+		this.gridHelper.visible = properties.gridHelperVisible;
 		this.scene.add(this.gridHelper);
 
-		this.cube = new THREE.Object3D();
-		this.scene.add(this.cube);
-
-		this.cube.add(new THREE.Mesh(
+		this.cube = new THREE.Mesh(
 			geometry,
 			new THREE.ShaderMaterial({
 				transparent: true,
@@ -123,16 +122,17 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 						vec2 position = vUv - 0.5;
 						float color = abs(sin(interval * (length(position) - time * velocity)));
 
-						gl_FragColor = vec4(color, color, color, 1.0);
+						if (length(position) < 0.4) {
+							gl_FragColor = vec4(0.0, 0.5, 0.5, 1.0);
+						} else {
+							gl_FragColor = vec4(0.0, 0.5, 0.5, color - 0.1);
+						}
 					}
 				`
 			})
-		));
+		);
 
-		this.cube.add(new THREE.LineSegments(
-			new THREE.WireframeGeometry(geometry),
-			new THREE.LineBasicMaterial( { color: properties.cubeWireframeColor } )
-		));
+		this.scene.add(this.cube);
 	};
 
 	Main.prototype.createGui = function() {
@@ -143,11 +143,6 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 		});
 		this.gui.add(properties, 'gridHelperVisible').onChange(function(value) {
 			self.gridHelper.visible = value;
-		});
-
-		let folderMaterial = this.gui.addFolder('Cube Material');
-		folderMaterial.addColor(properties, 'cubeWireframeColor').onChange(function(value) {
-			self.cube.children[1].material.color.set(value);
 		});
 
 		let folderTransformation = this.gui.addFolder('Cube Transformation');
@@ -181,17 +176,17 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 
 		let folderShader = this.gui.addFolder('Shader');
 		folderShader.add(properties, 'shaderInterval', 0.1, 100).step(0.1).onChange(function(value) {
-			self.cube.children[0].material.uniforms.interval.value = value;
+			self.cube.material.uniforms.interval.value = value;
 		});
 		folderShader.add(properties, 'shaderVelocity', 0.1, 1).step(0.1).onChange(function(value) {
-			self.cube.children[0].material.uniforms.velocity.value = value;
+			self.cube.material.uniforms.velocity.value = value;
 		});
 	};
 
 	Main.prototype.render = function() {
 		requestAnimationFrame(this.render.bind(this));
 
-		this.cube.children[0].material.uniforms.time.value += this.clock.getDelta();
+		this.cube.material.uniforms.time.value += this.clock.getDelta();
 
 		this.renderer.render(this.scene, this.camera);
 	};
