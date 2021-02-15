@@ -1,9 +1,9 @@
 // jshint esversion: 6
 
-import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
-import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+import * as THREE from '../../../../../lib/threejs_125/build/three.module.js';
+import { GUI } from '../../../../../lib/threejs_125/examples/jsm/libs/dat.gui.module.js';
 
-import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from '../../../../../lib/threejs_125/examples/jsm/controls/OrbitControls.js';
 
 
 (function(window) {
@@ -96,7 +96,7 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 		this.scene.add(this.gridHelper);
 
 		this.catmullRom3 = new THREE.Line(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color: properties.catmullRom3Color } )
 		);
 		this.scene.add(this.catmullRom3);
@@ -120,7 +120,7 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 					pathPointsCollection.push(new THREE.Vector3(pathPointsJson[i].x, pathPointsJson[i].y, pathPointsJson[i].z));
 				}
 
-				self.catmullRom3Geometry = new THREE.CatmullRomCurve3(pathPointsCollection, false);
+				self.catmullRom3Geometry = new THREE.CatmullRomCurve3(pathPointsCollection, true);
 
 				self.createGeometry();
 
@@ -132,10 +132,10 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 	};
 
 	Main.prototype.createGeometry = function() {
+		let points = this.catmullRom3Geometry.getPoints(properties.catmullRom3Points);
+
 		this.catmullRom3.geometry.dispose();
-		this.catmullRom3.geometry = new THREE.Geometry();
-		this.catmullRom3.geometry.vertices = this.catmullRom3Geometry.getPoints(properties.catmullRom3Points);
-		this.catmullRom3.geometry.vertices.push(this.catmullRom3.geometry.vertices[0]);
+		this.catmullRom3.geometry = new THREE.BufferGeometry().setFromPoints(points);
 	};
 
 	Main.prototype.createGui = function() {

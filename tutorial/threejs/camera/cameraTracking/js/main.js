@@ -1,10 +1,10 @@
 // jshint esversion: 6
 /* globals rdo */
 
-import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
-import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+import * as THREE from '../../../../../lib/threejs_125/build/three.module.js';
+import { GUI } from '../../../../../lib/threejs_125/examples/jsm/libs/dat.gui.module.js';
 
-import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from '../../../../../lib/threejs_125/examples/jsm/controls/OrbitControls.js';
 
 
 (function(window) {
@@ -117,7 +117,7 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 
 		this.tube = new THREE.Object3D();
 		this.curve = new THREE.Line(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color : properties.curveMaterialColor } )
 		);
 
@@ -125,29 +125,29 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 		this.scene.add(this.tube);
 
 		this.tube.add(new THREE.Mesh(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.MeshBasicMaterial( { color: properties.tubeMaterialColor, side: THREE.DoubleSide } )
 		));
 
 		this.tube.add(new THREE.LineSegments(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color: properties.tubeWireframeColor } )
 		));
 
 		this.binormalLines = new THREE.LineSegments(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color: properties.curveBinormalMaterialColor } )
 		);
 		this.scene.add(this.binormalLines);
 
 		this.normalLines = new THREE.LineSegments(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color: properties.curveNormalMaterialColor } )
 		);
 		this.scene.add(this.normalLines);
 
 		this.tangentLines = new THREE.LineSegments(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color: properties.curveTangentMaterialColor } )
 		);
 		this.scene.add(this.tangentLines);
@@ -184,9 +184,7 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 
 	Main.prototype.createGeometry = function() {
 		this.curve.geometry.dispose();
-		this.curve.geometry = new THREE.Geometry();
-		this.curve.geometry.vertices = this.curveGeometry.getPoints(properties.tubeTubularSegments);
-		this.curve.geometry.vertices.push(this.curve.geometry.vertices[0]);
+		this.curve.geometry = new THREE.BufferGeometry().setFromPoints(this.curveGeometry.points);
 
 		this.tubeGeometry = new THREE.TubeBufferGeometry(
 			this.curveGeometry,
@@ -323,29 +321,41 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 		rdo.helper.addOutput('Segments                : ' + segments);
 		rdo.helper.addOutput('Current segment by time : ' + rdo.helper.roundDecimal(pickt, 6));
 
+		let binormalPositions = [];
+		let normalPositions = [];
+		let tangentPositions = [];
 
 		this.binormalLines.geometry.dispose();
-		this.binormalLines.geometry = new THREE.Geometry();
+		this.binormalLines.geometry = new THREE.BufferGeometry();
 		this.normalLines.geometry.dispose();
-		this.normalLines.geometry = new THREE.Geometry();
+		this.normalLines.geometry = new THREE.BufferGeometry();
 		this.tangentLines.geometry.dispose();
-		this.tangentLines.geometry = new THREE.Geometry();
+		this.tangentLines.geometry = new THREE.BufferGeometry();
 
 		for (let i = 0; i < segments; ++i) {
 			let t = 1 / segments * i;
-			let p = this.tubeGeometry.parameters.path.getPointAt(t);
+			let pointStart = this.tubeGeometry.parameters.path.getPointAt(t);
+			let pointEnd = null;
 
-			this.binormalLines.geometry.vertices.push(p);
-			this.binormalLines.geometry.vertices.push(p.clone().add(this.tubeGeometry.binormals[i].clone().multiplyScalar(properties.curveBinormalsLength)));
-			this.normalLines.geometry.vertices.push(p);
-			this.normalLines.geometry.vertices.push(p.clone().add(this.tubeGeometry.normals[i].clone().multiplyScalar(properties.curveNormalsLength)));
-			this.tangentLines.geometry.vertices.push(p);
-			this.tangentLines.geometry.vertices.push(p.clone().add(this.tubeGeometry.tangents[i].clone().multiplyScalar(properties.curveTangentsLength)));
+			pointEnd = pointStart.clone().add(this.tubeGeometry.binormals[i].clone().multiplyScalar(properties.curveBinormalsLength));
+			binormalPositions.push(pointStart.x, pointStart.y, pointStart.z);
+			binormalPositions.push(pointEnd.x, pointEnd.y, pointEnd.z);
+
+			pointEnd = pointStart.clone().add(this.tubeGeometry.normals[i].clone().multiplyScalar(properties.curveNormalsLength));
+			normalPositions.push(pointStart.x, pointStart.y, pointStart.z);
+			normalPositions.push(pointEnd.x, pointEnd.y, pointEnd.z);
+
+			pointEnd = pointStart.clone().add(this.tubeGeometry.tangents[i].clone().multiplyScalar(properties.curveTangentsLength));
+			tangentPositions.push(pointStart.x, pointStart.y, pointStart.z);
+			tangentPositions.push(pointEnd.x, pointEnd.y, pointEnd.z);
 		}
+
+		this.binormalLines.geometry.setAttribute('position', new THREE.Float32BufferAttribute(binormalPositions, 3));
+		this.normalLines.geometry.setAttribute('position', new THREE.Float32BufferAttribute(normalPositions, 3));
+		this.tangentLines.geometry.setAttribute('position', new THREE.Float32BufferAttribute(tangentPositions, 3));
 
 
 		this.binormal.subVectors(this.tubeGeometry.binormals[pickNext], this.tubeGeometry.binormals[pick]);
-
 		this.binormal.multiplyScalar(pickt - pick);
 		this.binormal.add(this.tubeGeometry.binormals[pick]);
 

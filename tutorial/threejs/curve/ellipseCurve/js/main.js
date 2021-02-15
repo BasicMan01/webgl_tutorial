@@ -1,9 +1,9 @@
 // jshint esversion: 6
 
-import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
-import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+import * as THREE from '../../../../../lib/threejs_125/build/three.module.js';
+import { GUI } from '../../../../../lib/threejs_125/examples/jsm/libs/dat.gui.module.js';
 
-import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from '../../../../../lib/threejs_125/examples/jsm/controls/OrbitControls.js';
 
 
 (function(window) {
@@ -88,7 +88,7 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 		this.scene.add(this.gridHelper);
 
 		this.ellipseCurve = new THREE.Line(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color: properties.ellipseCurveColor } )
 		);
 		this.scene.add(this.ellipseCurve);
@@ -109,7 +109,7 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 		);
 
 		this.ellipseCurve.geometry.dispose();
-		this.ellipseCurve.geometry = new THREE.Geometry().setFromPoints(curve.getPoints(properties.ellipseCurvePoints));
+		this.ellipseCurve.geometry = new THREE.BufferGeometry().setFromPoints(curve.getPoints(properties.ellipseCurvePoints));
 	};
 
 	Main.prototype.createGui = function() {

@@ -1,10 +1,10 @@
 // jshint esversion: 6
 /* globals rdo */
 
-import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
-import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+import * as THREE from '../../../../../lib/threejs_125/build/three.module.js';
+import { GUI } from '../../../../../lib/threejs_125/examples/jsm/libs/dat.gui.module.js';
 
-import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from '../../../../../lib/threejs_125/examples/jsm/controls/OrbitControls.js';
 
 
 (function(window) {
@@ -109,7 +109,7 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 		this.scene.add(this.gridHelper);
 
 		this.plane = new THREE.Mesh(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.MeshBasicMaterial()
 		);
 		this.scene.add(this.plane);

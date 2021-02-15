@@ -1,9 +1,9 @@
 // jshint esversion: 6
 
-import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
-import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+import * as THREE from '../../../../../lib/threejs_125/build/three.module.js';
+import { GUI } from '../../../../../lib/threejs_125/examples/jsm/libs/dat.gui.module.js';
 
-import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from '../../../../../lib/threejs_125/examples/jsm/controls/OrbitControls.js';
 
 
 (function(window) {
@@ -83,7 +83,7 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 		this.scene.add(this.gridHelper);
 
 		this.line = new THREE.Line(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color: properties.lineColor } )
 		);
 		this.scene.add(this.line);
@@ -98,7 +98,7 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 		);
 
 		this.line.geometry.dispose();
-		this.line.geometry = new THREE.Geometry().setFromPoints(curve.getPoints(1));
+		this.line.geometry = new THREE.BufferGeometry().setFromPoints(curve.getPoints(1));
 	};
 
 	Main.prototype.createGui = function() {

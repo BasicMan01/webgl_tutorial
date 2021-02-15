@@ -1,10 +1,10 @@
 // jshint esversion: 6
 /* globals rdo */
 
-import * as THREE from '../../../../../../lib/threejs_119/build/three.module.js';
-import { GUI } from '../../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+import * as THREE from '../../../../../../lib/threejs_125/build/three.module.js';
+import { GUI } from '../../../../../../lib/threejs_125/examples/jsm/libs/dat.gui.module.js';
 
-import { OrbitControls } from '../../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from '../../../../../../lib/threejs_125/examples/jsm/controls/OrbitControls.js';
 
 
 (function(window) {
@@ -91,12 +91,12 @@ import { OrbitControls } from '../../../../../../lib/threejs_119/examples/jsm/co
 		this.scene.add(this.sphere1);
 
 		this.sphere1.add(new THREE.Mesh(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.MeshBasicMaterial( { color: properties.sphere1MaterialColor } )
 		));
 
 		this.sphere1.add(new THREE.LineSegments(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color: properties.sphere1WireframeColor } )
 		));
 
@@ -108,12 +108,12 @@ import { OrbitControls } from '../../../../../../lib/threejs_119/examples/jsm/co
 		this.scene.add(this.sphere2);
 
 		this.sphere2.add(new THREE.Mesh(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.MeshBasicMaterial( { color: properties.sphere2MaterialColor } )
 		));
 
 		this.sphere2.add(new THREE.LineSegments(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color: properties.sphere2WireframeColor } )
 		));
 

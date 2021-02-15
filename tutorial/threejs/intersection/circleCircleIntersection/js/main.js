@@ -1,10 +1,10 @@
 // jshint esversion: 6
 /* globals rdo */
 
-import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
-import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+import * as THREE from '../../../../../lib/threejs_125/build/three.module.js';
+import { GUI } from '../../../../../lib/threejs_125/examples/jsm/libs/dat.gui.module.js';
 
-import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from '../../../../../lib/threejs_125/examples/jsm/controls/OrbitControls.js';
 
 
 (function(window) {
@@ -90,33 +90,32 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 		this.scene.add(this.gridHelper);
 
 		this.circle1 = new THREE.Line(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color: properties.circle1Color } )
 		);
 		this.scene.add(this.circle1);
 
 		this.circle2 = new THREE.Line(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color: properties.circle2Color } )
 		);
 		this.scene.add(this.circle2);
 
 		this.circle3 = new THREE.Line(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color: properties.circle3Color } )
 		);
 		this.scene.add(this.circle3);
 
 		this.lineCenterToCenter = new THREE.Line(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color: 0x00FFFF } )
 		);
 		this.scene.add(this.lineCenterToCenter);
 
-		for(let i = 0; i < 3; ++i)
-		{
+		for(let i = 0; i < 3; ++i) {
 			this.lineIntersectToIntersect[i] = new THREE.Line(
-				new THREE.Geometry(),
+				new THREE.BufferGeometry(),
 				new THREE.LineBasicMaterial( { color: 0xFFFF00 } )
 			);
 
@@ -135,11 +134,12 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 
 
 		this.lineCenterToCenter.geometry.dispose();
-		this.lineCenterToCenter.geometry = new THREE.Geometry();
-		this.lineCenterToCenter.geometry.vertices.push(new THREE.Vector3(properties.circle1CenterX, properties.circle1CenterY, 0));
-		this.lineCenterToCenter.geometry.vertices.push(new THREE.Vector3(properties.circle2CenterX, properties.circle2CenterY, 0));
-		this.lineCenterToCenter.geometry.vertices.push(new THREE.Vector3(properties.circle3CenterX, properties.circle3CenterY, 0));
-		this.lineCenterToCenter.geometry.vertices.push(new THREE.Vector3(properties.circle1CenterX, properties.circle1CenterY, 0));
+		this.lineCenterToCenter.geometry = new THREE.BufferGeometry().setFromPoints([
+			new THREE.Vector3(properties.circle1CenterX, properties.circle1CenterY, 0),
+			new THREE.Vector3(properties.circle2CenterX, properties.circle2CenterY, 0),
+			new THREE.Vector3(properties.circle3CenterX, properties.circle3CenterY, 0),
+			new THREE.Vector3(properties.circle1CenterX, properties.circle1CenterY, 0)
+		]);
 
 
 		rdo.helper.resetOutput();
@@ -177,21 +177,19 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 		rdo.helper.addOutput('<hr>');
 
 
-		for(let i = 0; i < 3; ++i)
-		{
+		for(let i = 0; i < 3; ++i) {
 			this.lineIntersectToIntersect[i].geometry.dispose();
-			this.lineIntersectToIntersect[i].geometry = new THREE.Geometry();
 
-			if(intersectionPoints[i].length)
-			{
-				this.lineIntersectToIntersect[i].geometry.vertices.push(new THREE.Vector3(intersectionPoints[i][0].x, intersectionPoints[i][0].y, 0));
-				this.lineIntersectToIntersect[i].geometry.vertices.push(new THREE.Vector3(intersectionPoints[i][1].x, intersectionPoints[i][1].y, 0));
+			if (intersectionPoints[i].length) {
+				this.lineIntersectToIntersect[i].geometry = new THREE.BufferGeometry().setFromPoints([
+					new THREE.Vector3(intersectionPoints[i][0].x, intersectionPoints[i][0].y, 0),
+					new THREE.Vector3(intersectionPoints[i][1].x, intersectionPoints[i][1].y, 0)
+				]);
 			}
 		}
 	};
 
-	Main.prototype.createCircle = function(obj, circleCenterX, circleCenterY, circleRadius)
-	{
+	Main.prototype.createCircle = function(obj, circleCenterX, circleCenterY, circleRadius) {
 		let curve = new THREE.EllipseCurve(
 			circleCenterX,
 			circleCenterY,
@@ -204,7 +202,7 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 		);
 
 		obj.geometry.dispose();
-		obj.geometry = new THREE.Geometry().setFromPoints(curve.getPoints(properties.circlePoints));
+		obj.geometry = new THREE.BufferGeometry().setFromPoints(curve.getPoints(properties.circlePoints));
 	};
 
 	Main.prototype.createGui = function() {
@@ -281,8 +279,7 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 		this.renderer.setSize(this.getCanvasWidth(), this.getCanvasHeight());
 	};
 
-	Main.prototype.calculateCircleIntersection = function(circleCenter1, circleRadius1, circleCenter2, circleRadius2, tolerance)
-	{
+	Main.prototype.calculateCircleIntersection = function(circleCenter1, circleRadius1, circleCenter2, circleRadius2, tolerance) {
 		// compute the distance between center of the circle 1 and the circle 2
 		let distanceVector = circleCenter2.sub(circleCenter1);
 
@@ -296,8 +293,7 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 		rdo.helper.addOutput('Length  : ' + distance);
 
 		// if the distance is 0, circle 1 and circle 2 have the same center
-		if(distance == 0)
-		{
+		if(distance == 0) {
 			return [];
 		}
 
@@ -311,8 +307,7 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 		rdo.helper.addOutput('v       : ' + v);
 		rdo.helper.addOutput('hPow    : ' + hPow);
 
-		if(hPow < 0)
-		{
+		if(hPow < 0) {
 			return [];
 		}
 

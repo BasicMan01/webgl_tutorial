@@ -1,10 +1,10 @@
 // jshint esversion: 6
 /* globals rdo */
 
-import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
-import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+import * as THREE from '../../../../../lib/threejs_125/build/three.module.js';
+import { GUI } from '../../../../../lib/threejs_125/examples/jsm/libs/dat.gui.module.js';
 
-import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from '../../../../../lib/threejs_125/examples/jsm/controls/OrbitControls.js';
 
 
 (function(window) {
@@ -88,43 +88,43 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 		this.scene.add(this.gridHelper);
 
 		this.line1 = new THREE.Line(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color: properties.line1Color } )
 		);
 		this.scene.add(this.line1);
 
 		this.line2 = new THREE.Line(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color: properties.line2Color } )
 		);
 		this.scene.add(this.line2);
 
 		this.qLine = new THREE.Line(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color: 0xFFFF00 } )
 		);
 		this.scene.add(this.qLine);
 
 		this.rLine = new THREE.Line(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color: 0xFF0000 } )
 		);
 		this.scene.add(this.rLine);
 
 		this.rtLine = new THREE.Line(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color: 0xFF0000 } )
 		);
 		this.scene.add(this.rtLine);
 
 		this.sLine = new THREE.Line(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color: 0xFF0000 } )
 		);
 		this.scene.add(this.sLine);
 
 		this.stLine = new THREE.Line(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color: 0xFF0000 } )
 		);
 		this.scene.add(this.stLine);
@@ -139,7 +139,7 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 		);
 
 		this.line1.geometry.dispose();
-		this.line1.geometry = new THREE.Geometry().setFromPoints(curve1.getPoints(1));
+		this.line1.geometry = new THREE.BufferGeometry().setFromPoints(curve1.getPoints(1));
 
 
 		let curve2 = new THREE.LineCurve(
@@ -148,7 +148,7 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 		);
 
 		this.line2.geometry.dispose();
-		this.line2.geometry = new THREE.Geometry().setFromPoints(curve2.getPoints(1));
+		this.line2.geometry = new THREE.BufferGeometry().setFromPoints(curve2.getPoints(1));
 
 
 		rdo.helper.resetOutput();
@@ -251,14 +251,14 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 			new THREE.Vector3(line1p1.x + rx, line1p1.y + ry)
 		);
 		this.rLine.geometry.dispose();
-		this.rLine.geometry = new THREE.Geometry().setFromPoints(curve1.getPoints(1));
+		this.rLine.geometry = new THREE.BufferGeometry().setFromPoints(curve1.getPoints(1));
 
 		let curve2 = new THREE.LineCurve(
 			new THREE.Vector3(line1p1.x, line1p1.y),
 			new THREE.Vector3(line1p1.x + rxt, line1p1.y + ryt)
 		);
 		this.rtLine.geometry.dispose();
-		this.rtLine.geometry = new THREE.Geometry().setFromPoints(curve2.getPoints(1));
+		this.rtLine.geometry = new THREE.BufferGeometry().setFromPoints(curve2.getPoints(1));
 
 		rdo.helper.addOutput('rx  : ' + rx);
 		rdo.helper.addOutput('ry  : ' + ry);
@@ -270,12 +270,13 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 		let qy = pq.x * rxt + pq.y * ryt;
 
 		this.qLine.geometry.dispose();
-		this.qLine.geometry = new THREE.Geometry();
-		this.qLine.geometry.vertices.push(new THREE.Vector3(line1p1.x, line1p1.y, 0));
-		this.qLine.geometry.vertices.push(new THREE.Vector3(line1p1.x + qx * rx, line1p1.y + qx * ry, 0));
-		this.qLine.geometry.vertices.push(new THREE.Vector3(line1p1.x + qx * rx + qy * rxt, line1p1.y + qx * ry + qy * ryt, 0));
-		this.qLine.geometry.vertices.push(new THREE.Vector3(line1p1.x + qy * rxt, line1p1.y + qy * ryt, 0));
-		this.qLine.geometry.vertices.push(new THREE.Vector3(line1p1.x, line1p1.y, 0));
+		this.qLine.geometry = new THREE.BufferGeometry().setFromPoints([
+			new THREE.Vector3(line1p1.x, line1p1.y, 0),
+			new THREE.Vector3(line1p1.x + qx * rx, line1p1.y + qx * ry, 0),
+			new THREE.Vector3(line1p1.x + qx * rx + qy * rxt, line1p1.y + qx * ry + qy * ryt, 0),
+			new THREE.Vector3(line1p1.x + qy * rxt, line1p1.y + qy * ryt, 0),
+			new THREE.Vector3(line1p1.x, line1p1.y, 0)
+		]);
 
 		rdo.helper.addOutput('qx  : ' + qx);
 		rdo.helper.addOutput('qy  : ' + qy);
@@ -291,14 +292,14 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 			new THREE.Vector3(line2p1.x + sx, line2p1.y + sy)
 		);
 		this.sLine.geometry.dispose();
-		this.sLine.geometry = new THREE.Geometry().setFromPoints(curve3.getPoints(1));
+		this.sLine.geometry = new THREE.BufferGeometry().setFromPoints(curve3.getPoints(1));
 
 		let curve4 = new THREE.LineCurve(
 			new THREE.Vector3(line2p1.x, line2p1.y),
 			new THREE.Vector3(line2p1.x + sxt, line2p1.y + syt)
 		);
 		this.stLine.geometry.dispose();
-		this.stLine.geometry = new THREE.Geometry().setFromPoints(curve4.getPoints(1));
+		this.stLine.geometry = new THREE.BufferGeometry().setFromPoints(curve4.getPoints(1));
 
 		rdo.helper.addOutput('sx  : ' + sx);
 		rdo.helper.addOutput('sy  : ' + sy);

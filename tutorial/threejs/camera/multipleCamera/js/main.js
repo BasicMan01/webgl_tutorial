@@ -1,7 +1,7 @@
 // jshint esversion: 6
 
-import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
-import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+import * as THREE from '../../../../../lib/threejs_125/build/three.module.js';
+import { GUI } from '../../../../../lib/threejs_125/examples/jsm/libs/dat.gui.module.js';
 
 
 (function(window) {
@@ -146,12 +146,12 @@ import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.mo
 		this.cone.position.set(properties.conePositionX, properties.conePositionY, properties.conePositionZ);
 
 		this.cone.add(new THREE.Mesh(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.MeshBasicMaterial( { color: properties.coneMaterialColor } )
 		));
 
 		this.cone.add(new THREE.LineSegments(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color: properties.coneWireframeColor } )
 		));
 
@@ -159,12 +159,12 @@ import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.mo
 		this.cube.position.set(properties.cubePositionX, properties.cubePositionY, properties.cubePositionZ);
 
 		this.cube.add(new THREE.Mesh(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.MeshBasicMaterial( { color: properties.cubeMaterialColor } )
 		));
 
 		this.cube.add(new THREE.LineSegments(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color: properties.cubeWireframeColor } )
 		));
 
@@ -172,12 +172,12 @@ import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.mo
 		this.sphere.position.set(properties.spherePositionX, properties.spherePositionY, properties.spherePositionZ);
 
 		this.sphere.add(new THREE.Mesh(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.MeshBasicMaterial( { color: properties.sphereMaterialColor } )
 		));
 
 		this.sphere.add(new THREE.LineSegments(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color: properties.sphereWireframeColor } )
 		));
 

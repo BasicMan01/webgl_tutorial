@@ -1,9 +1,9 @@
 // jshint esversion: 6
 
-import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
-import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+import * as THREE from '../../../../../lib/threejs_125/build/three.module.js';
+import { GUI } from '../../../../../lib/threejs_125/examples/jsm/libs/dat.gui.module.js';
 
-import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from '../../../../../lib/threejs_125/examples/jsm/controls/OrbitControls.js';
 
 
 (function(window) {
@@ -87,7 +87,7 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 		this.scene.add(this.gridHelper);
 
 		this.particles = new THREE.Points(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.Material()
 		);
 		this.scene.add(this.particles);
@@ -97,21 +97,19 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 	};
 
 	Main.prototype.createGeometry = function() {
-		let geometry = new THREE.Geometry();
+		let points = [];
 
 		for(let i = 0; i < properties.particleCount; ++i) {
-			let sprite = new THREE.Vector3();
-
 			// Random float from -range/2 to range/2 interval
-			sprite.x = THREE.Math.randFloatSpread(50);
-			sprite.y = THREE.Math.randFloatSpread(50);
-			sprite.z = THREE.Math.randFloatSpread(50);
-
-			geometry.vertices.push(sprite);
+			points.push(new THREE.Vector3(
+				THREE.Math.randFloatSpread(50),
+				THREE.Math.randFloatSpread(50),
+				THREE.Math.randFloatSpread(50)
+			));
 		}
 
 		this.particles.geometry.dispose();
-		this.particles.geometry = geometry;
+		this.particles.geometry = new THREE.BufferGeometry().setFromPoints(points);
 	};
 
 	Main.prototype.createMaterial = function() {

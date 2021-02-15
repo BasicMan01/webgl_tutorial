@@ -1,10 +1,10 @@
 // jshint esversion: 6
 
-import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
+import * as THREE from '../../../../../lib/threejs_125/build/three.module.js';
 
-import { DeviceOrientationControls } from '../../../../../lib/threejs_119/examples/jsm/controls/DeviceOrientationControls.js';
-import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
-import { VRButton } from '../../../../../lib/threejs_119/examples/jsm/webxr/VRButton.js';
+import { DeviceOrientationControls } from '../../../../../lib/threejs_125/examples/jsm/controls/DeviceOrientationControls.js';
+import { OrbitControls } from '../../../../../lib/threejs_125/examples/jsm/controls/OrbitControls.js';
+import { VRButton } from '../../../../../lib/threejs_125/examples/jsm/webxr/VRButton.js';
 
 
 (function(window) {

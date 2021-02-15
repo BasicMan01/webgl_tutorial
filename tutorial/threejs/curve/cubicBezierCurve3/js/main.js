@@ -1,9 +1,9 @@
 // jshint esversion: 6
 
-import * as THREE from '../../../../../lib/threejs_119/build/three.module.js';
-import { GUI } from '../../../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+import * as THREE from '../../../../../lib/threejs_125/build/three.module.js';
+import { GUI } from '../../../../../lib/threejs_125/examples/jsm/libs/dat.gui.module.js';
 
-import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from '../../../../../lib/threejs_125/examples/jsm/controls/OrbitControls.js';
 
 
 (function(window) {
@@ -93,7 +93,7 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 		this.scene.add(this.gridHelper);
 
 		this.cubicBezier3 = new THREE.Line(
-			new THREE.Geometry(),
+			new THREE.BufferGeometry(),
 			new THREE.LineBasicMaterial( { color: properties.cubicBezier3Color } )
 		);
 		this.scene.add(this.cubicBezier3);
@@ -110,8 +110,7 @@ import { OrbitControls } from '../../../../../lib/threejs_119/examples/jsm/contr
 		);
 
 		this.cubicBezier3.geometry.dispose();
-		this.cubicBezier3.geometry = new THREE.Geometry();
-		this.cubicBezier3.geometry.vertices = curve.getPoints(properties.cubicBezier3Points);
+		this.cubicBezier3.geometry = new THREE.BufferGeometry().setFromPoints(curve.getPoints(properties.cubicBezier3Points));
 	};
 
 	Main.prototype.createGui = function() {
