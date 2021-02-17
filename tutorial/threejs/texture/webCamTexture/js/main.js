@@ -49,6 +49,7 @@ import { OrbitControls } from '../../../../../lib/threejs_125/examples/jsm/contr
 
 		this.plane = null;
 
+		this.stream = null;
 		this.video = document.getElementById('video');
 		this.videoTexture = null;
 	};
@@ -177,27 +178,32 @@ import { OrbitControls } from '../../../../../lib/threejs_125/examples/jsm/contr
 	Main.prototype.initVideo = function() {
 		let self = this;
 
-		if(properties.webCamAudio === false && properties.webCamVideo === false) {
+		if (properties.webCamAudio === false && properties.webCamVideo === false) {
 			alert('At least one of audio and video must be activated');
+
+			if (self.stream) {
+				self.stream.getTracks().forEach(function(track) {
+					track.stop();
+				});
+			}
+
+			return;
 		}
 
-		try
-		{
-			navigator.getUserMedia({
-					audio: properties.webCamAudio,
-					video: properties.webCamVideo
-				},
-				function(stream) {
-					self.video.srcObject = stream;
-				},
-				function(error) {
-					console.error(error);
-				}
-			);
-		}
-		catch(error) {
+		navigator.mediaDevices.getUserMedia({
+			audio: properties.webCamAudio,
+			video: properties.webCamVideo
+		}).then(function(stream) {
+			self.stream = stream;
+
+			if ("srcObject" in self.video) {
+				self.video.srcObject = stream;
+			} else {
+				self.video.src = window.URL.createObjectURL(stream);
+			}
+		}).catch(function(error) {
 			console.error(error);
-		}
+		});
 	};
 
 	Main.prototype.render = function() {
