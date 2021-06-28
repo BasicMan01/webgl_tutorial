@@ -193,7 +193,6 @@ import { FirstPersonControls } from '../../../../../lib/threejs_125/examples/jsm
 	});
 }(window));
 
-// TODO: Threejs 88
 // TODO: renderer.domElement before controls
 // TODO: ?Haircross
 // TODO: instead of click use mouseUp => mouseDown + Move == intersect
