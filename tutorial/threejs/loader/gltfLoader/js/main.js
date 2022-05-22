@@ -4,7 +4,7 @@ import * as THREE from '../../../../../lib/threejs_125/build/three.module.js';
 import { GUI } from '../../../../../lib/threejs_125/examples/jsm/libs/dat.gui.module.js';
 
 import { OrbitControls } from '../../../../../lib/threejs_125/examples/jsm/controls/OrbitControls.js';
-import { FBXLoader } from '../../../../../lib/threejs_125/examples/jsm/loaders/FBXLoader.js';
+import { GLTFLoader } from '../../../../../lib/threejs_125/examples/jsm/loaders/GLTFLoader.js';
 
 
 (function(window) {
@@ -19,17 +19,17 @@ import { FBXLoader } from '../../../../../lib/threejs_125/examples/jsm/loaders/F
 		'gridHelperVisible': true,
 		'ambientColor': '#FFFFFF',
 		'ambientIntensity': 1,
-		'fbxModelMaterialColor': '#FFFFFF',
-		'fbxModelPositionX': 0,
-		'fbxModelPositionY': 0,
-		'fbxModelPositionZ': 0,
-		'fbxModelRotationX': 0,
-		'fbxModelRotationY': 0,
-		'fbxModelRotationZ': 0,
-		'fbxModelScaleX': 1,
-		'fbxModelScaleY': 1,
-		'fbxModelScaleZ': 1,
-		'fbxModelWireframe': false
+		'gltfModelMaterialColor': '#FFFFFF',
+		'gltfModelPositionX': 0,
+		'gltfModelPositionY': 0,
+		'gltfModelPositionZ': 0,
+		'gltfModelRotationX': 0,
+		'gltfModelRotationY': 0,
+		'gltfModelRotationZ': 0,
+		'gltfModelScaleX': 1,
+		'gltfModelScaleY': 1,
+		'gltfModelScaleZ': 1,
+		'gltfModelWireframe': false
 	};
 
 	let onProgress = function(xhr) {
@@ -58,7 +58,7 @@ import { FBXLoader } from '../../../../../lib/threejs_125/examples/jsm/loaders/F
 		this.axesHelper = null;
 		this.gridHelper = null;
 
-		this.fbxModel = null;
+		this.gltfModel = null;
 	};
 
 	Main.prototype.init = function() {
@@ -108,13 +108,13 @@ import { FBXLoader } from '../../../../../lib/threejs_125/examples/jsm/loaders/F
 		};
 
 
-		let fbxLoader = new FBXLoader(loadingManager);
+		let gltfLoader = new GLTFLoader(loadingManager);
 
-		fbxLoader.setResourcePath('../../../../resources/texture/');
-		fbxLoader.load('../../../../resources/mesh/fbx/cabinet.fbx', function(object) {
-			self.fbxModel = object;
+		gltfLoader.setResourcePath('../../../../resources/texture/');
+		gltfLoader.load('../../../../resources/mesh/gltf/cabinet.glb', function(object) {
+			self.gltfModel = object.scene;
 
-			self.scene.add(self.fbxModel);
+			self.scene.add(self.gltfModel);
 		}, onProgress, onError);
 	};
 
@@ -128,43 +128,43 @@ import { FBXLoader } from '../../../../../lib/threejs_125/examples/jsm/loaders/F
 			self.gridHelper.visible = value;
 		});
 
-		let folderGeometry = this.gui.addFolder('FBX Model Geometry');
-		folderGeometry.add(properties, 'fbxModelWireframe').onChange(function(value) {
-			self.fbxModel.getObjectByName('cabinet').material.wireframe = value;
+		let folderGeometry = this.gui.addFolder('GLTF Model Geometry');
+		folderGeometry.add(properties, 'gltfModelWireframe').onChange(function(value) {
+			self.gltfModel.getObjectByName('cabinet').material.wireframe = value;
 		});
 
-		let folderMaterial = this.gui.addFolder('FBX Model Material');
-		folderMaterial.addColor(properties, 'fbxModelMaterialColor').onChange(function(value) {
-			self.fbxModel.getObjectByName('cabinet').material.color.set(value);
+		let folderMaterial = this.gui.addFolder('GLTF Model Material');
+		folderMaterial.addColor(properties, 'gltfModelMaterialColor').onChange(function(value) {
+			self.gltfModel.getObjectByName('cabinet').material.color.set(value);
 		});
 
-		let folderTransformation = this.gui.addFolder('FBX Model Transformation');
-		folderTransformation.add(properties, 'fbxModelPositionX', -10, 10).step(0.1).onChange(function(value) {
-			self.fbxModel.position.x = value;
+		let folderTransformation = this.gui.addFolder('GLTF Model Transformation');
+		folderTransformation.add(properties, 'gltfModelPositionX', -10, 10).step(0.1).onChange(function(value) {
+			self.gltfModel.position.x = value;
 		});
-		folderTransformation.add(properties, 'fbxModelPositionY', -10, 10).step(0.1).onChange(function(value) {
-			self.fbxModel.position.y = value;
+		folderTransformation.add(properties, 'gltfModelPositionY', -10, 10).step(0.1).onChange(function(value) {
+			self.gltfModel.position.y = value;
 		});
-		folderTransformation.add(properties, 'fbxModelPositionZ', -10, 10).step(0.1).onChange(function(value) {
-			self.fbxModel.position.z = value;
+		folderTransformation.add(properties, 'gltfModelPositionZ', -10, 10).step(0.1).onChange(function(value) {
+			self.gltfModel.position.z = value;
 		});
-		folderTransformation.add(properties, 'fbxModelRotationX', 0, 2*Math.PI).step(0.01).onChange(function(value) {
-			self.fbxModel.rotation.x = value;
+		folderTransformation.add(properties, 'gltfModelRotationX', 0, 2*Math.PI).step(0.01).onChange(function(value) {
+			self.gltfModel.rotation.x = value;
 		});
-		folderTransformation.add(properties, 'fbxModelRotationY', 0, 2*Math.PI).step(0.01).onChange(function(value) {
-			self.fbxModel.rotation.y = value;
+		folderTransformation.add(properties, 'gltfModelRotationY', 0, 2*Math.PI).step(0.01).onChange(function(value) {
+			self.gltfModel.rotation.y = value;
 		});
-		folderTransformation.add(properties, 'fbxModelRotationZ', 0, 2*Math.PI).step(0.01).onChange(function(value) {
-			self.fbxModel.rotation.z = value;
+		folderTransformation.add(properties, 'gltfModelRotationZ', 0, 2*Math.PI).step(0.01).onChange(function(value) {
+			self.gltfModel.rotation.z = value;
 		});
-		folderTransformation.add(properties, 'fbxModelScaleX', 0.1, 10).step(0.1).onChange(function(value) {
-			self.fbxModel.scale.x = value;
+		folderTransformation.add(properties, 'gltfModelScaleX', 0.1, 10).step(0.1).onChange(function(value) {
+			self.gltfModel.scale.x = value;
 		});
-		folderTransformation.add(properties, 'fbxModelScaleY', 0.1, 10).step(0.1).onChange(function(value) {
-			self.fbxModel.scale.y = value;
+		folderTransformation.add(properties, 'gltfModelScaleY', 0.1, 10).step(0.1).onChange(function(value) {
+			self.gltfModel.scale.y = value;
 		});
-		folderTransformation.add(properties, 'fbxModelScaleZ', 0.1, 10).step(0.1).onChange(function(value) {
-			self.fbxModel.scale.z = value;
+		folderTransformation.add(properties, 'gltfModelScaleZ', 0.1, 10).step(0.1).onChange(function(value) {
+			self.gltfModel.scale.z = value;
 		});
 	};
 
