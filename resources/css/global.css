@@ -33,11 +33,11 @@ body.webgl { overflow: hidden; }
 	position: absolute;
 }
 
-#webGlCanvas .output { color: white; display: none; left: 25px; position: absolute; top: 100px; }
+.output { color: white; display: none; left: 25px; position: absolute; top: 100px; }
 
-#webGlCanvas .tags { color: white; font-family: 'Courier New'; font-size: 11px; padding-left: 40px; position: absolute; top: 25px; }
-#webGlCanvas .tags a { color: #AAAAFF; }
-#webGlCanvas .tags ul { padding-left: 10px; }
+.tags { color: white; font-family: 'Courier New'; font-size: 11px; padding-left: 40px; position: absolute; top: 25px; }
+.tags a { color: #AAAAFF; }
+.tags ul { padding-left: 10px; }
 
 .language-tag { color: #FFFFFF; cursor: pointer;  display: inline-block; font-size: 11px; padding: 0 2px; }
 .language-tag a { color: inherit; text-decoration: none; }
@@ -49,7 +49,7 @@ body.webgl { overflow: hidden; }
 
 
 @media (min-width: 768px) {
-	#webGlCanvas .output { display: block; }
+	.output { display: block; }
 }
 
 

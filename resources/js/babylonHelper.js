@@ -1,26 +1,20 @@
 /* globals BABYLON */
 
-window.rdo = window.rdo || {};
+class BabylonHelper {
+	static createAxesHelper(size, scene) {
+		const axesMesh = new BABYLON.Mesh("axesHelper", scene);
 
-window.rdo.babylonHelper = (function(window) {
-	'use strict';
-
-	var helper = {};
-
-	helper.createAxesHelper = function(size, scene) {
-		var axesMesh = new BABYLON.Mesh("axesHelper", scene);
-
-		var axesX = BABYLON.Mesh.CreateLines("axesX", [
+		const axesX = BABYLON.Mesh.CreateLines("axesX", [
 			new BABYLON.Vector3.Zero(),
 			new BABYLON.Vector3(size, 0, 0)
 		], scene);
 
-		var axesY = BABYLON.Mesh.CreateLines("axesY", [
+		const axesY = BABYLON.Mesh.CreateLines("axesY", [
 			new BABYLON.Vector3.Zero(),
 			new BABYLON.Vector3(0, size, 0)
 		], scene);
 
-		var axesZ = BABYLON.Mesh.CreateLines("axesZ", [
+		const axesZ = BABYLON.Mesh.CreateLines("axesZ", [
 			new BABYLON.Vector3.Zero(),
 			new BABYLON.Vector3(0, 0, size)
 		], scene);
@@ -34,22 +28,22 @@ window.rdo.babylonHelper = (function(window) {
 		axesZ.parent = axesMesh;
 
 		return axesMesh;
-	};
+	}
 
-	helper.createGridHelper = function(size, scene) {
-		var gridMesh = new BABYLON.Mesh("gridHelper", scene);
+	static createGridHelper(size, scene) {
+		const gridMesh = new BABYLON.Mesh("gridHelper", scene);
 
-		var start =  size / -2;
-		var end = start + size;
-		var color = new BABYLON.Color3.FromInts(112, 112, 112);
+		const start =  size / -2;
+		const end = start + size;
+		const color = new BABYLON.Color3.FromInts(112, 112, 112);
 
-		for (var i = start; i <= end; ++i) {
-			var lineX = BABYLON.Mesh.CreateLines('gridHelperLine', [
+		for (let i = start; i <= end; ++i) {
+			const lineX = BABYLON.Mesh.CreateLines('gridHelperLine', [
 				new BABYLON.Vector3(start, 0, i),
 				new BABYLON.Vector3(end, 0, i)
 			], scene);
 
-			var lineZ = BABYLON.Mesh.CreateLines('gridHelperLine', [
+			const lineZ = BABYLON.Mesh.CreateLines('gridHelperLine', [
 				new BABYLON.Vector3(i, 0, start),
 				new BABYLON.Vector3(i, 0, end)
 			], scene);
@@ -62,7 +56,7 @@ window.rdo.babylonHelper = (function(window) {
 		}
 
 		return gridMesh;
-	};
+	}
+}
 
-	return helper;
-}(window));
+export default BabylonHelper;
