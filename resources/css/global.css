@@ -1,7 +1,7 @@
 html, body { height: 100%; margin: 0; padding: 0;  width: 100%; }
 body { font-family: Arial; font-size: 13px; line-height: 1.5; }
 
-body.webgl { overflow: hidden; }
+body.webgl { background-color: #000000; overflow: hidden; }
 
 #webGlCanvas  { font-family: 'Courier New'; font-size: 11px; height: 100%; width: 100%; }
 
@@ -45,17 +45,10 @@ body.webgl { overflow: hidden; }
 .language-tag-blue { background-color: #AAAAFF; }
 
 
-
-
-
 @media (min-width: 768px) {
 	.output { display: block; }
 }
 
 
-/* DAT.GUI: overwrite styles */
-.dg.main, .dg.main .close-button { max-width: 800px; margin: 0 !important; }
-
-@media (max-width: 767px) {
-	.dg.main, .dg.main .close-button { width: 100% !important; }
-}
+/* lil-gui: overwrite styles */
+.lil-gui { width: 350px !important; }
