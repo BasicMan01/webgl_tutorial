@@ -6,6 +6,7 @@ body.webgl { background-color: #000000; overflow: hidden; }
 #webGlCanvas  { font-family: 'Courier New'; font-size: 11px; height: 100%; width: 100%; }
 
 #webGlCanvas .button-container { position: absolute; text-align: center; top: 25px; width: 100%; }
+
 #webGlCanvas .button-container .button-list .button {
 	border: 2px solid white;
 	border-radius: 28px;
@@ -19,8 +20,12 @@ body.webgl { background-color: #000000; overflow: hidden; }
 	text-align: center;
 }
 
-#webGlCanvas .button-container .button-list .button .fa { line-height: 1.2; }
-#webGlCanvas .button-container .button-list .button .button-text { font-size: 2.5em; font-weight: 900; line-height: 1; }
+#webGlCanvas .button-container .button-list .button .button-text {
+	font-size: 2.4em;
+	font-weight: 900;
+	line-height: 1.0;
+	vertical-align: middle;
+}
 
 #webGlCanvas .infoBox {
 	background-color: black;
@@ -43,6 +48,35 @@ body.webgl { background-color: #000000; overflow: hidden; }
 .language-tag a { color: inherit; text-decoration: none; }
 .language-tag-orange { background-color: #FFAAAA; }
 .language-tag-blue { background-color: #AAAAFF; }
+
+
+@font-face {
+	font-family: 'Material Icons';
+	font-style: normal;
+	font-weight: 400;
+	src: url(../../lib/google_material_icons/material_icons_129.woff2) format('woff2');
+}
+
+.material-icons {
+	direction: ltr;
+	display: inline-block;
+	font-family: 'Material Icons';
+	font-weight: normal;
+	font-style: normal;
+	font-size: 24px;
+	line-height: 1.2;
+	letter-spacing: normal;
+	text-transform: none;
+	white-space: nowrap;
+	word-wrap: normal;
+	vertical-align: middle;
+	-webkit-font-feature-settings: 'liga';
+	-webkit-font-smoothing: antialiased;
+}
+
+.material-icons.md-2x { font-size: 48px; }
+.material-icons.md-4x { font-size: 96px; }
+.material-icons.md-8x { font-size: 192px; }
 
 
 @media (min-width: 768px) {
