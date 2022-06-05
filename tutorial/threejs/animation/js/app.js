@@ -28,7 +28,7 @@ class App {
 			'gridHelperVisible': true,
 			'ambientColor': '#FFFFFF',
 			'ambientIntensity': 1,
-			'fbxModelMaterialColor': '#FFFFFF',
+			'fbxModelMaterialColor': '#13566A',
 			'fbxModelPositionX': 0,
 			'fbxModelPositionY': 0,
 			'fbxModelPositionZ': 0,
@@ -114,12 +114,12 @@ class App {
 
 		const folderGeometry = gui.addFolder('FBX Model Geometry');
 		folderGeometry.add(this._properties, 'fbxModelWireframe').onChange((value) => {
-			this._fbxModel.getObjectByName('Police').material.wireframe = value;
+			this._fbxModel.getObjectByName('Alpha_Surface').material.wireframe = value;
 		});
 
 		const folderMaterial = gui.addFolder('FBX Model Material');
 		folderMaterial.addColor(this._properties, 'fbxModelMaterialColor').onChange((value) => {
-			this._fbxModel.getObjectByName('Police').material.color.set(value);
+			this._fbxModel.getObjectByName('Alpha_Surface').material.color.set(value);
 		});
 
 		const folderTransformation = gui.addFolder('FBX Model Transformation');
