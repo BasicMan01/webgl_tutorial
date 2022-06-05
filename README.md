@@ -4,3 +4,6 @@
 
 ### Examples ###
 Test examples online: [https://basicman01.github.io/webgl_tutorial/]
+
+### Resources ###
+* 3D Models and Animation - [https://www.mixamo.com/]

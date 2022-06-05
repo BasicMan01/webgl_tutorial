@@ -19,6 +19,9 @@ class App {
 		this._ambientLight = null;
 		this._fbxModel = null;
 		this._mixer = null;
+		this._animations = {};
+		this._currentAnimation = null;
+		this._forward = false;
 
 		this._properties = {
 			'axesHelperVisible': true,
@@ -77,15 +80,25 @@ class App {
 		this._gridHelper = new THREE.GridHelper(50, 50);
 		this._scene.add(this._gridHelper);
 
-		fbxLoader.setResourcePath('../../../resources/texture/');
-		fbxLoader.load('../../../resources/mesh/fbx/fbxAnimation.fbx', (object) => {
+		fbxLoader.load('../../../resources/mesh/fbx/character/character.fbx', (object) => {
+			object.scale.setScalar(0.01);
+
 			this._fbxModel = object;
 
 			this._scene.add(this._fbxModel);
 
 			this._mixer = new THREE.AnimationMixer(this._fbxModel);
 
-			this._render();
+			fbxLoader.load('../../../resources/mesh/fbx/character/animation/idle.fbx', (object) => {
+				this._addAnimation('character.animation.idle', object.animations[0]);
+				this._setAnimationState('character.animation.idle');
+
+				this._render();
+			});
+
+			fbxLoader.load('../../../resources/mesh/fbx/character/animation/walk.fbx', (object) => {
+				this._addAnimation('character.animation.walk', object.animations[0]);
+			});
 		}, this._onProgress, this._onError);
 	}
 
@@ -149,18 +162,95 @@ class App {
 		this._scene.add(this._ambientLight);
 	}
 
-	_startClip(idx) {
-		this._mixer.clipAction(this._fbxModel.animations[idx]).play();
+	_addAnimation(key, animation) {
+		this._animations[key] = {
+			'name': key,
+			'action': this._mixer.clipAction(animation)
+		};
 	}
 
-	_stopClip(idx) {
-		this._mixer.clipAction(this._fbxModel.animations[idx]).stop();
+	_setAnimationState(state) {
+		const previewAction = this._currentAnimation;
+
+		if (previewAction) {
+			if (previewAction.name === state) {
+				return;
+			}
+		}
+
+		if (!this._animations.hasOwnProperty(state)) {
+			return;
+		}
+
+		this._currentAnimation = this._animations[state];
+
+		switch (state) {
+			case 'character.animation.idle':
+				this._setIdle(previewAction);
+				break;
+
+			case 'character.animation.walk':
+				this._setWalk(previewAction);
+				break;
+		}
+	}
+
+	_setIdle(previewAction) {
+		const currentAction = this._animations['character.animation.idle'].action;
+
+		if (previewAction) {
+			currentAction.time = 0.0;
+			currentAction.enabled = true;
+			currentAction.setEffectiveTimeScale(1.0);
+			currentAction.setEffectiveWeight(1.0);
+			currentAction.crossFadeFrom(previewAction.action, 0.3, true);
+			currentAction.play();
+		} else {
+			// initial start
+			currentAction.play();
+		}
+	}
+
+	_setWalk(previewAction) {
+		const currentAction = this._animations['character.animation.walk'].action;
+
+		if (previewAction) {
+			currentAction.time = 0.0;
+			currentAction.enabled = true;
+			currentAction.setEffectiveTimeScale(1.0);
+			currentAction.setEffectiveWeight(1.0);
+			currentAction.crossFadeFrom(previewAction.action, 0.3, true);
+			currentAction.play();
+		} else {
+			// initial start
+			currentAction.play();
+		}
 	}
 
 	_render() {
 		requestAnimationFrame(this._render.bind(this));
 
-		this._mixer.update(this._clock.getDelta());
+		const timeDelta = this._clock.getDelta();
+
+		if (this._forward) {
+			this._setAnimationState('character.animation.walk');
+
+			let forward = new THREE.Vector3(0, 0, 1);
+
+			forward.applyQuaternion(this._fbxModel.quaternion);
+			forward.normalize();
+			forward.multiplyScalar(timeDelta * 1.5);
+
+			this._fbxModel.position.add(forward);
+
+			if (this._fbxModel.position.z > 5.0) {
+				this._fbxModel.position.z = 0.0;
+			}
+		} else {
+			this._setAnimationState('character.animation.idle');
+		}
+
+		this._mixer.update(timeDelta);
 
 		this._renderer.render(this._scene, this._camera);
 	}
@@ -172,28 +262,18 @@ class App {
 
 	_onKeyDownHandler(event) {
 		switch (event.keyCode) {
-			case 49: { // 1
+			case 87: { // 1
 				event.preventDefault();
-				this._startClip(1);
-			} break;
-
-			case 50: { // 2
-				event.preventDefault();
-				this._startClip(2);
+				this._forward = true;
 			} break;
 		}
 	}
 
 	_onKeyUpHandler(event) {
 		switch (event.keyCode) {
-			case 49: { // 1
+			case 87: { // 1
 				event.preventDefault();
-				this._stopClip(1);
-			} break;
-
-			case 50: { // 2
-				event.preventDefault();
-				this._stopClip(2);
+				this._forward = false;
 			} break;
 		}
 	}
