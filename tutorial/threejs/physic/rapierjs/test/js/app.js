@@ -25,9 +25,9 @@ class App {
 		this._axesHelper = null;
 		this._gridHelper = null;
 		this._debugHelper = null;
-		this._cube1 = null;
-		this._cube2 = null;
+		this._cube = null;
 		this._plane = null;
+		this._sphere = null;
 
 		this._keyStatus = {
 			65: false,
@@ -42,29 +42,34 @@ class App {
 			'debugHelperActive': false,
 			'physicImpulse': 50,
 			'physicTorque': 30,
+			'physicLinearDamping': 1.0,
+			'physicAngularDamping': 1.0,
+			'physicFriction': 1.0,
+			'physicRestitution': 1.0,
 
-			'cube1MaterialColor': '#156289',
-			'cube1WireframeColor': '#FFFFFF',
-			'cube1PositionX': -4,
-			'cube1PositionY': 8,
-			'cube1PositionZ': 0,
-			'cube1RotationX': 0,
-			'cube1RotationY': 0,
-			'cube1RotationZ': 0,
-			'cube1ScaleX': 1,
-			'cube1ScaleY': 1,
-			'cube1ScaleZ': 1,
-			'cube2MaterialColor': '#891562',
-			'cube2WireframeColor': '#FFFFFF',
-			'cube2PositionX': 4,
-			'cube2PositionY': 8,
-			'cube2PositionZ': 0,
-			'cube2RotationX': 0,
-			'cube2RotationY': 0,
-			'cube2RotationZ': 0,
-			'cube2ScaleX': 1,
-			'cube2ScaleY': 1,
-			'cube2ScaleZ': 1
+			'cubeMaterialColor': '#156289',
+			'cubeWireframeColor': '#FFFFFF',
+			'cubePositionX': 4,
+			'cubePositionY': 2.5,
+			'cubePositionZ': 0,
+			'cubeRotationX': 0,
+			'cubeRotationY': 0,
+			'cubeRotationZ': 0,
+			'cubeScaleX': 1,
+			'cubeScaleY': 1,
+			'cubeScaleZ': 1,
+
+			'sphereMaterialColor': '#156289',
+			'sphereWireframeColor': '#FFFFFF',
+			'spherePositionX': -4,
+			'spherePositionY': 8,
+			'spherePositionZ': 0,
+			'sphereRotationX': 0,
+			'sphereRotationY': 0,
+			'sphereRotationZ': 0,
+			'sphereScaleX': 1,
+			'sphereScaleY': 1,
+			'sphereScaleZ': 1
 		};
 
 		this._clock = new THREE.Clock();
@@ -110,8 +115,9 @@ class App {
 	_createObject() {
 		this._createHelper();
 
+		this._createCube();
 		this._createPlane();
-		this._createCube1();
+		this._createSphere();
 
 		// walls
 		this._createBox(new THREE.Vector3(-25, 2.5, 0), 0.2, 5, 50);
@@ -158,12 +164,12 @@ class App {
 
 		box.add(new THREE.Mesh(
 			geometry,
-			new THREE.MeshBasicMaterial( { color: this._properties.cube1MaterialColor } )
+			new THREE.MeshBasicMaterial( { color: this._properties.cubeMaterialColor } )
 		));
 
 		box.add(new THREE.LineSegments(
 			new THREE.WireframeGeometry(geometry),
-			new THREE.LineBasicMaterial({ color: this._properties.cube1WireframeColor })
+			new THREE.LineBasicMaterial({ color: this._properties.cubeWireframeColor })
 		));
 
 		this._createBoxPhysic(box, w, h, l);
@@ -171,57 +177,91 @@ class App {
 
 	_createBoxPhysic(mesh, w, h, l) {
 		const rigidBodyDesc = new RAPIER.RigidBodyDesc(RAPIER.RigidBodyType.Fixed);
-		const colliderDesc = new RAPIER.ColliderDesc(new RAPIER.Cuboid(w, h, l));
+		const colliderDesc = new RAPIER.ColliderDesc(new RAPIER.Cuboid(w / 2, h / 2, l / 2));
 
 		rigidBodyDesc.setTranslation(mesh.position.x, mesh.position.y, mesh.position.z);
 		rigidBodyDesc.setRotation({ x: 0.0, y: 0.0, z: 0.0, w: 1.0});
 
 		// All done, actually build the rigid-body.
 		const rigidBody = this._physicsWorld.createRigidBody(rigidBodyDesc);
-
-		this._physicsWorld.createCollider(colliderDesc, rigidBody);
+		const collider = this._physicsWorld.createCollider(colliderDesc, rigidBody);
 	}
 
-	_createCube1() {
-		//const geometry = new THREE.BoxGeometry(5, 5, 5, 1, 1, 1);
-		const geometry = new THREE.SphereGeometry(1.0, 20, 20);
+	_createCube() {
+		const geometry = new THREE.BoxGeometry(1, 1, 1, 1, 1, 1);
 
-		this._cube1 = new THREE.Object3D();
-		this._cube1.position.set(this._properties.cube1PositionX, this._properties.cube1PositionY, this._properties.cube1PositionZ);
-		this._scene.add(this._cube1);
+		this._cube = new THREE.Object3D();
+		this._cube.position.set(this._properties.cubePositionX, this._properties.cubePositionY, this._properties.cubePositionZ);
+		this._scene.add(this._cube);
 
-		this._cube1.add(new THREE.Mesh(
+		this._cube.add(new THREE.Mesh(
 			geometry,
-			new THREE.MeshBasicMaterial( { color: this._properties.cube1MaterialColor } )
+			new THREE.MeshBasicMaterial( { color: this._properties.cubeMaterialColor } )
 		));
 
-		this._cube1.add(new THREE.LineSegments(
+		this._cube.add(new THREE.LineSegments(
 			new THREE.WireframeGeometry(geometry),
-			new THREE.LineBasicMaterial( { color: this._properties.cube1WireframeColor } )
+			new THREE.LineBasicMaterial( { color: this._properties.cubeWireframeColor } )
+		));
+
+
+		const rigidBodyDesc = new RAPIER.RigidBodyDesc(RAPIER.RigidBodyType.Dynamic);
+		const colliderDesc = new RAPIER.ColliderDesc(new RAPIER.Cuboid(0.5, 0.5, 0.5));
+
+		rigidBodyDesc.setTranslation(this._properties.cubePositionX, this._properties.cubePositionY, this._properties.cubePositionZ);
+		rigidBodyDesc.setRotation({ x: 0.0, y: 0.0, z: 0.0, w: 1.0});
+		//rigidBodyDesc.setLinearDamping(this._properties.physicLinearDamping);
+		//rigidBodyDesc.setAngularDamping(this._properties.physicAngularDamping);
+		rigidBodyDesc.setCcdEnabled(true);
+
+		colliderDesc.setFriction(0.1);
+
+		const rigidBody = this._physicsWorld.createRigidBody(rigidBodyDesc);
+		const collider = this._physicsWorld.createCollider(colliderDesc, rigidBody);
+
+		this._rigidBodies.push(this._cube);
+		this._cube.userData.rigidBody = rigidBody;
+		this._cube.userData.collider = collider;
+	}
+
+	_createSphere() {
+		const geometry = new THREE.SphereGeometry(1.0, 20, 20);
+
+		this._sphere = new THREE.Object3D();
+		this._sphere.position.set(this._properties.spherePositionX, this._properties.spherePositionY, this._properties.spherePositionZ);
+		this._scene.add(this._sphere);
+
+		this._sphere.add(new THREE.Mesh(
+			geometry,
+			new THREE.MeshBasicMaterial( { color: this._properties.sphereMaterialColor } )
+		));
+
+		this._sphere.add(new THREE.LineSegments(
+			new THREE.WireframeGeometry(geometry),
+			new THREE.LineBasicMaterial( { color: this._properties.sphereWireframeColor } )
 		));
 
 
 		const rigidBodyDesc = new RAPIER.RigidBodyDesc(RAPIER.RigidBodyType.Dynamic);
 		const colliderDesc = new RAPIER.ColliderDesc(new RAPIER.Ball(1.0));
 
-		rigidBodyDesc.setTranslation(this._properties.cube1PositionX, this._properties.cube1PositionY, this._properties.cube1PositionZ);
+		rigidBodyDesc.setTranslation(this._properties.spherePositionX, this._properties.spherePositionY, this._properties.spherePositionZ);
 		rigidBodyDesc.setRotation({ x: 0.0, y: 0.0, z: 0.0, w: 1.0});
-		rigidBodyDesc.setLinearDamping(1.0);
-		rigidBodyDesc.setAngularDamping(1.0);
+		rigidBodyDesc.setLinearDamping(this._properties.physicLinearDamping);
+		rigidBodyDesc.setAngularDamping(this._properties.physicAngularDamping);
 		rigidBodyDesc.setCcdEnabled(true);
 
-		//colliderDesc.setFriction(1.0);
+		colliderDesc.setFriction(this._properties.physicFriction);
 		colliderDesc.setFrictionCombineRule(RAPIER.CoefficientCombineRule.Max);
-		colliderDesc.setRestitution(0.6);
+		colliderDesc.setRestitution(this._properties.physicRestitution);
 		colliderDesc.setRestitutionCombineRule(RAPIER.CoefficientCombineRule.Max);
 
-		// All done, actually build the rigid-body.
 		const rigidBody = this._physicsWorld.createRigidBody(rigidBodyDesc);
+		const collider = this._physicsWorld.createCollider(colliderDesc, rigidBody);
 
-		this._physicsWorld.createCollider(colliderDesc, rigidBody);
-
-		this._rigidBodies.push(rigidBody);
-		this._cube1.userData.rigidBody = rigidBody;
+		this._rigidBodies.push(this._sphere);
+		this._sphere.userData.rigidBody = rigidBody;
+		this._sphere.userData.collider = collider;
 	}
 
 	_createGui() {
@@ -236,10 +276,60 @@ class App {
 		gui.add(this._properties, 'debugHelperActive').onChange((value) => {
 		});
 
+		const folderMaterial = gui.addFolder('Cube Material');
+		folderMaterial.addColor(this._properties, 'cubeMaterialColor').onChange((value) => {
+			this._cube.children[0].material.color.set(value);
+		});
+		folderMaterial.addColor(this._properties, 'cubeWireframeColor').onChange((value) => {
+			this._cube.children[1].material.color.set(value);
+		});
+
+		const folderTransformation = gui.addFolder('Cube Transformation');
+		folderTransformation.add(this._properties, 'cubePositionX', -10, 10).step(0.1).onChange((value) => {
+			this._cube.position.x = value;
+		});
+		folderTransformation.add(this._properties, 'cubePositionY', -10, 10).step(0.1).onChange((value) => {
+			this._cube.position.y = value;
+		});
+		folderTransformation.add(this._properties, 'cubePositionZ', -10, 10).step(0.1).onChange((value) => {
+			this._cube.position.z = value;
+		});
+		folderTransformation.add(this._properties, 'cubeRotationX', 0, 2*Math.PI).step(0.01).onChange((value) => {
+			this._cube.rotation.x = value;
+		});
+		folderTransformation.add(this._properties, 'cubeRotationY', 0, 2*Math.PI).step(0.01).onChange((value) => {
+			this._cube.rotation.y = value;
+		});
+		folderTransformation.add(this._properties, 'cubeRotationZ', 0, 2*Math.PI).step(0.01).onChange((value) => {
+			this._cube.rotation.z = value;
+		});
+		folderTransformation.add(this._properties, 'cubeScaleX', 0.1, 10).step(0.1).onChange((value) => {
+			this._cube.scale.x = value;
+		});
+		folderTransformation.add(this._properties, 'cubeScaleY', 0.1, 10).step(0.1).onChange((value) => {
+			this._cube.scale.y = value;
+		});
+		folderTransformation.add(this._properties, 'cubeScaleZ', 0.1, 10).step(0.1).onChange((value) => {
+			this._cube.scale.z = value;
+		});
+
+
 		const folderPhysic = gui.addFolder('Sphere Physic');
 		folderPhysic.add(this._properties, 'physicImpulse', 0, 100).step(1).onChange((value) => {
 		});
 		folderPhysic.add(this._properties, 'physicTorque', 0, 100).step(1).onChange((value) => {
+		});
+		folderPhysic.add(this._properties, 'physicLinearDamping', 0, 3).step(0.1).onChange((value) => {
+			this._sphere.userData.rigidBody.setLinearDamping(value);
+		});
+		folderPhysic.add(this._properties, 'physicAngularDamping', 0, 3).step(0.1).onChange((value) => {
+			this._sphere.userData.rigidBody.setAngularDamping(value);
+		});
+		folderPhysic.add(this._properties, 'physicFriction', 0, 3).step(0.1).onChange((value) => {
+			this._sphere.userData.collider.setFriction(value);
+		});
+		folderPhysic.add(this._properties, 'physicRestitution', 0, 3).step(0.1).onChange((value) => {
+			this._sphere.userData.collider.setRestitution(value);
 		});
 
 		gui.close();
@@ -250,7 +340,7 @@ class App {
 
 		const timeDelta = this._clock.getDelta();
 
-		const body = this._cube1.userData.rigidBody;
+		const body = this._sphere.userData.rigidBody;
 
 		const impulse = new THREE.Vector3(0, 0, 0);
 		const torque = new THREE.Vector3(0, 0, 0);
@@ -298,10 +388,10 @@ class App {
 
 		//const resultantImpulse = new Ammo.btVector3(forward, 0, left)
 		//resultantImpulse.op_mul(10);
-		//this._cube1.userData.rigidBody.applyImpulse({ x: forward, y: 0.0, z: left }, true);
-		//this._cube1.userData.rigidBody.applyTorqueImpulse({ x: forward, y: 0.0, z: left }, true);
+		//this._sphere.userData.rigidBody.applyImpulse({ x: forward, y: 0.0, z: left }, true);
+		//this._sphere.userData.rigidBody.applyTorqueImpulse({ x: forward, y: 0.0, z: left }, true);
 
-		//const physicsBody = this._cube1.userData.physicsBody;
+		//const physicsBody = this._sphere.userData.physicsBody;
 		//physicsBody.applyImpulse(resultantImpulse);
 
 
@@ -317,11 +407,13 @@ class App {
 
 		// Update rigid bodies
 		for (let i = 0; i < this._rigidBodies.length; ++i) {
-			const t = this._rigidBodies[i].translation();
-			const r = this._rigidBodies[i].rotation();
+			const obj = this._rigidBodies[i];
 
-			this._cube1.position.set(t.x, t.y, t.z);
-			this._cube1.quaternion.set(r.x, r.y, r.z, r.w);
+			const t = obj.userData.rigidBody.translation();
+			const r = obj.userData.rigidBody.rotation();
+
+			obj.position.set(t.x, t.y, t.z);
+			obj.quaternion.set(r.x, r.y, r.z, r.w);
 		}
 
 		if (this._properties.debugHelperActive) {
