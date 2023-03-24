@@ -224,6 +224,7 @@ class App {
 
 		//body.setCollisionFlags(0) // 0 is static 1 dynamic 2 kinematic
 		body.setActivationState(4); // never sleep
+		body.setRestitution(0);
 
 		this._physicsWorld.addRigidBody(body);
 

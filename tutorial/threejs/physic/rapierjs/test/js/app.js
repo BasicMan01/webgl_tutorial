@@ -5,6 +5,7 @@ import * as THREE from 'three';
 
 import { GUI } from '../../../../../../lib/threejs_140/examples/jsm/libs/lil-gui.module.min.js';
 import { OrbitControls } from '../../../../../../lib/threejs_140/examples/jsm/controls/OrbitControls.js';
+import { FBXLoader } from '../../../../../../lib/threejs_140/examples/jsm/loaders/FBXLoader.js';
 
 import RAPIER from 'https://cdn.skypack.dev/@dimforge/rapier3d-compat';
 
@@ -17,17 +18,24 @@ class App {
 	constructor(canvas) {
 		this._canvas = canvas;
 
-		this._ammo = null;
 		this._physicsWorld = null;
 		this._rigidBodies = [];
-		this._tmpTrans = null;
 
 		this._axesHelper = null;
 		this._gridHelper = null;
 		this._debugHelper = null;
+
+		this._ambientLight = null;
+		this._hemisphereLight = null;
+		this._directionalLight = null;
+
 		this._cube = null;
 		this._plane = null;
 		this._sphere = null;
+		this._fbxModel = null;
+
+		this._camWorldDirection = new THREE.Vector3();
+		this._objWorldPosition = new THREE.Vector3();
 
 		this._keyStatus = {
 			65: false,
@@ -39,19 +47,22 @@ class App {
 		this._properties = {
 			'axesHelperVisible': true,
 			'gridHelperVisible': true,
-			'debugHelperActive': false,
-			'physicImpulse': 50,
-			'physicTorque': 30,
-			'physicLinearDamping': 1.0,
-			'physicAngularDamping': 1.0,
-			'physicFriction': 1.0,
-			'physicRestitution': 1.0,
+			'debugHelperActive': true,
+
+			'wireframeColor': '#FFFFFF',
+
+			'ambientColor': '#303030',
+			'ambientIntensity': 0.3,
+			'hemisphereSkyColor': '#87CEFA',
+			'hemisphereGroundColor': '#303030',
+			'hemisphereIntensity': 0.8,
+			'directionalColor': '#FFFFFF',
+			'directionalIntensity': 0.8,
 
 			'cubeMaterialColor': '#156289',
-			'cubeWireframeColor': '#FFFFFF',
 			'cubePositionX': 4,
 			'cubePositionY': 2.5,
-			'cubePositionZ': 0,
+			'cubePositionZ': 8,
 			'cubeRotationX': 0,
 			'cubeRotationY': 0,
 			'cubeRotationZ': 0,
@@ -59,17 +70,25 @@ class App {
 			'cubeScaleY': 1,
 			'cubeScaleZ': 1,
 
+			'cubePhysicFriction': 1.0,
+
 			'sphereMaterialColor': '#156289',
-			'sphereWireframeColor': '#FFFFFF',
 			'spherePositionX': -4,
-			'spherePositionY': 8,
+			'spherePositionY': 25,
 			'spherePositionZ': 0,
 			'sphereRotationX': 0,
 			'sphereRotationY': 0,
 			'sphereRotationZ': 0,
 			'sphereScaleX': 1,
 			'sphereScaleY': 1,
-			'sphereScaleZ': 1
+			'sphereScaleZ': 1,
+
+			'spherePhysicImpulse': 50,
+			'spherePhysicTorque': 30,
+			'spherePhysicLinearDamping': 0.2,
+			'spherePhysicAngularDamping': 1.0,
+			'spherePhysicFriction': 1.0,
+			'spherePhysicRestitution': 0.9
 		};
 
 		this._clock = new THREE.Clock();
@@ -104,33 +123,58 @@ class App {
 
 		this._createGui();
 		this._createObject();
+		this._createLight();
 
 		this._render();
 	}
 
 	_createPhysics(){
-		this._physicsWorld = new RAPIER.World({ x: 0.0, y: -9.81, z: 0.0 });
+		this._physicsWorld = new RAPIER.World({ x: 0.0, y: -60, z: 0.0 });
 	}
 
 	_createObject() {
+		const fbxLoader = new FBXLoader();
+
 		this._createHelper();
 
 		this._createCube();
-		this._createPlane();
 		this._createSphere();
 
-		// walls
-		this._createBox(new THREE.Vector3(-25, 2.5, 0), 0.2, 5, 50);
-		this._createBox(new THREE.Vector3(25, 2.5, 0), 0.2, 5, 50);
-		this._createBox(new THREE.Vector3(0, 2.5, -25), 50, 5, 0.2);
-		this._createBox(new THREE.Vector3(0, 2.5, 25), 50, 5, 0.2);
+		// fbx
+		//fbxLoader.setResourcePath('../../../../resources/texture/');
+		fbxLoader.load('../../../../../resources/mesh/fbx/physic_01.fbx', (object) => {
+			this._fbxModel = object;
+			this._scene.add(this._fbxModel);
+
+			// console.log(this._fbxModel.children);
+
+			for (let i = 0; i < this._fbxModel.children.length; ++i) {
+				const child = this._fbxModel.children[i];
+
+				//child.material.wireframe = true;
+				//this._fbxModel.children[i].material.visible = false;
+
+				const vertices = child.geometry.attributes.position.array;
+				const indices = [...Array(vertices.length / 3).keys()];
+
+				const rigidBodyDesc = new RAPIER.RigidBodyDesc(RAPIER.RigidBodyType.Fixed);
+				const colliderDesc = new RAPIER.ColliderDesc(new RAPIER.TriMesh(vertices, indices));
+
+				rigidBodyDesc.setTranslation(child.position.x, child.position.y, child.position.z);
+				rigidBodyDesc.setRotation(child.quaternion);
+
+				// All done, actually build the rigid-body.
+				const rigidBody = this._physicsWorld.createRigidBody(rigidBodyDesc);
+				const collider = this._physicsWorld.createCollider(colliderDesc, rigidBody);
+			}
+		}, this._onProgress, this._onError);
 	}
 
 	_createHelper(){
 		this._axesHelper = new THREE.AxesHelper(25);
 		this._scene.add(this._axesHelper);
 
-		this._gridHelper = new THREE.GridHelper(50, 50);
+		this._gridHelper = new THREE.GridHelper(200, 200);
 		this._scene.add(this._gridHelper);
 
 		this._debugHelper = new THREE.LineSegments(
@@ -146,7 +190,7 @@ class App {
 	_createPlane() {
 		this._plane = new THREE.Mesh(
 			new THREE.PlaneGeometry(50, 50, 50, 50),
-			new THREE.MeshBasicMaterial( { color: 0xAAAAAA, side: THREE.DoubleSide } )
+			new THREE.MeshPhongMaterial( { color: 0xAAAAAA, side: THREE.DoubleSide } )
 		);
 
 		this._plane.rotation.x = Math.PI / 2;
@@ -156,21 +200,13 @@ class App {
 	};
 
 	_createBox(position, w, h, l) {
-		const box = new THREE.Object3D();
-		const geometry = new THREE.BoxGeometry(w, h, l, 1, 1, 1);
+		const box = new THREE.Mesh(
+			new THREE.BoxGeometry(w, h, l, 1, 1, 1),
+			new THREE.MeshPhongMaterial( { color: 0xAAAAAA } )
+		);
 
 		box.position.copy(position);
 		this._scene.add(box);
-
-		box.add(new THREE.Mesh(
-			geometry,
-			new THREE.MeshBasicMaterial( { color: this._properties.cubeMaterialColor } )
-		));
-
-		box.add(new THREE.LineSegments(
-			new THREE.WireframeGeometry(geometry),
-			new THREE.LineBasicMaterial({ color: this._properties.cubeWireframeColor })
-		));
 
 		this._createBoxPhysic(box, w, h, l);
 	}
@@ -188,33 +224,24 @@ class App {
 	}
 
 	_createCube() {
-		const geometry = new THREE.BoxGeometry(1, 1, 1, 1, 1, 1);
-
-		this._cube = new THREE.Object3D();
+		this._cube = new THREE.Mesh(
+			new THREE.BoxGeometry(2, 2, 2, 1, 1, 1),
+			new THREE.MeshPhongMaterial( { color: this._properties.cubeMaterialColor } )
+		);
 		this._cube.position.set(this._properties.cubePositionX, this._properties.cubePositionY, this._properties.cubePositionZ);
 		this._scene.add(this._cube);
 
-		this._cube.add(new THREE.Mesh(
-			geometry,
-			new THREE.MeshBasicMaterial( { color: this._properties.cubeMaterialColor } )
-		));
-
-		this._cube.add(new THREE.LineSegments(
-			new THREE.WireframeGeometry(geometry),
-			new THREE.LineBasicMaterial( { color: this._properties.cubeWireframeColor } )
-		));
-
 
 		const rigidBodyDesc = new RAPIER.RigidBodyDesc(RAPIER.RigidBodyType.Dynamic);
-		const colliderDesc = new RAPIER.ColliderDesc(new RAPIER.Cuboid(0.5, 0.5, 0.5));
+		const colliderDesc = new RAPIER.ColliderDesc(new RAPIER.Cuboid(1.0, 1.0, 1.0));
 
 		rigidBodyDesc.setTranslation(this._properties.cubePositionX, this._properties.cubePositionY, this._properties.cubePositionZ);
 		rigidBodyDesc.setRotation({ x: 0.0, y: 0.0, z: 0.0, w: 1.0});
-		//rigidBodyDesc.setLinearDamping(this._properties.physicLinearDamping);
-		//rigidBodyDesc.setAngularDamping(this._properties.physicAngularDamping);
+		//rigidBodyDesc.setLinearDamping(this._properties.spherePhysicLinearDamping);
+		//rigidBodyDesc.setAngularDamping(this._properties.spherePhysicAngularDamping);
 		rigidBodyDesc.setCcdEnabled(true);
 
-		colliderDesc.setFriction(0.1);
+		colliderDesc.setFriction(this._properties.cubePhysicFriction);
 
 		const rigidBody = this._physicsWorld.createRigidBody(rigidBodyDesc);
 		const collider = this._physicsWorld.createCollider(colliderDesc, rigidBody);
@@ -225,21 +252,12 @@ class App {
 	}
 
 	_createSphere() {
-		const geometry = new THREE.SphereGeometry(1.0, 20, 20);
-
-		this._sphere = new THREE.Object3D();
+		this._sphere = new THREE.Mesh(
+			new THREE.SphereGeometry(1.0, 20, 20),
+			new THREE.MeshPhongMaterial( { color: this._properties.sphereMaterialColor } )
+		);
 		this._sphere.position.set(this._properties.spherePositionX, this._properties.spherePositionY, this._properties.spherePositionZ);
 		this._scene.add(this._sphere);
-
-		this._sphere.add(new THREE.Mesh(
-			geometry,
-			new THREE.MeshBasicMaterial( { color: this._properties.sphereMaterialColor } )
-		));
-
-		this._sphere.add(new THREE.LineSegments(
-			new THREE.WireframeGeometry(geometry),
-			new THREE.LineBasicMaterial( { color: this._properties.sphereWireframeColor } )
-		));
 
 
 		const rigidBodyDesc = new RAPIER.RigidBodyDesc(RAPIER.RigidBodyType.Dynamic);
@@ -247,13 +265,13 @@ class App {
 
 		rigidBodyDesc.setTranslation(this._properties.spherePositionX, this._properties.spherePositionY, this._properties.spherePositionZ);
 		rigidBodyDesc.setRotation({ x: 0.0, y: 0.0, z: 0.0, w: 1.0});
-		rigidBodyDesc.setLinearDamping(this._properties.physicLinearDamping);
-		rigidBodyDesc.setAngularDamping(this._properties.physicAngularDamping);
+		rigidBodyDesc.setLinearDamping(this._properties.spherePhysicLinearDamping);
+		rigidBodyDesc.setAngularDamping(this._properties.spherePhysicAngularDamping);
 		rigidBodyDesc.setCcdEnabled(true);
 
-		colliderDesc.setFriction(this._properties.physicFriction);
+		colliderDesc.setFriction(this._properties.spherePhysicFriction);
 		colliderDesc.setFrictionCombineRule(RAPIER.CoefficientCombineRule.Max);
-		colliderDesc.setRestitution(this._properties.physicRestitution);
+		colliderDesc.setRestitution(this._properties.spherePhysicRestitution);
 		colliderDesc.setRestitutionCombineRule(RAPIER.CoefficientCombineRule.Max);
 
 		const rigidBody = this._physicsWorld.createRigidBody(rigidBodyDesc);
@@ -276,63 +294,81 @@ class App {
 		gui.add(this._properties, 'debugHelperActive').onChange((value) => {
 		});
 
+		const folderLight = gui.addFolder('Light');
+		folderLight.addColor(this._properties, 'ambientColor').onChange((value) => {
+			this._ambientLight.color.set(value);
+		});
+		folderLight.add(this._properties, 'ambientIntensity', 0, 1).step(0.01).onChange((value) => {
+			this._ambientLight.intensity = value;
+		});
+		folderLight.addColor(this._properties, 'hemisphereSkyColor').onChange((value) => {
+			this._hemisphereLight.color.set(value);
+		});
+		folderLight.addColor(this._properties, 'hemisphereGroundColor').onChange((value) => {
+			this._hemisphereLight.groundColor.set(value);
+		});
+		folderLight.add(this._properties, 'hemisphereIntensity', 0, 1).step(0.01).onChange((value) => {
+			this._hemisphereLight.intensity = value;
+		});
+		folderLight.addColor(this._properties, 'directionalColor').onChange((value) => {
+			this._ambientLight.color.set(value);
+		});
+		folderLight.add(this._properties, 'directionalIntensity', 0, 1).step(0.01).onChange((value) => {
+			this._ambientLight.intensity = value;
+		});
+
 		const folderMaterial = gui.addFolder('Cube Material');
 		folderMaterial.addColor(this._properties, 'cubeMaterialColor').onChange((value) => {
 			this._cube.children[0].material.color.set(value);
 		});
-		folderMaterial.addColor(this._properties, 'cubeWireframeColor').onChange((value) => {
-			this._cube.children[1].material.color.set(value);
-		});
 
-		const folderTransformation = gui.addFolder('Cube Transformation');
-		folderTransformation.add(this._properties, 'cubePositionX', -10, 10).step(0.1).onChange((value) => {
-			this._cube.position.x = value;
-		});
-		folderTransformation.add(this._properties, 'cubePositionY', -10, 10).step(0.1).onChange((value) => {
-			this._cube.position.y = value;
-		});
-		folderTransformation.add(this._properties, 'cubePositionZ', -10, 10).step(0.1).onChange((value) => {
-			this._cube.position.z = value;
-		});
-		folderTransformation.add(this._properties, 'cubeRotationX', 0, 2*Math.PI).step(0.01).onChange((value) => {
-			this._cube.rotation.x = value;
-		});
-		folderTransformation.add(this._properties, 'cubeRotationY', 0, 2*Math.PI).step(0.01).onChange((value) => {
-			this._cube.rotation.y = value;
-		});
-		folderTransformation.add(this._properties, 'cubeRotationZ', 0, 2*Math.PI).step(0.01).onChange((value) => {
-			this._cube.rotation.z = value;
-		});
-		folderTransformation.add(this._properties, 'cubeScaleX', 0.1, 10).step(0.1).onChange((value) => {
-			this._cube.scale.x = value;
-		});
-		folderTransformation.add(this._properties, 'cubeScaleY', 0.1, 10).step(0.1).onChange((value) => {
-			this._cube.scale.y = value;
-		});
-		folderTransformation.add(this._properties, 'cubeScaleZ', 0.1, 10).step(0.1).onChange((value) => {
-			this._cube.scale.z = value;
+		const folderCubePhysic = gui.addFolder('Cube Physic');
+		folderCubePhysic.add(this._properties, 'cubePhysicFriction', 0, 3).step(0.1).onChange((value) => {
+			this._cube.userData.collider.setFriction(value);
 		});
 
 
-		const folderPhysic = gui.addFolder('Sphere Physic');
-		folderPhysic.add(this._properties, 'physicImpulse', 0, 100).step(1).onChange((value) => {
+		const folderSpherePhysic = gui.addFolder('Sphere Physic');
+		folderSpherePhysic.add(this._properties, 'spherePhysicImpulse', 0, 100).step(1).onChange((value) => {
 		});
-		folderPhysic.add(this._properties, 'physicTorque', 0, 100).step(1).onChange((value) => {
+		folderSpherePhysic.add(this._properties, 'spherePhysicTorque', 0, 100).step(1).onChange((value) => {
 		});
-		folderPhysic.add(this._properties, 'physicLinearDamping', 0, 3).step(0.1).onChange((value) => {
+		folderSpherePhysic.add(this._properties, 'spherePhysicLinearDamping', 0, 3).step(0.1).onChange((value) => {
 			this._sphere.userData.rigidBody.setLinearDamping(value);
 		});
-		folderPhysic.add(this._properties, 'physicAngularDamping', 0, 3).step(0.1).onChange((value) => {
+		folderSpherePhysic.add(this._properties, 'spherePhysicAngularDamping', 0, 3).step(0.1).onChange((value) => {
 			this._sphere.userData.rigidBody.setAngularDamping(value);
 		});
-		folderPhysic.add(this._properties, 'physicFriction', 0, 3).step(0.1).onChange((value) => {
+		folderSpherePhysic.add(this._properties, 'spherePhysicFriction', 0, 3).step(0.1).onChange((value) => {
 			this._sphere.userData.collider.setFriction(value);
 		});
-		folderPhysic.add(this._properties, 'physicRestitution', 0, 3).step(0.1).onChange((value) => {
+		folderSpherePhysic.add(this._properties, 'spherePhysicRestitution', 0, 3).step(0.1).onChange((value) => {
 			this._sphere.userData.collider.setRestitution(value);
 		});
 
 		gui.close();
+	}
+
+	_createLight() {
+		this._ambientLight = new THREE.AmbientLight(
+			this._properties.ambientColor,
+			this._properties.ambientIntensity
+		);
+		this._scene.add(this._ambientLight);
+
+		this._hemisphereLight = new THREE.HemisphereLight(
+			this._properties.hemisphereSkyColor,
+			this._properties.hemisphereGroundColor,
+			this._properties.hemisphereIntensity
+		);
+		this._scene.add(this._hemisphereLight);
+
+		this._directionalLight = new THREE.DirectionalLight(
+			this._properties.directionalColor,
+			this._properties.directionalIntensity
+		);
+		this._directionalLight.position.set(20, 50, 0);
+		this._scene.add(this._directionalLight);
 	}
 
 	_render() {
@@ -345,8 +381,8 @@ class App {
 		const impulse = new THREE.Vector3(0, 0, 0);
 		const torque = new THREE.Vector3(0, 0, 0);
 
-		const impulseStrength = this._properties.physicImpulse * timeDelta;
-    	const torqueStrength = this._properties.physicTorque * timeDelta;
+		const impulseStrength = this._properties.spherePhysicImpulse * timeDelta;
+    	const torqueStrength = this._properties.spherePhysicTorque * timeDelta;
 
 		if (this._keyStatus[87]) {
 			impulse.z = -1;
@@ -374,6 +410,8 @@ class App {
 			impulse.setY(0);
 			impulse.normalize().setLength(impulseStrength);
 
+			console.log(impulse);
+
 			body.applyImpulse(impulse, true);
 		}
 
@@ -385,23 +423,12 @@ class App {
 			body.applyTorqueImpulse(torque, true);
 		}
 
-
-		//const resultantImpulse = new Ammo.btVector3(forward, 0, left)
-		//resultantImpulse.op_mul(10);
-		//this._sphere.userData.rigidBody.applyImpulse({ x: forward, y: 0.0, z: left }, true);
-		//this._sphere.userData.rigidBody.applyTorqueImpulse({ x: forward, y: 0.0, z: left }, true);
-
-		//const physicsBody = this._sphere.userData.physicsBody;
-		//physicsBody.applyImpulse(resultantImpulse);
-
-
-
-		this._updatePhysics(timeDelta);
+		this._updatePhysics();
 
 		this._renderer.render(this._scene, this._camera);
 	}
 
-	_updatePhysics(deltaTime) {
+	_updatePhysics() {
 		// Step world
 		this._physicsWorld.step();
 
