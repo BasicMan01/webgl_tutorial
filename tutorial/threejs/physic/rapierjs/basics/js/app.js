@@ -47,7 +47,7 @@ class App {
 		this._properties = {
 			'axesHelperVisible': true,
 			'gridHelperVisible': true,
-			'debugHelperActive': true,
+			'debugHelperActive': false,
 
 			'wireframeColor': '#FFFFFF',
 
@@ -60,9 +60,9 @@ class App {
 			'directionalIntensity': 0.8,
 
 			'cubeMaterialColor': '#156289',
-			'cubePositionX': 4,
-			'cubePositionY': 2.5,
-			'cubePositionZ': 8,
+			'cubePositionX': 0,
+			'cubePositionY': 1.0,
+			'cubePositionZ': 30,
 			'cubeRotationX': 0,
 			'cubeRotationY': 0,
 			'cubeRotationZ': 0,
@@ -70,12 +70,16 @@ class App {
 			'cubeScaleY': 1,
 			'cubeScaleZ': 1,
 
+			'physicGravityX': 0,
+			'physicGravityY': -50,
+			'physicGravityZ': 0,
+
 			'cubePhysicFriction': 1.0,
 
 			'sphereMaterialColor': '#156289',
 			'spherePositionX': -4,
 			'spherePositionY': 25,
-			'spherePositionZ': 0,
+			'spherePositionZ': 25,
 			'sphereRotationX': 0,
 			'sphereRotationY': 0,
 			'sphereRotationZ': 0,
@@ -95,7 +99,7 @@ class App {
 		this._scene = new THREE.Scene();
 
 		this._camera = new THREE.PerspectiveCamera(70, this._getCameraAspect(), 0.1, 500);
-		this._camera.position.set(0, 10, 20);
+		this._camera.position.set(0, 20, 40);
 
 		this._renderer = new THREE.WebGLRenderer({antialias: true});
 		this._renderer.setClearColor(0x000000, 1);
@@ -129,7 +133,11 @@ class App {
 	}
 
 	_createPhysics(){
-		this._physicsWorld = new RAPIER.World({ x: 0.0, y: -60, z: 0.0 });
+		this._physicsWorld = new RAPIER.World({
+			x: this._properties.physicGravityX,
+			y: this._properties.physicGravityY,
+			z: this._properties.physicGravityZ
+		});
 	}
 
 	_createObject() {
@@ -141,18 +149,12 @@ class App {
 		this._createSphere();
 
 		// fbx
-		//fbxLoader.setResourcePath('../../../../resources/texture/');
 		fbxLoader.load('../../../../../resources/mesh/fbx/physic_01.fbx', (object) => {
 			this._fbxModel = object;
 			this._scene.add(this._fbxModel);
 
-			// console.log(this._fbxModel.children);
-
 			for (let i = 0; i < this._fbxModel.children.length; ++i) {
 				const child = this._fbxModel.children[i];
-
-				//child.material.wireframe = true;
-				//this._fbxModel.children[i].material.visible = false;
 
 				const vertices = child.geometry.attributes.position.array;
 				const indices = [...Array(vertices.length / 3).keys()];
@@ -174,7 +176,7 @@ class App {
 		this._axesHelper = new THREE.AxesHelper(25);
 		this._scene.add(this._axesHelper);
 
-		this._gridHelper = new THREE.GridHelper(200, 200);
+		this._gridHelper = new THREE.GridHelper(130, 130);
 		this._scene.add(this._gridHelper);
 
 		this._debugHelper = new THREE.LineSegments(
@@ -186,18 +188,6 @@ class App {
 		);
 		this._scene.add(this._debugHelper);
 	}
-
-	_createPlane() {
-		this._plane = new THREE.Mesh(
-			new THREE.PlaneGeometry(50, 50, 50, 50),
-			new THREE.MeshPhongMaterial( { color: 0xAAAAAA, side: THREE.DoubleSide } )
-		);
-
-		this._plane.rotation.x = Math.PI / 2;
-		this._scene.add(this._plane);
-
-		this._createBoxPhysic(this._plane, 50, 0.001, 50);
-	};
 
 	_createBox(position, w, h, l) {
 		const box = new THREE.Mesh(
@@ -237,8 +227,6 @@ class App {
 
 		rigidBodyDesc.setTranslation(this._properties.cubePositionX, this._properties.cubePositionY, this._properties.cubePositionZ);
 		rigidBodyDesc.setRotation({ x: 0.0, y: 0.0, z: 0.0, w: 1.0});
-		//rigidBodyDesc.setLinearDamping(this._properties.spherePhysicLinearDamping);
-		//rigidBodyDesc.setAngularDamping(this._properties.spherePhysicAngularDamping);
 		rigidBodyDesc.setCcdEnabled(true);
 
 		colliderDesc.setFriction(this._properties.cubePhysicFriction);
@@ -322,11 +310,21 @@ class App {
 			this._cube.children[0].material.color.set(value);
 		});
 
+		const folderPhysic = gui.addFolder('Cube Physic');
+		folderPhysic.add(this._properties, 'physicGravityX', -100, 100).step(0.1).onChange((value) => {
+			this._physicsWorld.gravity.x = value;
+		});
+		folderPhysic.add(this._properties, 'physicGravityY', -100, 20).step(0.1).onChange((value) => {
+			this._physicsWorld.gravity.y = value;
+		});
+		folderPhysic.add(this._properties, 'physicGravityZ', -100, 100).step(0.1).onChange((value) => {
+			this._physicsWorld.gravity.z = value;
+		});
+
 		const folderCubePhysic = gui.addFolder('Cube Physic');
 		folderCubePhysic.add(this._properties, 'cubePhysicFriction', 0, 3).step(0.1).onChange((value) => {
 			this._cube.userData.collider.setFriction(value);
 		});
-
 
 		const folderSpherePhysic = gui.addFolder('Sphere Physic');
 		folderSpherePhysic.add(this._properties, 'spherePhysicImpulse', 0, 100).step(1).onChange((value) => {
@@ -409,8 +407,6 @@ class App {
 			impulse.applyMatrix4(this._camera.matrixWorld).sub(this._camera.position);
 			impulse.setY(0);
 			impulse.normalize().setLength(impulseStrength);
-
-			console.log(impulse);
 
 			body.applyImpulse(impulse, true);
 		}
