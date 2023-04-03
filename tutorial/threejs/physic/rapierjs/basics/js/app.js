@@ -307,7 +307,7 @@ class App {
 
 		const folderMaterial = gui.addFolder('Cube Material');
 		folderMaterial.addColor(this._properties, 'cubeMaterialColor').onChange((value) => {
-			this._cube.children[0].material.color.set(value);
+			this._cube.material.color.set(value);
 		});
 
 		const folderPhysic = gui.addFolder('Cube Physic');
