@@ -22,6 +22,7 @@ class App {
 		this._animations = {};
 		this._currentAnimation = null;
 		this._forward = false;
+		this._rotate = false;
 
 		this._properties = {
 			'axesHelperVisible': true,
@@ -29,15 +30,6 @@ class App {
 			'ambientColor': '#FFFFFF',
 			'ambientIntensity': 1,
 			'fbxModelMaterialColor': '#13566A',
-			'fbxModelPositionX': 0,
-			'fbxModelPositionY': 0,
-			'fbxModelPositionZ': 0,
-			'fbxModelRotationX': 0,
-			'fbxModelRotationY': 0,
-			'fbxModelRotationZ': 0,
-			'fbxModelScaleX': 1,
-			'fbxModelScaleY': 1,
-			'fbxModelScaleZ': 1,
 			'fbxModelWireframe': false
 		};
 
@@ -45,7 +37,7 @@ class App {
 		this._scene = new THREE.Scene();
 
 		this._camera = new THREE.PerspectiveCamera(70, this._getCameraAspect(), 0.1, 500);
-		this._camera.position.set(0, 10, 20);
+		this._camera.position.set(0, 2.5, -3.0);
 
 		this._renderer = new THREE.WebGLRenderer({antialias: true});
 		this._renderer.outputEncoding = THREE.sRGBEncoding;
@@ -54,9 +46,24 @@ class App {
 		this._renderer.setSize(this._getCanvasWidth(), this._getCanvasHeight());
 
 		this._controls = new OrbitControls(this._camera, this._renderer.domElement);
+		this._controls.enablePan = false;
+		this._controls.enableZoom = true;
+		this._controls.minDistance = 1.5;
+		this._controls.maxDistance = 10.0;
+		this._controls.minPolarAngle = 0.1;
+		this._controls.maxPolarAngle = 1.7;
+		this._controls.mouseButtons = {
+			LEFT: THREE.MOUSE.ROTATE,
+			RIGHT: THREE.MOUSE.ROTATE
+		};
+		this._controls.target = new THREE.Vector3(0, 1.7, 0);
+		this._controls.update();
 
 		// add renderer to the DOM-Tree
 		this._canvas.appendChild(this._renderer.domElement);
+
+		this._renderer.domElement.addEventListener('pointerdown', this._onPointerDownHandler.bind(this), false);
+		this._renderer.domElement.addEventListener('pointerup', this._onPointerUpHandler.bind(this), false);
 
 		window.addEventListener('keydown', this._onKeyDownHandler.bind(this), false);
 		window.addEventListener('keyup', this._onKeyUpHandler.bind(this), false);
@@ -120,35 +127,6 @@ class App {
 		const folderMaterial = gui.addFolder('FBX Model Material');
 		folderMaterial.addColor(this._properties, 'fbxModelMaterialColor').onChange((value) => {
 			this._fbxModel.getObjectByName('Alpha_Surface').material.color.set(value);
-		});
-
-		const folderTransformation = gui.addFolder('FBX Model Transformation');
-		folderTransformation.add(this._properties, 'fbxModelPositionX', -10, 10).step(0.1).onChange((value) => {
-			this._fbxModel.position.x = value;
-		});
-		folderTransformation.add(this._properties, 'fbxModelPositionY', -10, 10).step(0.1).onChange((value) => {
-			this._fbxModel.position.y = value;
-		});
-		folderTransformation.add(this._properties, 'fbxModelPositionZ', -10, 10).step(0.1).onChange((value) => {
-			this._fbxModel.position.z = value;
-		});
-		folderTransformation.add(this._properties, 'fbxModelRotationX', 0, 2*Math.PI).step(0.01).onChange((value) => {
-			this._fbxModel.rotation.x = value;
-		});
-		folderTransformation.add(this._properties, 'fbxModelRotationY', 0, 2*Math.PI).step(0.01).onChange((value) => {
-			this._fbxModel.rotation.y = value;
-		});
-		folderTransformation.add(this._properties, 'fbxModelRotationZ', 0, 2*Math.PI).step(0.01).onChange((value) => {
-			this._fbxModel.rotation.z = value;
-		});
-		folderTransformation.add(this._properties, 'fbxModelScaleX', 0.1, 10).step(0.1).onChange((value) => {
-			this._fbxModel.scale.x = value;
-		});
-		folderTransformation.add(this._properties, 'fbxModelScaleY', 0.1, 10).step(0.1).onChange((value) => {
-			this._fbxModel.scale.y = value;
-		});
-		folderTransformation.add(this._properties, 'fbxModelScaleZ', 0.1, 10).step(0.1).onChange((value) => {
-			this._fbxModel.scale.z = value;
 		});
 
 		gui.close();
@@ -234,7 +212,17 @@ class App {
 
 		if (this._forward) {
 			this._setAnimationState('character.animation.walk');
+		} else {
+			this._setAnimationState('character.animation.idle');
+		}
 
+		if (this._rotate) {
+			const rotation = new THREE.Euler().setFromQuaternion(this._camera.quaternion, 'YXZ');
+
+			this._fbxModel.rotation.y = rotation.y + Math.PI;
+		}
+
+		if (this._forward) {
 			let forward = new THREE.Vector3(0, 0, 1);
 
 			forward.applyQuaternion(this._fbxModel.quaternion);
@@ -242,12 +230,10 @@ class App {
 			forward.multiplyScalar(timeDelta * 1.5);
 
 			this._fbxModel.position.add(forward);
+			this._camera.position.add(forward);
 
-			if (this._fbxModel.position.z > 5.0) {
-				this._fbxModel.position.z = 0.0;
-			}
-		} else {
-			this._setAnimationState('character.animation.idle');
+			this._controls.target.copy(new THREE.Vector3(this._fbxModel.position.x, 1.7, this._fbxModel.position.z));
+			this._controls.update();
 		}
 
 		this._mixer.update(timeDelta);
@@ -275,6 +261,18 @@ class App {
 				event.preventDefault();
 				this._forward = false;
 			} break;
+		}
+	}
+
+	_onPointerDownHandler(event) {
+		if (event.button == 0) {
+			this._rotate = true;
+		}
+	}
+
+	_onPointerUpHandler(event) {
+		if (event.button == 0) {
+			this._rotate = false;
 		}
 	}
 
