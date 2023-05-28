@@ -59,7 +59,8 @@ class App {
 			'characterMaxClimbAngle': 60,
 			'characterMinSlideAngle': 45,
 
-			'cameraLinesVisible': false
+			'cameraLinesVisible': false,
+			'cameraMoveSpeed': 10
 		};
 
 		this._fbxLoader = new FBXLoader();
@@ -210,6 +211,8 @@ class App {
 
 		const folderCameraPhysic = gui.addFolder('Camera Physic');
 		folderCameraPhysic.add(this._properties, 'cameraLinesVisible').onChange((value) => {
+		});
+		folderCameraPhysic.add(this._properties, 'cameraMoveSpeed', 0, 50).step(1).onChange((value) => {
 		});
 
 		gui.close();
@@ -428,13 +431,14 @@ class App {
 			{ x: rayDirection.x, y: rayDirection.y, z: rayDirection.z }
 		);
 
+		// Use 4 to exclude Kinematic Collider
 		const hit = this._physicsWorld.castRay(ray, maxToi, solid, 4);
 		if (hit != null) {
 			if (this._properties.cameraLinesVisible) {
 				this._drawLine(this._camera.position, this._character.position);
 			}
 
-			this._camera.position.add(rayDirection.multiplyScalar(0.1));
+			this._camera.position.add(rayDirection.multiplyScalar(timeDelta * this._properties.cameraMoveSpeed));
 		}
 
 
