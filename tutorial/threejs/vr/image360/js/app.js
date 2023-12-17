@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 
-import { DeviceOrientationControls } from '../../../../../lib/threejs_140/examples/jsm/controls/DeviceOrientationControls.js';
-import { OrbitControls } from '../../../../../lib/threejs_140/examples/jsm/controls/OrbitControls.js';
-import { VRButton } from '../../../../../lib/threejs_140/examples/jsm/webxr/VRButton.js';
+import { DeviceOrientationControls } from '../../../../../lib/threejs_158/examples/jsm/controls/DeviceOrientationControls.js';
+import { OrbitControls } from '../../../../../lib/threejs_158/examples/jsm/controls/OrbitControls.js';
+import { VRButton } from '../../../../../lib/threejs_158/examples/jsm/webxr/VRButton.js';
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -69,7 +69,7 @@ class App {
 		this._texture = new THREE.TextureLoader().load( "../../../../resources/texture/image360_4k.jpg");
 
 		this._sphere = new THREE.Mesh(
-			new THREE.SphereBufferGeometry(100, 60, 40),
+			new THREE.SphereGeometry(100, 60, 40),
 			new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: this._texture })
 		);
 

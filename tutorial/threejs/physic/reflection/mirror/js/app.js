@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 
-import { GUI } from '../../../../../../lib/threejs_140/examples/jsm/libs/lil-gui.module.min.js';
-import { OrbitControls } from '../../../../../../lib/threejs_140/examples/jsm/controls/OrbitControls.js';
-import { Reflector } from '../../../../../../lib/threejs_140/examples/jsm/objects/Reflector.js';
+import { GUI } from '../../../../../../lib/threejs_158/examples/jsm/libs/lil-gui.module.min.js';
+import { OrbitControls } from '../../../../../../lib/threejs_158/examples/jsm/controls/OrbitControls.js';
+import { Reflector } from '../../../../../../lib/threejs_158/examples/jsm/objects/Reflector.js';
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -156,7 +156,7 @@ class App {
 		};
 
 		this._mirror = new Reflector(
-			new THREE.PlaneBufferGeometry(50, 50),
+			new THREE.PlaneGeometry(50, 50),
 			{
 				clipBias: 0.0,
 				textureWidth: 2048,

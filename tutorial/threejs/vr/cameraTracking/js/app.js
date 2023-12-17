@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
-import { GUI } from '../../../../../lib/threejs_140/examples/jsm/libs/lil-gui.module.min.js';
-import { VRButton } from '../../../../../lib/threejs_140/examples/jsm/webxr/VRButton.js';
+import { GUI } from '../../../../../lib/threejs_158/examples/jsm/libs/lil-gui.module.min.js';
+import { VRButton } from '../../../../../lib/threejs_158/examples/jsm/webxr/VRButton.js';
 
 import HelperUtil from '../../../../../resources/js/helperUtil.js';
 
@@ -151,7 +151,7 @@ class App {
 		this._curve.geometry.dispose();
 		this._curve.geometry = new THREE.BufferGeometry().setFromPoints(this._curveGeometry.points);
 
-		this._tubeGeometry = new THREE.TubeBufferGeometry(
+		this._tubeGeometry = new THREE.TubeGeometry(
 			this._curveGeometry,
 			this._properties.tubeTubularSegments,
 			this._properties.tubeRadius,

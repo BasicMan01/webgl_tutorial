@@ -1,10 +1,11 @@
 import * as THREE from 'three';
 
-import { GUI } from '../../../../../../lib/threejs_140/examples/jsm/libs/lil-gui.module.min.js';
-import { OrbitControls } from '../../../../../../lib/threejs_140/examples/jsm/controls/OrbitControls.js';
-import { FBXLoader } from '../../../../../../lib/threejs_140/examples/jsm/loaders/FBXLoader.js';
+import { GUI } from '../../../../../../lib/threejs_158/examples/jsm/libs/lil-gui.module.min.js';
+import { OrbitControls } from '../../../../../../lib/threejs_158/examples/jsm/controls/OrbitControls.js';
+import { FBXLoader } from '../../../../../../lib/threejs_158/examples/jsm/loaders/FBXLoader.js';
 
 import RAPIER from 'https://cdn.skypack.dev/@dimforge/rapier3d-compat';
+
 
 document.addEventListener('DOMContentLoaded', () => {
 	(() => new App(document.getElementById('webGlCanvas')))();
@@ -17,7 +18,6 @@ class App {
 
 		this._axesHelper = null;
 		this._gridHelper = null;
-		this._ambientLight = null;
 		this._hemisphereLight = null;
 		this._directionalLight = null;
 
@@ -39,14 +39,12 @@ class App {
 			'gridHelperVisible': true,
 			'collisionHelperVisible': true,
 
-			'fbxModelMaterialColor': '#13566A',
+			'fbxModelMaterialColor': '#156289',
 			'fbxModelWireframe': false,
 
-			'ambientColor': '#303030',
-			'ambientIntensity': 0.3,
-			'hemisphereSkyColor': '#87CEFA',
+			'hemisphereSkyColor': '#FFFFFF',
 			'hemisphereGroundColor': '#303030',
-			'hemisphereIntensity': 0.8,
+			'hemisphereIntensity': 3.5,
 			'directionalColor': '#FFFFFF',
 			'directionalIntensity': 0.8,
 
@@ -68,7 +66,6 @@ class App {
 		this._camera.position.set(5, 2.5, 2.0);
 
 		this._renderer = new THREE.WebGLRenderer({antialias: true});
-		this._renderer.outputEncoding = THREE.sRGBEncoding;
 		this._renderer.setClearColor(0x000000, 1);
 		this._renderer.setPixelRatio(window.devicePixelRatio);
 		this._renderer.setSize(this._getCanvasWidth(), this._getCanvasHeight());
@@ -122,8 +119,6 @@ class App {
 		this._characterController.setMinSlopeSlideAngle(this._properties.characterMinSlideAngle * Math.PI / 180);
 		this._setAutoStep();
 		this._setSnapToGround();
-
-		console.log(this._characterController);
 	}
 
 	_setAutoStep() {
@@ -211,12 +206,6 @@ class App {
 	}
 
 	_createLight() {
-		this._ambientLight = new THREE.AmbientLight(
-			this._properties.ambientColor,
-			this._properties.ambientIntensity
-		);
-		this._scene.add(this._ambientLight);
-
 		this._hemisphereLight = new THREE.HemisphereLight(
 			this._properties.hemisphereSkyColor,
 			this._properties.hemisphereGroundColor,
@@ -258,10 +247,10 @@ class App {
 
 	_loadCharacter() {
 		this._fbxLoader.load('../../../../../resources/mesh/fbx/character/character.fbx', (object) => {
-			object.scale.setScalar(0.01);
-
 			this._character = object;
 			this._character.position.set(5, 0, 5);
+			this._character.scale.setScalar(0.01);
+			this._character.getObjectByName('Alpha_Surface').material.color.set(this._properties.fbxModelMaterialColor);
 
 			this._scene.add(this._character);
 

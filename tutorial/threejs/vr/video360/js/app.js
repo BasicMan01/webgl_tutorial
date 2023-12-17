@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
-import { DeviceOrientationControls } from '../../../../../lib/threejs_140/examples/jsm/controls/DeviceOrientationControls.js';
-import { VRButton } from '../../../../../lib/threejs_140/examples/jsm/webxr/VRButton.js';
+import { DeviceOrientationControls } from '../../../../../lib/threejs_158/examples/jsm/controls/DeviceOrientationControls.js';
+import { VRButton } from '../../../../../lib/threejs_158/examples/jsm/webxr/VRButton.js';
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -102,7 +102,7 @@ class App {
 	}
 
 	_getGeometry() {
-		const geometry = new THREE.SphereBufferGeometry(500, 60, 40);
+		const geometry = new THREE.SphereGeometry(500, 60, 40);
 
 		// invert the geometry on the x-axis so that all of the faces point inward
 		geometry.scale(-1, 1, 1);

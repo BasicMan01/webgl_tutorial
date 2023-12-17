@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 
-import { GUI } from '../../../../../lib/threejs_140/examples/jsm/libs/lil-gui.module.min.js';
-import { OrbitControls } from '../../../../../lib/threejs_140/examples/jsm/controls/OrbitControls.js';
-import { TextGeometry } from '../../../../../lib/threejs_140/examples/jsm/geometries/TextGeometry.js';
-import { FontLoader } from '../../../../../lib/threejs_140/examples/jsm/loaders/FontLoader.js';
+import { GUI } from '../../../../../lib/threejs_158/examples/jsm/libs/lil-gui.module.min.js';
+import { OrbitControls } from '../../../../../lib/threejs_158/examples/jsm/controls/OrbitControls.js';
+import { TextGeometry } from '../../../../../lib/threejs_158/examples/jsm/geometries/TextGeometry.js';
+import { FontLoader } from '../../../../../lib/threejs_158/examples/jsm/loaders/FontLoader.js';
 
 
 document.addEventListener('DOMContentLoaded', () => {

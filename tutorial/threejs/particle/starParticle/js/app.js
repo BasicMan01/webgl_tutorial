@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
-import { GUI } from '../../../../../lib/threejs_140/examples/jsm/libs/lil-gui.module.min.js';
-import { OrbitControls } from '../../../../../lib/threejs_140/examples/jsm/controls/OrbitControls.js';
+import { GUI } from '../../../../../lib/threejs_158/examples/jsm/libs/lil-gui.module.min.js';
+import { OrbitControls } from '../../../../../lib/threejs_158/examples/jsm/controls/OrbitControls.js';
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -89,9 +89,9 @@ class App {
 		for (let i = 0; i < this._properties.particleCount; ++i) {
 			// Random float from -range/2 to range/2 interval
 			points.push(new THREE.Vector3(
-				THREE.Math.randFloatSpread(50),
-				THREE.Math.randFloatSpread(50),
-				THREE.Math.randFloatSpread(50)
+				THREE.MathUtils.randFloatSpread(50),
+				THREE.MathUtils.randFloatSpread(50),
+				THREE.MathUtils.randFloatSpread(50)
 			));
 		}
 

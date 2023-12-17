@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { GUI } from '../../../../../lib/threejs_140/examples/jsm/libs/lil-gui.module.min.js';
+import { GUI } from '../../../../../lib/threejs_158/examples/jsm/libs/lil-gui.module.min.js';
 
 
 document.addEventListener('DOMContentLoaded', () => {

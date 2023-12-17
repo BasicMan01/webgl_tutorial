@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 
-import { GUI } from '../../../../../lib/threejs_140/examples/jsm/libs/lil-gui.module.min.js';
-import { OrbitControls } from '../../../../../lib/threejs_140/examples/jsm/controls/OrbitControls.js';
-import { FBXLoader } from '../../../../../lib/threejs_140/examples/jsm/loaders/FBXLoader.js';
+import { GUI } from '../../../../../lib/threejs_158/examples/jsm/libs/lil-gui.module.min.js';
+import { OrbitControls } from '../../../../../lib/threejs_158/examples/jsm/controls/OrbitControls.js';
+import { FBXLoader } from '../../../../../lib/threejs_158/examples/jsm/loaders/FBXLoader.js';
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -16,15 +16,16 @@ class App {
 
 		this._axesHelper = null;
 		this._gridHelper = null;
-		this._ambientLight = null;
+		this._hemisphereLight = null;
 		this._fbxModel = null;
 
 		this._properties = {
 			'axesHelperVisible': true,
 			'gridHelperVisible': true,
-			'ambientColor': '#FFFFFF',
-			'ambientIntensity': 1,
-			'fbxModelMaterialColor': '#FFFFFF',
+			'hemisphereSkyColor': '#FFFFFF',
+			'hemisphereGroundColor': '#303030',
+			'hemisphereIntensity': 3.5,
+			'fbxModelMaterialColor': '#E7E7E7',
 			'fbxModelPositionX': 0,
 			'fbxModelPositionY': 0,
 			'fbxModelPositionZ': 0,
@@ -43,7 +44,6 @@ class App {
 		this._camera.position.set(0, 10, 20);
 
 		this._renderer = new THREE.WebGLRenderer({antialias: true});
-		this._renderer.outputEncoding = THREE.sRGBEncoding;
 		this._renderer.setClearColor(0x000000, 1);
 		this._renderer.setPixelRatio(window.devicePixelRatio);
 		this._renderer.setSize(this._getCanvasWidth(), this._getCanvasHeight());
@@ -62,8 +62,6 @@ class App {
 		this._createGui();
 		this._createObject();
 		this._createLight();
-
-		this._render();
 	}
 
 	_createObject() {
@@ -78,8 +76,11 @@ class App {
 		fbxLoader.setResourcePath('../../../../resources/texture/');
 		fbxLoader.load('../../../../resources/mesh/fbx/cabinet.fbx', (object) => {
 			this._fbxModel = object;
+			this._fbxModel.getObjectByName('cabinet').material.color.set(this._properties.fbxModelMaterialColor);
 
 			this._scene.add(this._fbxModel);
+
+			this._render();
 		}, this._onProgress, this._onError);
 	}
 
@@ -136,11 +137,12 @@ class App {
 	}
 
 	_createLight() {
-		this._ambientLight = new THREE.AmbientLight(
-			this._properties.ambientColor,
-			this._properties.ambientIntensity
+		this._hemisphereLight = new THREE.HemisphereLight(
+			this._properties.hemisphereSkyColor,
+			this._properties.hemisphereGroundColor,
+			this._properties.hemisphereIntensity
 		);
-		this._scene.add(this._ambientLight);
+		this._scene.add(this._hemisphereLight);
 	}
 
 	_render() {

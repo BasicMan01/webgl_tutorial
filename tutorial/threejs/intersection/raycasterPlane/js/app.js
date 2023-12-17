@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 
-import { GUI } from '../../../../../lib/threejs_140/examples/jsm/libs/lil-gui.module.min.js';
-import { DeviceOrientationControls } from '../../../../../lib/threejs_140/examples/jsm/controls/DeviceOrientationControls.js';
-import { FirstPersonControls } from '../../../../../lib/threejs_140/examples/jsm/controls/FirstPersonControls.js';
+import { GUI } from '../../../../../lib/threejs_158/examples/jsm/libs/lil-gui.module.min.js';
+import { DeviceOrientationControls } from '../../../../../lib/threejs_158/examples/jsm/controls/DeviceOrientationControls.js';
+import { FirstPersonControls } from '../../../../../lib/threejs_158/examples/jsm/controls/FirstPersonControls.js';
 
 
 document.addEventListener('DOMContentLoaded', () => {

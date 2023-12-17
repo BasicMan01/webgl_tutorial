@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
-import { GUI } from '../../../../../lib/threejs_140/examples/jsm/libs/lil-gui.module.min.js';
-import { VRButton } from '../../../../../lib/threejs_140/examples/jsm/webxr/VRButton.js';
+import { GUI } from '../../../../../lib/threejs_158/examples/jsm/libs/lil-gui.module.min.js';
+import { VRButton } from '../../../../../lib/threejs_158/examples/jsm/webxr/VRButton.js';
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -154,7 +154,7 @@ class App {
 		let betaSin = 0;
 
 		if (this._deviceOrientationData !== null && this._deviceOrientationData.gamma) {
-			betaSin = Math.sin(THREE.Math.degToRad(this._deviceOrientationData.beta));
+			betaSin = Math.sin(THREE.MathUtils.degToRad(this._deviceOrientationData.beta));
 		}
 
 		this._cameraGroup.position.x += betaSin * clockDelta * 15;

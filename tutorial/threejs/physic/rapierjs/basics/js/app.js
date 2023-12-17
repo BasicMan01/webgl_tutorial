@@ -3,9 +3,9 @@
 
 import * as THREE from 'three';
 
-import { GUI } from '../../../../../../lib/threejs_140/examples/jsm/libs/lil-gui.module.min.js';
-import { OrbitControls } from '../../../../../../lib/threejs_140/examples/jsm/controls/OrbitControls.js';
-import { FBXLoader } from '../../../../../../lib/threejs_140/examples/jsm/loaders/FBXLoader.js';
+import { GUI } from '../../../../../../lib/threejs_158/examples/jsm/libs/lil-gui.module.min.js';
+import { OrbitControls } from '../../../../../../lib/threejs_158/examples/jsm/controls/OrbitControls.js';
+import { FBXLoader } from '../../../../../../lib/threejs_158/examples/jsm/loaders/FBXLoader.js';
 
 import RAPIER from 'https://cdn.skypack.dev/@dimforge/rapier3d-compat';
 
@@ -25,7 +25,6 @@ class App {
 		this._gridHelper = null;
 		this._debugHelper = null;
 
-		this._ambientLight = null;
 		this._hemisphereLight = null;
 		this._directionalLight = null;
 
@@ -51,11 +50,9 @@ class App {
 
 			'wireframeColor': '#FFFFFF',
 
-			'ambientColor': '#303030',
-			'ambientIntensity': 0.3,
-			'hemisphereSkyColor': '#87CEFA',
+			'hemisphereSkyColor': '#FFFFFF',
 			'hemisphereGroundColor': '#303030',
-			'hemisphereIntensity': 0.8,
+			'hemisphereIntensity': 3.5,
 			'directionalColor': '#FFFFFF',
 			'directionalIntensity': 0.8,
 
@@ -283,19 +280,13 @@ class App {
 		});
 
 		const folderLight = gui.addFolder('Light');
-		folderLight.addColor(this._properties, 'ambientColor').onChange((value) => {
-			this._ambientLight.color.set(value);
-		});
-		folderLight.add(this._properties, 'ambientIntensity', 0, 1).step(0.01).onChange((value) => {
-			this._ambientLight.intensity = value;
-		});
 		folderLight.addColor(this._properties, 'hemisphereSkyColor').onChange((value) => {
 			this._hemisphereLight.color.set(value);
 		});
 		folderLight.addColor(this._properties, 'hemisphereGroundColor').onChange((value) => {
 			this._hemisphereLight.groundColor.set(value);
 		});
-		folderLight.add(this._properties, 'hemisphereIntensity', 0, 1).step(0.01).onChange((value) => {
+		folderLight.add(this._properties, 'hemisphereIntensity', 0, 5).step(0.01).onChange((value) => {
 			this._hemisphereLight.intensity = value;
 		});
 		folderLight.addColor(this._properties, 'directionalColor').onChange((value) => {
@@ -348,12 +339,6 @@ class App {
 	}
 
 	_createLight() {
-		this._ambientLight = new THREE.AmbientLight(
-			this._properties.ambientColor,
-			this._properties.ambientIntensity
-		);
-		this._scene.add(this._ambientLight);
-
 		this._hemisphereLight = new THREE.HemisphereLight(
 			this._properties.hemisphereSkyColor,
 			this._properties.hemisphereGroundColor,
