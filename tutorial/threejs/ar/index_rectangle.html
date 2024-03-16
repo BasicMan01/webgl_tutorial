@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+	<script type="text/javascript" src="../../../lib/opencv_4_x/opencv.js"></script>
+
+    <video id="videoElement" width="640" height="480" autoplay></video>
+    <canvas id="canvas" width="640" height="480"></canvas>
+
+    <script type="text/javascript">
+		setTimeout(() => {
+			let video = document.getElementById("videoElement");
+			let canvas = document.getElementById("canvas");
+			let ctx = canvas.getContext("2d");
+			let searchImageLoaded = false;
+			let templateMat, grayTemplateMat;
+			let threshold = 0.5;
+			let scales = [0.5, 0.75, 1.0];
+
+			// Load the template image
+			let searchImage = new Image();
+			searchImage.src = "template.png";
+			searchImage.onload = function () {
+				searchImageLoaded = true;
+			};
+
+			function onOpenCvReady() {
+			navigator.mediaDevices
+				.getUserMedia({ video: true })
+				.then(function (stream) {
+				video.srcObject = stream;
+
+				// Process the video stream
+				setInterval(function () {
+					if (searchImageLoaded) {
+						// Capture the current frame from the video stream
+						ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+						let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+						let src = cv.matFromImageData(imageData);
+
+						// Convert the current frame to grayscale using OpenCV.js
+						let gray = new cv.Mat();
+						cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+
+						// Iterate over different scales of the template image
+						for (let i = 0; i < scales.length; i++) {
+							let scale = scales[i];
+
+							// Resize the template image
+							let scaledWidth = searchImage.width * scale;
+							let scaledHeight = searchImage.height * scale;
+
+							// Create a scaled canvas for the template image
+							let templateCanvas = document.createElement("canvas");
+							templateCanvas.width = scaledWidth;
+							templateCanvas.height = scaledHeight;
+							let templateCtx = templateCanvas.getContext("2d");
+							templateCtx.drawImage(searchImage, 0, 0, scaledWidth, scaledHeight);
+
+							// Convert the scaled template image to grayscale using OpenCV.js
+							let templateCvMat = cv.imread(templateCanvas);
+							let templateGrayCvMat = new cv.Mat();
+							cv.cvtColor(templateCvMat, templateGrayCvMat, cv.COLOR_RGBA2GRAY);
+
+							// Perform template matching
+							let result = new cv.Mat();
+							cv.matchTemplate(gray, templateGrayCvMat, result, cv.TM_CCOEFF_NORMED);
+
+							// Find the location of the best match
+							let minMaxLoc = cv.minMaxLoc(result);
+							let matchLoc = minMaxLoc.maxLoc;
+							let confidence = minMaxLoc.maxVal;
+
+							// Check if the confidence exceeds the threshold
+							if (confidence >= threshold) {
+								// Scale the matched location back to the original size
+								let x = matchLoc.x;
+								let y = matchLoc.y;
+								let width = templateGrayCvMat.cols;
+								let height = templateGrayCvMat.rows;
+								cv.rectangle(src, { x, y }, { x: x + width, y: y + height }, [255, 0, 0, 255], 2);
+							}
+
+							// Clean up
+							templateCvMat.delete();
+							templateGrayCvMat.delete();
+							result.delete();
+							}
+
+						// Display the processed video stream
+						cv.imshow(canvas, src);
+
+						// Clean up
+						gray.delete();
+						//result.delete();
+						src.delete();
+					}
+				}, 1000 / 30); // Process at 30 FPS
+				})
+				.catch(function (error) {
+				console.error("Error accessing the camera.", error);
+				});
+			}
+
+			onOpenCvReady();
+		}, 1000);
+    </script>
+  </body>
+</html>
