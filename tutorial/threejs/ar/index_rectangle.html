@@ -26,80 +26,86 @@
 			};
 
 			function onOpenCvReady() {
-			navigator.mediaDevices
-				.getUserMedia({ video: true })
-				.then(function (stream) {
-				video.srcObject = stream;
+				const constraints = {
+					audio: false,
+					video: {
+						facingMode: {
+							ideal: 'environment'
+						}
+					}
+				};
 
-				// Process the video stream
-				setInterval(function () {
-					if (searchImageLoaded) {
-						// Capture the current frame from the video stream
-						ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-						let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-						let src = cv.matFromImageData(imageData);
+				navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+					video.srcObject = stream;
 
-						// Convert the current frame to grayscale using OpenCV.js
-						let gray = new cv.Mat();
-						cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+					// Process the video stream
+					setInterval(function () {
+						if (searchImageLoaded) {
+							// Capture the current frame from the video stream
+							ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+							let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+							let src = cv.matFromImageData(imageData);
 
-						// Iterate over different scales of the template image
-						for (let i = 0; i < scales.length; i++) {
-							let scale = scales[i];
+							// Convert the current frame to grayscale using OpenCV.js
+							let gray = new cv.Mat();
+							cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
 
-							// Resize the template image
-							let scaledWidth = searchImage.width * scale;
-							let scaledHeight = searchImage.height * scale;
+							// Iterate over different scales of the template image
+							for (let i = 0; i < scales.length; i++) {
+								let scale = scales[i];
 
-							// Create a scaled canvas for the template image
-							let templateCanvas = document.createElement("canvas");
-							templateCanvas.width = scaledWidth;
-							templateCanvas.height = scaledHeight;
-							let templateCtx = templateCanvas.getContext("2d");
-							templateCtx.drawImage(searchImage, 0, 0, scaledWidth, scaledHeight);
+								// Resize the template image
+								let scaledWidth = searchImage.width * scale;
+								let scaledHeight = searchImage.height * scale;
 
-							// Convert the scaled template image to grayscale using OpenCV.js
-							let templateCvMat = cv.imread(templateCanvas);
-							let templateGrayCvMat = new cv.Mat();
-							cv.cvtColor(templateCvMat, templateGrayCvMat, cv.COLOR_RGBA2GRAY);
+								// Create a scaled canvas for the template image
+								let templateCanvas = document.createElement("canvas");
+								templateCanvas.width = scaledWidth;
+								templateCanvas.height = scaledHeight;
+								let templateCtx = templateCanvas.getContext("2d");
+								templateCtx.drawImage(searchImage, 0, 0, scaledWidth, scaledHeight);
 
-							// Perform template matching
-							let result = new cv.Mat();
-							cv.matchTemplate(gray, templateGrayCvMat, result, cv.TM_CCOEFF_NORMED);
+								// Convert the scaled template image to grayscale using OpenCV.js
+								let templateCvMat = cv.imread(templateCanvas);
+								let templateGrayCvMat = new cv.Mat();
+								cv.cvtColor(templateCvMat, templateGrayCvMat, cv.COLOR_RGBA2GRAY);
 
-							// Find the location of the best match
-							let minMaxLoc = cv.minMaxLoc(result);
-							let matchLoc = minMaxLoc.maxLoc;
-							let confidence = minMaxLoc.maxVal;
+								// Perform template matching
+								let result = new cv.Mat();
+								cv.matchTemplate(gray, templateGrayCvMat, result, cv.TM_CCOEFF_NORMED);
 
-							// Check if the confidence exceeds the threshold
-							if (confidence >= threshold) {
-								// Scale the matched location back to the original size
-								let x = matchLoc.x;
-								let y = matchLoc.y;
-								let width = templateGrayCvMat.cols;
-								let height = templateGrayCvMat.rows;
-								cv.rectangle(src, { x, y }, { x: x + width, y: y + height }, [255, 0, 0, 255], 2);
-							}
+								// Find the location of the best match
+								let minMaxLoc = cv.minMaxLoc(result);
+								let matchLoc = minMaxLoc.maxLoc;
+								let confidence = minMaxLoc.maxVal;
+
+								// Check if the confidence exceeds the threshold
+								if (confidence >= threshold) {
+									// Scale the matched location back to the original size
+									let x = matchLoc.x;
+									let y = matchLoc.y;
+									let width = templateGrayCvMat.cols;
+									let height = templateGrayCvMat.rows;
+									cv.rectangle(src, { x, y }, { x: x + width, y: y + height }, [255, 0, 0, 255], 2);
+								}
+
+								// Clean up
+								templateCvMat.delete();
+								templateGrayCvMat.delete();
+								result.delete();
+								}
+
+							// Display the processed video stream
+							cv.imshow(canvas, src);
 
 							// Clean up
-							templateCvMat.delete();
-							templateGrayCvMat.delete();
-							result.delete();
-							}
-
-						// Display the processed video stream
-						cv.imshow(canvas, src);
-
-						// Clean up
-						gray.delete();
-						//result.delete();
-						src.delete();
-					}
-				}, 1000 / 30); // Process at 30 FPS
-				})
-				.catch(function (error) {
-				console.error("Error accessing the camera.", error);
+							gray.delete();
+							//result.delete();
+							src.delete();
+						}
+					}, 1000 / 30); // Process at 30 FPS
+				}).catch(function (error) {
+					console.error("Error accessing the camera.", error);
 				});
 			}
 

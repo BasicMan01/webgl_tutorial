@@ -111,10 +111,16 @@ class App {
 	}
 
 	_initVideo() {
-		navigator.mediaDevices.getUserMedia({
+		const constraints = {
 			audio: false,
-			video: true
-		}).then((stream) => {
+			video: {
+				facingMode: {
+					ideal: 'environment'
+				}
+			}
+		};
+
+		navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
 			this._stream = stream;
 
 			if ("srcObject" in this._video) {
