@@ -19,9 +19,9 @@ class App {
 		this._sprite = null;
 
 		this._properties = {
-			'axesHelperVisible': true,
-			'gridHelperVisible': true,
-			'particleCount': 10000,
+			'axesHelperVisible': false,
+			'gridHelperVisible': false,
+			'particleCount': 30000,
 			'particleAlphaTest': 0.5,
 			'particleMaterialColor': '#156289',
 			'particleSizeAttenuation': false,
@@ -40,7 +40,7 @@ class App {
 		this._scene = new THREE.Scene();
 
 		this._camera = new THREE.PerspectiveCamera(70, this._getCameraAspect(), 0.1, 500);
-		this._camera.position.set(0, 10, 20);
+		this._camera.position.set(0, 10, 150);
 
 		this._renderer = new THREE.WebGLRenderer({antialias: true});
 		this._renderer.setClearColor(0x000000, 1);
@@ -68,9 +68,11 @@ class App {
 		this._sprite = new THREE.TextureLoader().load( "../../../../resources/texture/sprite/circle.png");
 
 		this._axesHelper = new THREE.AxesHelper(25);
+		this._axesHelper.visible = this._properties.axesHelperVisible;
 		this._scene.add(this._axesHelper);
 
 		this._gridHelper = new THREE.GridHelper(50, 50);
+		this._gridHelper.visible = this._properties.gridHelperVisible;
 		this._scene.add(this._gridHelper);
 
 		this._particles = new THREE.Points(
