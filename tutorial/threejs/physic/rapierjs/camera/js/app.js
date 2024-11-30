@@ -421,8 +421,8 @@ class App {
 			{ x: rayDirection.x, y: rayDirection.y, z: rayDirection.z }
 		);
 
-		// Use 4 to exclude Kinematic Collider
-		const hit = this._physicsWorld.castRay(ray, maxToi, solid, 4);
+		// Use 2 to exclude Kinematic Collider
+		const hit = this._physicsWorld.castRay(ray, maxToi, solid, 2);
 		if (hit != null) {
 			if (this._properties.cameraLinesVisible) {
 				this._drawLine(this._camera.position, this._character.position);
